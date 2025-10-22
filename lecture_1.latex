@@ -276,14 +276,80 @@ additional insecurity against known plaintext attacks. From $m$ and $c = Enc_k \
     secret, then $\left|\K\right| \geq \left|\M\right|$
 
     \begin{proof}[]
+        Let us assume that $\left|\K\right| < \left|\M\right|$, and then we will show that the scheme is not perfectly
+        secret. Let $M$ be the uniform distribution over $\M$, and fix some $m \in \M$. Let us also fix some $c \in \C$,
+        which is a possible encryption of $m$. Let \[
+            \M \left(c\right) \stackrel{def}{=} \left\{\hat{m} : \hat{m} = Dec_{\hat{k}} \left(c\right) \text{ for some
+            } \hat{k} \in \K\right\}
+        \]
+        Then $\left|\M \left(c\right)\right| \leq \left|\K\right|$. Thus, the assumption that $\left|\K\right| <
+        \left|\M\right|$ implies that $\left|\M \left(c\right)\right| < \left|\M\right|$. In particular, there exists
+        some $m^* \in \M : m^* \notin \M \left(c\right)$. This implies that \[
+            Pr \left[M = m^* : C = c\right] = 0 \ne \frac{1}{\left|\M\right|}  = Pr \left[M = m^*\right]
+        \]
+        and so the scheme is not perfectly secret.
     \end{proof}
 \end{theorem}
 
-\section{Limitations of perfect secrecy}%
-\label{sec:Limitations of perfect secrecy}
+\subsection{Characterising perfect secrecy}%
+\label{sub:Characterising perfect secrecy}
+\begin{theorem}[Shannon's theorem]
+    Let $\Pi$ be a symmetric key encryption scheme for which $\left|\K\right| = \left|\M\right| = \left|\C\right|$ %TODO
+
+    \begin{proof}[]
+    \end{proof}
+\end{theorem}
 
 
+\section{Tutorial}%
+\label{sec:Tutorial}
+Behold: Another definition of perfect secrecy:
+\begin{exercise}[Perfect secrecy]
+    For every encryption system $\Pi$, that has perfect secrecy: For every distribution $M$ on the plaintext space $\M$,
+    and for every 2 ciphertexts $c_0, c_1 \in \C$, it is true that \[
+        Pr \left[C = c_0\right] = Pr \left[C = c_1\right]
+    \]
 
+    \begin{proof}[Solution]
+        This is incorrect. 
+        Let \begin{gather*}
+            KeyGen : k \gets \left\{0, 1\right\}^l \\ 
+            Enc \left(k, m\right) : c = k \oplus m \| b \text{ here the double line indicates appending, and let b be 0
+            a third of the time} \\
+            Dec \left(c, k\right) : c \oplus k = m
+        \end{gather*}
+        % TODO
+    \end{proof}
+\end{exercise}
+
+\begin{exercise}
+    Given $\Pi$ that has perfect secrecy, distribution $M$ on $\M$. Let there be 2 messages $m_0, m_1 \in \M$. For every
+    $c \in \C$: 
+    \[ 
+        Pr \left[C = c | M = m_0\right] = Pr \left[C = c | M = m_1\right]
+    \]
+    \begin{proof}[Solution]
+        Correct: By using Bayes law:
+        \begin{align*}
+            Pr \left[C = c | M = m_0\right] &= Pr \left[C = c\right] \\ 
+            Pr \left[C = c | M = m_1\right] &= Pr \left[C = c\right]
+        \end{align*}
+        As required % TODO may be more left
+    \end{proof}
+\end{exercise}
+
+\begin{exercise}
+    Let us define $\hat{OTP}$, which is the same as OTP, but the keygen is defined as follows \[
+        KeyGen: k \gets \left\{0, 1\right\}^l \setminus \left\{0^l\right\}
+    \]
+    Is this secure?
+    \begin{proof}[Solution]
+        No. Let there be $M \gets \left\{0, 1\right\}^l$, and so \[
+            Pr \left[M = m | C = m\right] = 0 \ne \frac{1}{\left|M\right|} = Pr \left[M = m\right]
+        \]
+        when $M \gets \left\{0, 1\right\}^l$
+    \end{proof}
+\end{exercise}
 
 
 
