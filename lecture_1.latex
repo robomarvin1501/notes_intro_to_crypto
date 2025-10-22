@@ -43,6 +43,8 @@
 
 \begin{document}
 \maketitle
+\noindent\textbf{Notice:} If you find any mistakes, please open an issue at \href{https://github.com/robomarvin1501/notes\_algorithms\_computational\_biology}{\texttt{https://github.com/robomarvin1501/notes\_algorithms\_computational\_biology}}
+
 \section{Course overview}%
 \label{sec:Course overview}
 This is the second year of this format, before this it was the same name, but different format. 
@@ -57,11 +59,16 @@ $\to$ repair. We will focus on how one \textbf{breaks} this cycle. We will focus
 a radical change in the 20th century, where it became a science, and covers much more than secret communication. It is
 now consumed by everyone, and relies on rigorous models, definitions, and proofs. 
 
-So, to answer our question: The scientific study % TODO 1409
+So, to answer our question: The scientific study of techniques for designing systems that withstand adversarial
+behaviour.
 
 \subsection{Course objectives}%
 \label{sub:Course objectives}
-We want to introduce the basic paradigms, and principles of cryptography, and explore a variety of crypto % TODO
+We want to introduce the basic paradigms, principles of cryptography, and explore a variety of cryptographic tools
+and systems. We will learn how to reason about their security, and how to use them correctly. By the end of this course
+we will be educated crypto consumers, and know why it is dangerous to assume you are a \enquote{crypto expert} (spoiler,
+you're really really not. Do not \textbf{ever} roll your own crypto), and be able to learn more about cryptography on
+our own.
 
 Tentative structure: \begin{enumerate}
     \item Weeks 1 - 5: Private key cryptography 
@@ -70,7 +77,10 @@ Tentative structure: \begin{enumerate}
 \end{enumerate}
 
 We are recommended to read \begin{itemize}
-    \item J. Katz, and Y. Lindell's Introduction to Modern Cryptography  % TODO
+    \item J. Katz, and Y. Lindell's \textit{Introduction to Modern Cryptography}   
+    \item O. Goldreich \textit{Foundations of Cryptography - Volume 1: Basic tools} 
+    \item O. Goldreich \textit{Foundations of Cryptography - Volume 2: Basic applications} 
+    \item Coursera's \textit{\href{https://www.coursera.org/learn/cryptography}{Cryptography}} course by Professor Jonathan Katz 
 \end{itemize} 
 
 There will be somewhere between 3 and 5 homeworks, depending on how bothered the lecturer can be, and our final grade
@@ -171,7 +181,10 @@ There are a few attacks on encryption schemes: \begin{itemize}
 So, what does it mean to break an encryption scheme? Does it mean recovering the key? Recovering the plaintext?
 Recovering part of the plaintext? Not really any of these. Breaking an encryption scheme means learning anything
 \enquote{meaningful} about the plaintext? So, how do we define \enquote{meaningful}? We'll come back to that. \\ 
-An adversary's computational abilities % TODO
+We shall characterise an adversary's computational abilities as follows: \begin{itemize}
+    \item Typically (not always) run in probabilistic polynomial time (PPT)
+    \item Sometimes, we will say computationally unbounded
+\end{itemize}
 
 \section{Perfect secrecy}%
 \label{sec:Perfect secrecy}
@@ -294,10 +307,13 @@ additional insecurity against known plaintext attacks. From $m$ and $c = Enc_k \
 \subsection{Characterising perfect secrecy}%
 \label{sub:Characterising perfect secrecy}
 \begin{theorem}[Shannon's theorem]
-    Let $\Pi$ be a symmetric key encryption scheme for which $\left|\K\right| = \left|\M\right| = \left|\C\right|$ %TODO
-
-    \begin{proof}[]
-    \end{proof}
+    Let $\Pi$ be a symmetric key encryption scheme for which $\left|\K\right| = \left|\M\right| = \left|\C\right|$.
+    $\Pi$ is perfectly secret \textbf{if and only if} the following two conditions hold:
+    \begin{enumerate}
+        \item Every $k \in \K$ chosen by KeyGen is chosen with a probability of $\frac{1}{\left|\K\right|} $
+        \item For every $m \in \M$, and $c \in \C$, there exists exactly one $k \in \K$ such that $Enc_k \left(m\right)$
+            outputs $c$
+    \end{enumerate}
 \end{theorem}
 
 
@@ -314,11 +330,15 @@ Behold: Another definition of perfect secrecy:
         This is incorrect. 
         Let \begin{gather*}
             KeyGen : k \gets \left\{0, 1\right\}^l \\ 
-            Enc \left(k, m\right) : c = k \oplus m \| b \text{ here the double line indicates appending, and let b be 0
-            a third of the time} \\
-            Dec \left(c, k\right) : c \oplus k = m
+            \text{Let there be an additional bin } b = \begin{cases}
+                0, &\text{ with probability }\frac{1}{3} \\
+                1, &\text{ with probability }\frac{2}{3} \\
+            \end{cases}
+            Enc \left(k, m\right) : c = k \oplus m \| b \text{ here the double line indicates appending} \\
+            Dec \left(c, k\right) : c' \oplus k = m \text{ where } c' = c \text{ without } b
         \end{gather*}
-        % TODO
+        So, as we can see here, it does not hold that $Pr \left[C = c_0\right] = Pr \left[C = c_1\right]$, since
+        $\frac{2}{3} $rds of the ciphertexts will end with 1, and $\frac{1}{3} $ will end with 0.
     \end{proof}
 \end{exercise}
 
@@ -334,6 +354,7 @@ Behold: Another definition of perfect secrecy:
             Pr \left[C = c | M = m_0\right] &= Pr \left[C = c\right] \\ 
             Pr \left[C = c | M = m_1\right] &= Pr \left[C = c\right]
         \end{align*}
+        INCOMPLETE
         As required % TODO may be more left
     \end{proof}
 \end{exercise}
