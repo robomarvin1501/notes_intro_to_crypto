@@ -1,0 +1,185 @@
+\documentclass{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{blindtext}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[bookmarks=true]{hyperref}
+\usepackage{bookmark}
+\usepackage{bbm}
+\usepackage{wrapfig}
+\usepackage[autostyle=true]{csquotes}
+\graphicspath{ {./images/} }
+\usepackage[bottom=0.5cm, right=1.5cm, left=1.5cm, top=1.5cm]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{exercise}{Exercise}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}[section]
+
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\p}{\ensuremath{\mathbb{P}}}
+\newcommand{\E}{\ensuremath{\mathbb{E}}}
+\newcommand{\F}{\ensuremath{\mathcal{F}}}
+\newcommand{\1}{\ensuremath{\mathbbm{1}}}
+\newcommand{\B}{\ensuremath{\mathbbm{B}}}
+
+\title{Lecture 1}
+\author{Gidon Rosalki}
+\date{2025-10-22}
+
+
+\begin{document}
+\maketitle
+\section{Course overview}%
+\label{sec:Course overview}
+This is the second year of this format, before this it was the same name, but different format. 
+
+\subsection{What is cryptography?}%
+\label{sub:What is cryptography?}
+Cryptography is an ancient art, that for many years focused mainly on secret communication. For as long as humans have
+been communicating, we have wanted to be able to communicate in ways that hides the contents from people who are not
+meant to know it. The main consumers were military, and intelligence. It generally relied on creativity, and personal
+skill. From 500BC until the 20th century, there was a complete cycle of design $\to$ break $\to$ repair $\to$ break
+$\to$ repair. We will focus on how one \textbf{breaks} this cycle. We will focus on modern cryptography, which underwent
+a radical change in the 20th century, where it became a science, and covers much more than secret communication. It is
+now consumed by everyone, and relies on rigorous models, definitions, and proofs. 
+
+So, to answer our question: The scientific study % TODO 1409
+
+\subsection{Course objectives}%
+\label{sub:Course objectives}
+We want to introduce the basic paradigms, and principles of cryptography, and explore a variety of crypto % TODO
+
+Tentative structure: \begin{enumerate}
+    \item Weeks 1 - 5: Private key cryptography 
+    \item Weeks 6 - 10: Public key cryptography 
+    \item Weeks 11 - 13: Zero knowledge proofs and secret computation 
+\end{enumerate}
+
+We are recommended to read \begin{itemize}
+    \item J. Katz, and Y. Lindell's Introduction to Modern Cryptography  % TODO
+\end{itemize} 
+
+There will be somewhere between 3 and 5 homeworks, depending on how bothered the lecturer can be, and our final grade
+will be made up of 10\% the $n - 1$ best homeworks, and 90\% final exam.
+
+\section{Symmetric key encryption}%
+\label{sec:Symmetric key encryption}
+Let there be Alice, and Bob, located in different places, that want to communicate secretly. Eve will observe their
+communications. Our assumption is that Alice, and Bob, share a secret key, that is not known to Eve. This key is used
+for both encryption, and decryption. This key is some collection of bits, which may be used as described above. Let us
+formalise these concepts: 
+An encryption system includes three algorithms: \textit{KeyGen}, \textit{Enc}, \textit{Dec}. Let there be the key space
+$K$, plaintext / message space $M$, and ciphertext space $C$. 
+\begin{itemize}
+    \item The key generation algorithm KeyGen outputs a key $k \in K$
+    \item The encryption algorithm Enc takes a key $k \in K$, and a plaintext $m \in M$, and outputs a ciphertext $c \in
+        C$ 
+    \item Decryption algorithm Dec takes a key $k \in K$, and a ciphertext $c \in C$, and outputs a plaintext $m \in M$
+\end{itemize}
+\begin{align*}
+    k \gets KeyGen() \\ 
+    c \gets Enc_k \left(m\right) \\ 
+    m = Dec_k \left(c\right)
+\end{align*}
+In this course $\gets$ indicates randomised generation, and $=$ indicates deterministic generation.
+
+\subsection{Correctness}%
+\label{sub:Correctness}
+An encryption system is defined as correct if \[
+    \forall k \in K, m \in M\ Dec_k \left(Enc_k \left(m\right)\right) = m
+\]
+
+Kerckhoff's principle: All of KeyGen, Enc, and Dec are publicly known, and the only secret is the key $k$. A crypto
+system for whom the only security is the secrecy of the algorithms is not secure.
+
+\subsection{Caesar Cipher}%
+\label{sub:Caesar Cipher}
+Let there be: \begin{itemize}
+    \item KeyGen uniformly samples $k \gets \left\{0, \dots, 25\right\}$
+    \item $M = \left\{a, \dots, z\right\}^l$ and $C = \left\{A, \dots, Z\right\}^l$
+    \item Enc shifts each letter $k$ positions forward (wrapping around from z to a)
+    \item Dec performs the same wrapping shift, but backwards
+\end{itemize}
+
+This is \textbf{not} a secure cipher (shocking, I know). Why? There are only 26 possible keys. An important part of good
+ciphers is that $\left|K\right|$ must \textbf{not} allow an exhaustive search.
+
+\subsection{Substitution cipher}%
+\label{sub:Substitution cipher}
+Let there be: \begin{itemize}
+    \item KeyGen uniformly samples a permutation $k$ over $\left\{a, \dots, z\right\}$
+    \item $M = \left\{a, \dots, z\right\}^l$ and $C = \left\{A, \dots, Z\right\}^l$
+    \item Enc applies the permutation $k$ to each letter 
+    \item Dec applies the inverse permutation $k^{-1}$
+\end{itemize}
+This is not secure either (shocking, I know). Despite there being many more keys ($26!$), this is particularly
+susceptible to frequency analysis, where we use statistical patterns of the frequencies of different letters in the
+source language.
+
+\subsection{Vigenere cipher}%
+\label{sub:Vigenere cipher}
+Let there be: \begin{itemize}
+    \item KeyGen uniformly samples $k = k_0 \dots k_{t - 1} \gets \left\{0, \dots, 25\right\}^t$  
+    \item $M = \left\{a, \dots, z\right\}^l$ and $C = \left\{A, \dots, Z\right\}^l$
+    \item Enc shifts the $i$th letter $k_{i \mod t}$ positions forward
+    \item Dec applies the inverse shift
+\end{itemize}
+Not secure, it is trickier, but since the key is repeated, we can figure out the length of the key, and establish the
+different parts of the key through frequency analysis once more.
+
+
+\section{Historical ciphers}%
+\label{sec:Historical ciphers}
+There is a fascinating history of interesting, creative (and now broken) ideas. It was particularly influenced by world
+history (e.g. the cryptanalysis of the German enigma in World War 2). Creating a crypto system is very very hard. Trying
+to do so will probably result in one that is easily broken.
+
+\section{Basic principles of modern cryptography}%
+\label{sec:Basic principles of modern cryptography}
+Analysing the security pf a cryptographic system involves: \begin{enumerate}
+    \item Formalising a precise definition of security (security = computational ability $\times$ type of attack $\times$
+        notion of \enquote{break} )
+    \item Stating the underlying assumptions: Others will attempt to validate (or invalidate) your assumptions
+    \item Proving that the definition is satisfied given the assumptions. Despite this, schemes can still be broken.
+\end{enumerate}
+
+There are a few attacks on encryption schemes: \begin{itemize}
+    \item Known ciphertext attack: Eve may observe a challenge ciphertext $c^*$
+    \item Known plaintext attack: Eve learns pairs $\left(m, Enc_k \left(m\right)\right)$, and then observes a challenge
+        ciphertext $c^*$
+    \item Chosen plaintext attack (CPA): Eve learns airs $\left(m, Enc_k \left(m\right)\right)$ for messages $m$ of her
+        choice, then observes a challenge ciphertext $c^*$
+    \item Chosen ciphertext attack: (CCA) Eve learns pairs $\left(m, Enc_k \left(m\right)\right)$, for messages $m$ of
+        her choice, and pairs $\left(c, Dec_k \left(c\right)\right)$ for ciphertexts $c$ of her choice, and then
+        observes a challenge ciphertext $c^* \ne c$
+\end{itemize}
+
+So, what
+
+\section{Perfect secrecy}%
+\label{sec:Perfect secrecy}
+
+\section{One time pad}%
+\label{sec:One time pad}
+
+\section{Limitations of perfect secrecy}%
+\label{sec:Limitations of perfect secrecy}
+
+
+
+
+
+
+
+\end{document}
