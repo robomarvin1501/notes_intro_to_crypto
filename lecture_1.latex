@@ -22,6 +22,7 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{exercise}{Exercise}
 \newtheorem{example}{Example}
+\newtheorem{lemma}{Lemma}
 \newtheorem{definition}{Definition}[section]
 
 \newcommand{\R}{\ensuremath{\mathbb{R}}}
@@ -29,7 +30,9 @@
 \newcommand{\Z}{\ensuremath{\mathbb{Z}}}
 \newcommand{\p}{\ensuremath{\mathbb{P}}}
 \newcommand{\E}{\ensuremath{\mathbb{E}}}
-\newcommand{\F}{\ensuremath{\mathcal{F}}}
+\newcommand{\M}{\ensuremath{\mathcal{M}}}
+\newcommand{\C}{\ensuremath{\mathcal{C}}}
+\newcommand{\K}{\ensuremath{\mathcal{K}}}
 \newcommand{\1}{\ensuremath{\mathbbm{1}}}
 \newcommand{\B}{\ensuremath{\mathbbm{B}}}
 
@@ -80,12 +83,12 @@ communications. Our assumption is that Alice, and Bob, share a secret key, that 
 for both encryption, and decryption. This key is some collection of bits, which may be used as described above. Let us
 formalise these concepts: 
 An encryption system includes three algorithms: \textit{KeyGen}, \textit{Enc}, \textit{Dec}. Let there be the key space
-$K$, plaintext / message space $M$, and ciphertext space $C$. 
+$\K$, plaintext / message space $\M$, and ciphertext space $\C$. 
 \begin{itemize}
-    \item The key generation algorithm KeyGen outputs a key $k \in K$
-    \item The encryption algorithm Enc takes a key $k \in K$, and a plaintext $m \in M$, and outputs a ciphertext $c \in
-        C$ 
-    \item Decryption algorithm Dec takes a key $k \in K$, and a ciphertext $c \in C$, and outputs a plaintext $m \in M$
+    \item The key generation algorithm KeyGen outputs a key $k \in \K$
+    \item The encryption algorithm Enc takes a key $k \in \K$, and a plaintext $m \in \M$, and outputs a ciphertext $c \in
+        \C$ 
+    \item Decryption algorithm Dec takes a key $k \in \K$, and a ciphertext $c \in \C$, and outputs a plaintext $m \in \M$
 \end{itemize}
 \begin{align*}
     k \gets KeyGen() \\ 
@@ -97,7 +100,7 @@ In this course $\gets$ indicates randomised generation, and $=$ indicates determ
 \subsection{Correctness}%
 \label{sub:Correctness}
 An encryption system is defined as correct if \[
-    \forall k \in K, m \in M\ Dec_k \left(Enc_k \left(m\right)\right) = m
+    \forall k \in \K, m \in \M\ Dec_k \left(Enc_k \left(m\right)\right) = m
 \]
 
 Kerckhoff's principle: All of KeyGen, Enc, and Dec are publicly known, and the only secret is the key $k$. A crypto
@@ -165,13 +168,116 @@ There are a few attacks on encryption schemes: \begin{itemize}
         observes a challenge ciphertext $c^* \ne c$
 \end{itemize}
 
-So, what
+So, what does it mean to break an encryption scheme? Does it mean recovering the key? Recovering the plaintext?
+Recovering part of the plaintext? Not really any of these. Breaking an encryption scheme means learning anything
+\enquote{meaningful} about the plaintext? So, how do we define \enquote{meaningful}? We'll come back to that. \\ 
+An adversary's computational abilities % TODO
 
 \section{Perfect secrecy}%
 \label{sec:Perfect secrecy}
+Let (K:eyGen, Eng, Dec) be a symmetric key encryption scheme. Alice and Bob share a key $k \gets KeyGen()$. Eve knows an
+a-priori distribution $M$. Informally, perfect secrecy is that the ciphertext $c$ does not reveal \textit{any}
+information about the plaintext $m$.
+
+\begin{definition}[Perfect secrecy]
+    A symmetric key encryption scheme $\Pi = \left(KeyGen, Enc, Dec\right)$ is \textbf{perfectly secret} if for every
+    distribution over $M$, and for every $m \in \M$, and for every $c \in \C$ it holds that \[
+        Pr \left[M = m | C = c\right] = Pr \left[M = m\right]
+    \]
+    That is, the probability that some plaintext is the plaintext given the ciphertext, is the same as the probability
+    that some plaintext is the plaintext, with no priors.
+\end{definition}
+
+Consider a die. If I throw a die, the probability of guessing its result is $\frac{1}{6} $. The encryption system is
+perfect, if given an encrypted form of what number was thrown, the probability of knowing what number was thrown is
+still $\frac{1}{6} $. \\ 
+
+\begin{lemma}[]
+    A symmetric key encryption scheme $\Pi$ is perfectly secret \textbf{if and only if} for every distribution over $M$,
+    for every $m \in \M$, and for every $c \in \C$, it holds that \[
+        Pr \left[C = c | M = m\right] = Pr \left[C = c\right]
+    \]
+    I.e. the probability of a specific message encoding to a specific ciphertext is the same for every message in the
+    world.
+
+    \begin{proof}[]
+        Let there be a distribution over $M, m \in \M$, and $c \in \C$. Let us assume that \[
+            Pr \left[C = c | M = m\right] = Pr \left[C = c\right]
+        \]
+        therefore \begin{align*}
+            Pr \left[M = m | C = c\right] &= \frac{Pr \left[C = c | M = m\right] \cdot P \left[M = m\right]}{Pr \left[C
+            = c\right]}  \\ 
+            &= Pr \left[M = m\right]
+        \end{align*}    
+        The other direction is the exact same thing, uses bayes theorem, but swapping $M$ and $C$.
+    \end{proof}
+\end{lemma}
+
+\begin{lemma}[]
+    A symmetric key encryption scheme $\pi$ is perfectly secret \textbf{if and only if} for every distribution over
+    $\mathcal{m}$, for every $m_0, m_1 \in \mathcal{m}$ and for every $c \in \mathcal{c}$ it holds that \[
+        pr \left[c = c | m = m_0\right] = pr \left[c = c | m = m_1\right]
+    \]
+
+    \begin{proof}[]
+        % todo 32 / 15:24 (one direction is in homework, check what the chap said in the lecture)
+    \end{proof}
+\end{lemma}
+
+\begin{theorem}[]
+    The shift and substitution ciphers are \textbf{not perfectly secret} for plaintexts of length $l > 1$.
+
+    \begin{proof}[]
+        Shift cipher: \[
+            Pr \left[C = "AB" | M = "ab"\right] = \frac{1}{26} \ne 0 = Pr \left[C = "AB" | M = "aa"\right]
+        \]
+    \end{proof}
+\end{theorem}
 
 \section{One time pad}%
 \label{sec:One time pad}
+Created by Turing. \begin{itemize}
+    \item $\K = \M = \C = \left\{0, 1\right\}^l$
+    \item KeyGen uniformly samples $k \gets \left\{0, 1\right\}^l$
+    \item $Enc_k \left(m\right) = m \oplus k$
+    \item $Dec_k \left(c\right) = c \oplus k$
+\end{itemize}
+This is correct since: \begin{align*}
+    \forall k \in \K,\ m \in \M\ Dec_k \left(Enc_k \left[m\right]\right) = Dec_k \left[m \oplus k\right] = m \oplus k \oplus k
+    = m
+\end{align*}
+
+\begin{theorem}[Perfect secrecy]
+    The one time pad is perfectly secret for plaintexts of any length $l$
+
+    \begin{proof}[]
+        Let us fix $m_0, m_1 \in \M$, and $c \in \C$. We will prove that \[
+            Pr \left[C = c | M = m_0\right] = Pr \left[C = c | M = m_1\right]
+        \]
+        For each $b \in \left\{0, 1\right\}$ it holds that \begin{align*}
+            Pr \left[C = c | M = m_b\right] &= Pr \left[M \oplus K = c | M = m_b\right] \\
+                                            &= Pr \left[m_b \oplus K = c\right] \\
+                                            &= Pr \left[K = c \oplus m_b\right] \\ 
+                                            &= \frac{1}{2^l} 
+        \end{align*}
+        This is true for every $m_0, m_1$, and so is generalised, as is required.
+    \end{proof}
+\end{theorem}
+
+\subsection{Limitations of the one time pad}%
+\label{sub:Limitations of the one time pad}
+Keys have to be as long as the plaintexts, and so are very long. Additionally, there is \enquote{Two time} insecurity.
+Given $c = Enc_k \left(m\right)$ and $c' = Enc_k \left(m'\right)$, we can learn $c \oplus c' = m \oplus m'$. There is an
+additional insecurity against known plaintext attacks. From $m$ and $c = Enc_k \left(m\right)$ we can recover $k = m
+\oplus c$.
+
+\begin{theorem}[]
+    Let $\Pi$  be a symmetric encryption scheme, with key space $\K$, and message space $\M$. If $\Pi$ is perfectly
+    secret, then $\left|\K\right| \geq \left|\M\right|$
+
+    \begin{proof}[]
+    \end{proof}
+\end{theorem}
 
 \section{Limitations of perfect secrecy}%
 \label{sec:Limitations of perfect secrecy}
