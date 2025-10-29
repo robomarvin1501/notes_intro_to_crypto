@@ -285,20 +285,113 @@ So, given $k$, we generate $G \left(k\right)$, where $\left|G \left(k\right)\rig
                     \displaystyle\frac{1}{2}
                 \]
             \item Case 2: $z = G \left(k\right)$, where $k \gets \left\{0, 1\right\}^n$. $\mathcal{A}$'s view is
-                identical to the experiment $IND_{\Pi, \mathcal{A}}$ and so overall we constructed a PPT distinguisher
-                $\mathcal{D}$ such that \[
-                    \left|\p_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right)\right) = 1\right] - \p_{r
-                        \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[\mathcal{D} \left(r\right) = 1\right]\right| \geq
+                identical to the experiment $IND_{\Pi, \mathcal{A}}$ and so it is equivalent to trying to find if they
+                are distinguishable:
+                \[
+                    \p_{k \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(k\right)\right) = 1\right] = \p
+                    \left[IND_{\Pi, \mathcal{A}} \left(n\right) = 1\right] \geq \displaystyle\frac{1}{2} +
                     \displaystyle\frac{1}{p \left(n\right)}
                 \]
-                which contradicts the theorem that $G$ is a PRG.
         \end{itemize}
+        So overall we constructed a PPT distinguisher
+        $\mathcal{D}$ such that \[
+            \left|\p_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right)\right) = 1\right] - \p_{r
+                \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[\mathcal{D} \left(r\right) = 1\right]\right| \geq
+            \displaystyle\frac{1}{p \left(n\right)}
+        \]
+        which contradicts the theorem that $G$ is a PRG.
     \end{proof}
 \end{theorem}
+
+We have made significant progress, but we still have the problem that each key may only be used once.
 % section PRG-based OTP (end)
 
 \section{Indistinguishable encryptions revisited}\label{sec:indistinguishable_encryptions_revisited} % (fold)
+So far, this has enabled it to be infeasible to distinguish between $Enc_k \left(m_0\right)$ and $Enc_k
+\left(m_1\right)$, but can we learn information of $m$ from $Enc_k \left(m\right)$
 
+\begin{theorem}[Toy theorem]
+    Let $\Pi$ have indistinguishable encryptions. then, for any PPT adversary $\mathcal{B}$, there exists a negligible
+    function $v \left(\cdot\right)$ such that \[
+        \p \left[\mathcal{B} \left(1^n, Enc_k \left(m\right)\right) = LSB \left(m\right)\right] \leq
+        \displaystyle\frac{1}{2} + v \left(n\right)
+    \]
+    where $m \gets \left\{0, 1\right\}^{l \left(n\right)}$ is sampled uniformly
+    \begin{proof}[Proof by reduction]
+        Assume a contradiction that there exists a PPT adversary $\mathcal{B}$ and a polynomial $p \left(n\right)$ such
+        that \[
+            \p \left[\mathcal{B} \left(1^n, Enc_k \left(m\right)\right) = LSB \left(m\right)\right] \leq
+            \displaystyle\frac{1}{2} + \displaystyle\frac{1}{p \left(n\right)}
+        \]
+        for infinitely many $n$s. We then show that there exists a PPT adversary $\mathcal{A}$ and a polynomial $q
+        \left(n\right)$ such that \[
+            \p \left[IND_{\Pi, \mathcal{A}} \left(n\right) = 1\right] > \displaystyle\frac{1}{2} +
+            \displaystyle\frac{1}{q \left(n\right)}
+        \]
+        for infinitely many $n$s.
+
+
+        Behold the proof: For each $\sigma \in \left\{0, 1\right\}$, let $I_\sigma \subset \left\{0, 1\right\}^l$ be the
+        set of messages whose LSB is $\sigma$. We will create the adversary $\mathcal{A}$, which on input $1^n$ will
+        sample $m_0 \gets I_0$, and $m_1 \gets I_1$ uniformly and independently. On input $c^*$, it will output $b' = B
+        \left(1^n, c^*\right)$. In short, $\mathcal{A}$ creates 2 messages, receives the encrypted form of one of them,
+        and gives it to $\mathcal{B}$. If $\mathcal{B}$ correctly assumes the LSB, then we win, if not, we fail. \begin{align*}
+            \p \left[IND_{\Pi, \mathcal{A}} \left(n\right) = 1\right] &= \p \left[\mathcal{B} \left(1^n, Enc_k
+            \left(m_b\right)\right) = b\right] \\ 
+                                                                      &= \displaystyle\frac{1}{2} \p_{m_0 \gets I_0}
+                                                                      \left[\mathcal{B} \left(1^n, Enc_k
+                                                                      \left(m_0\right)\right) = 0\right] + \displaystyle\frac{1}{2} \p_{m_1 \gets I_1}
+                                                                      \left[\mathcal{B} \left(1^n, Enc_k
+                                                                      \left(m_1\right)\right) = 1\right] \\ 
+                                                                      &= \p_{m \gets \left\{0, 1\right\}^l}
+                                                                      \left[\mathcal{B} \left(1^n, Enc_k
+                                                                      \left(m\right)\right) = LSB(m)\right] \geq
+                                                                      \displaystyle\frac{1}{2} + \displaystyle\frac{1}{p
+                                                                      \left(n\right)}
+        \end{align*}
+    \end{proof}
+\end{theorem}
+
+\subsection{Semantic security}\label{sub:semantic_security} % (fold)
+Goldwasser-Micali in 1982: \enquote{Whatever}  can be computed efficiently, given the ciphertext, can essentially be
+computed efficiently without the ciphertext.
+
+\begin{definition}[Semantically secure]
+    $\Pi$ is \textbf{semantically secure} if for every adversary $\mathcal{A}$ there exists a PPT \enquote{simulator}
+    $\mathcal{S}$ such that for every efficiently sampleable plaintext distribution $M = \left\{M_n\right\}_{n \in \N}$,
+    and all polynomial-time computable functions $f$ and $h$, there exists a negligible function $v \left(\cdot\right)$
+    such that \[
+        \left|\p \left[\mathcal{A} \left(1^n, Enc_k \left(m\right), h \left(m\right)\right) = f \left(m\right)\right] -
+        \p \left[\mathcal{S} \left(1^n, h \left(m\right)\right) = f \left(m\right)\right]\right| \leq v \left(n\right)
+    \]
+    where $k \gets KeyGen \left(1^n\right)$ and $m \gets M_n$
+\end{definition}
+Or in other words, whatever you can learn from the encryption, can also be efficiently learnt \textit{without} the
+encryption, or most simply, the ciphertext teaches us \textbf{nothing}.
+
+\begin{theorem}[]
+    $\Pi$ is \textbf{semantically secure} \textbf{if and only if} it has \textbf{indistinguishable encryption}
+\end{theorem}
+
+Why do we need both notions? Well, semantic security explains \enquote{what security means}, where indistinguishability
+of encryption is \enquote{easier with which to work}. Since they are equivalent, we can use IE, to show semantic
+security.
+% subsection Semantic security (end)
+
+\subsection{One way functions}\label{sub:one_way_functions} % (fold)
+\begin{definition}[]
+    A \textit{polynomial-time} computable function $f: \left\{0, 1\right\}^* \to \left\{0, 1\right\}^*$ is \textbf{one
+    way} if for any PPT $A$ \[
+        \p_{y \gets f \left(U_n\right)} \left[A \left(1^n, y\right) \in f^{-1} \left(y\right)\right] \leq negligible \left(y\right)
+    \]
+\end{definition}
+In short, easy to compute, but hard to invert on a random image. 
+
+Informal theorem: One way functions are the basis for foundational cryptography. They are \textbf{complete} for private
+key cryptography (PRG $\Leftrightarrow$ OWF, as in, one can make PRGs from one way functions, and vice versa)
+% subsection One way functions (end)
 % section Indistinguishable encryptions revisited (end)
 
+Some recommended reading: J. Katz and Y. Lindell. Introduction to Modern Cryptography.
+Chapter 3 (Private-Key Encryption): 3.0 – 3.3
 \end{document}
