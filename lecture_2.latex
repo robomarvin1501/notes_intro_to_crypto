@@ -181,10 +181,120 @@ Our goal is to expand a short, random seed into a long \enquote{random looking} 
             \]
     \end{itemize}
 \end{definition}
+The notation $x \gets \left\{0, 1\right\}^m$ denotes that $x$ is sampled from the \textbf{uniform distribution} over
+$\left\{0, 1\right\}^m$ (so each value is obtained with the probability $\displaystyle\frac{1}{2^m}$)
+
+\subsection{Do PRGs even exist?}\label{sub:do_prgs_even_exist_} % (fold)
+If so, then how difficult is it to construct a PRG? Recall two properties: \begin{itemize}
+    \item Expansion: $\left|G \left(s\right)\right| > \left|s\right|$
+    \item Pseudorandomness: For every PPT $\mathcal{D}$, there exists a negligible $v \left(\cdot\right)$ such that: \[
+                \left|\p_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right)\right) = 1\right] -
+                \p_{r \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[\mathcal{D} \left(r\right) = 1\right]\right|
+                \leq v \left(n\right)
+        \]
+\end{itemize}
+
+Let us try. Consider the following candidates that expand a seed $s = s_1 \dots s_n \in \left\{0, 1\right\}^n$ by a
+single bit. Let us define \[
+    G \left(s\right) = s0
+\]
+Is it distinguishable from a truly random string? Yes. A truly random string may finish in 1, whereas this may not. 
+
+How about \[
+    G \left(s\right) = s_1 \dots s_n s_1
+\]
+It is distinguishable, since we can just check if we begin with the same bit as with which we started. 
+
+Finally: \[
+    G \left(s\right) = s_1 \dots s_n z\ :\ z = s_1 \oplus \dots \oplus s_n
+\]
+This is also distinguishable, since we can just check if the final bit is the xor of the bits before it. 
+
+The existance of any PRG implies $P \ne NP$. Constructions are known based on various computational assumptions. We have
+not created a PRG that may be proven to be such, since that would then prove that $P \ne NP$.
+
+\begin{theorem}[]
+    Let there be $G: \left\{0, 1\right\}^n \to \left\{0, 1\right\}^{2n}$. There exists $\mathcal{D}$ (not
+    computationally efficient) such that \[
+        \p_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right) = 1\right)\right] - \p_{r \gets
+        \left\{0, 1\right\}^{2n}} \left[\mathcal{D} \left(r\right) = 1\right] > \displaystyle\frac{1}{2}
+    \]
+    \begin{proof}[Proof ]
+        Where $\left|z\right| = 2n$, \begin{align*}
+            D \left(z\right) = Im \left(G\right) = \left\{l \in \left\{9, 1\right\}^{2n}\right\} : \exists
+            s\ G \left(s\right) = l
+        \end{align*}
+        Is it true that $z \in m \left(G\right)$, that may be distinguished? % TODO 1520 or so, on the blackboard
+    \end{proof}
+\end{theorem}
+
+Useful fact: All efficiently-testable statistical properties of the uniform distribution are preserved by the output of
+any PRG. For example: If $G$ is a PRG, then there exists a negligible function $v \left(\cdot\right)$ such that \[
+    \p_{s \gets \left\{0, 1\right\}^n} \left[\text{Fraction of 1s in } G \left(s <
+    \displaystyle\frac{1}{4}\right)\right] \leq v \left(n\right)
+\]
+% subsection Do PRGs even exist? (end)
 % section Pseudo-random generator (end)
 
 \section{PRG-based OTP}\label{sec:prg_based_otp} % (fold)
+Let us assume that there exists PRGs. Let $G$ be a PRG with expansion $l \left(n\right)$. $\K_n = \left\{0,
+1\right\}^n$, but $\M_n = \C_n = \left\{0, 1\right\}^{l \left(n\right)}$. $KeyGen \left(1^n\right)$ samples $k \gets
+\left\{0, 1\right\}^n$. $Enc_k \left(m\right) = m \oplus G \left(k\right)$, and $Dec_k \left(c\right) = c \oplus G
+\left(k\right)$.
 
+So, given $k$, we generate $G \left(k\right)$, where $\left|G \left(k\right)\right| > \left|k\right|$, and then $c = G
+\left(k\right) \oplus m$.
+
+\begin{theorem}[]
+    If $G$ is a PRG, then the scheme has indistinguishable encryptions. 
+
+    \begin{proof}[Proof ]
+        It's not perfect, the key is smaller than the messages, and we proved that the key must be the same length as
+        the messages. We shall prove by \textbf{reduction}: \begin{itemize}
+            \item Given an adversary $\mathcal{A}$, for the encryption scheme, construct a distinguisher $\mathcal{D}$
+                for the PRG 
+            \item $\mathcal{D}$ internally emulates $\mathcal{A}$
+            \item $\mathcal{D}$'s efficiency, and advantage are Polynomially related to $\mathcal{A}$'s
+        \end{itemize}
+        So in short, if $G$ is a PRG, then $\Pi$ has indistinguishable encryptions. We will prove by contradiction, by
+        assuming that $\Pi$ is not IE, and therefore $G$ is not a PRG (but we know this to be false, and thus have a
+        contradiction).
+
+        Behold, the actual proof: Let us assume that there exists a PPT adversary $\mathcal{A}$ and a polynomial $pp
+        \left(n\right)$ such that \[
+            \p \left[IND_{\Pi, \mathcal{A}} \left(n\right) = 1 \right] \geq \displaystyle\frac{1}{2} +
+            \displaystyle\frac{1}{p \left(n\right)}
+        \]
+        for infinitely many $n$s.
+
+        We will show that there exists a PPT distinguisher $\mathcal{D}$ and a polynomial $q \left(n\right)$, such that
+        \[
+            \left|\p_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right)\right) = 1\right] - \p_{r
+                \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[\mathcal{D} \left(r\right) = 1\right]\right| \geq
+            \displaystyle\frac{1}{q \left(n\right)}
+        \]
+        for infinitely many $n$s. Or in short, if there exists the adversary, then we can use it to construct the
+        distinguisher. \\ 
+        The distinguisher $\mathcal{D}$, on input $z$ invokes $\mathcal{A}$, and obtains $\left(m_0, m_1\right)$. It
+        samples $b \gets \left\{0, 1\right\}$, and let $b' = \mathcal{A} \left(z \oplus m_b\right)$. It then outputs
+        $1$ \textbf{if and only if} $b' = b$. \\ 
+        From here we get 2 cases: \begin{itemize}
+            \item Case 1: $z \gets \left\{0, 1\right\}^{l \left(n\right)}$. $\mathcal{A}$'s view is independent of $b$,
+                and so \[
+                    \p_{z \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[\mathcal{D} \left(z\right) = 1\right] =
+                    \displaystyle\frac{1}{2}
+                \]
+            \item Case 2: $z = G \left(k\right)$, where $k \gets \left\{0, 1\right\}^n$. $\mathcal{A}$'s view is
+                identical to the experiment $IND_{\Pi, \mathcal{A}}$ and so overall we constructed a PPT distinguisher
+                $\mathcal{D}$ such that \[
+                    \left|\p_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right)\right) = 1\right] - \p_{r
+                        \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[\mathcal{D} \left(r\right) = 1\right]\right| \geq
+                    \displaystyle\frac{1}{p \left(n\right)}
+                \]
+                which contradicts the theorem that $G$ is a PRG.
+        \end{itemize}
+    \end{proof}
+\end{theorem}
 % section PRG-based OTP (end)
 
 \section{Indistinguishable encryptions revisited}\label{sec:indistinguishable_encryptions_revisited} % (fold)
