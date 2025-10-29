@@ -168,7 +168,7 @@ Our goal is to expand a short, random seed into a long \enquote{random looking} 
 \enquote{Random looking} means \enquote{indistinguishable} from the uniform distribution.
 
 \begin{definition}[PRG]
-    Let $G: \left\{0, 1\right\}^l \to \left\{0, 1\right\}^l$ bea  polynomial-time computable function, and let $l
+    Let $G: \left\{0, 1\right\}^l \to \left\{0, 1\right\}^l$ be a polynomial-time computable function, and let $l
     \left(\cdot\right)$ be a polynomial such that for any input $s \in \left\{0, 1\right\}^n$, we have $G \left(s\right)
     \in \left\{0, 1\right\}^{l \left(n\right)}$. Then, $G$ is a \textbf{pseudorandom generator} if the following two
     conditions hold: \begin{itemize}
@@ -210,7 +210,7 @@ Finally: \[
 \]
 This is also distinguishable, since we can just check if the final bit is the xor of the bits before it. 
 
-The existance of any PRG implies $P \ne NP$. Constructions are known based on various computational assumptions. We have
+The existence of any PRG implies $P \ne NP$. Constructions are known based on various computational assumptions. We have
 not created a PRG that may be proven to be such, since that would then prove that $P \ne NP$.
 
 \begin{theorem}[]
@@ -221,10 +221,15 @@ not created a PRG that may be proven to be such, since that would then prove tha
     \]
     \begin{proof}[Proof ]
         Where $\left|z\right| = 2n$, \begin{align*}
-            D \left(z\right) = Im \left(G\right) = \left\{l \in \left\{9, 1\right\}^{2n}\right\} : \exists
-            s\ G \left(s\right) = l
+            D \left(z\right) = Im \left(G\right) = \left\{l \in \left\{0, 1\right\}^{2n} | \exists s\ |\ G
+            \left(s\right) = l\right\}
         \end{align*}
-        Is it true that $z \in m \left(G\right)$, that may be distinguished? % TODO 1520 or so, on the blackboard
+        We are asking if it is true that $z \in Im \left(G\right)$. If so, we will return $1$, and otherwise $0$. This
+        distinguisher works since \begin{gather*}
+            \p \left[D \left(G \left(s\right)\right) = 1\right] = 1 \\
+            \p \left[D \left(r\right) = 1\right] = \displaystyle\frac{\left|Im \left(G\right)\right|}{2^{2n}} \leq
+            \displaystyle\frac{1}{2^n}
+        \end{gather*}
     \end{proof}
 \end{theorem}
 
@@ -311,7 +316,7 @@ So far, this has enabled it to be infeasible to distinguish between $Enc_k \left
 \left(m_1\right)$, but can we learn information of $m$ from $Enc_k \left(m\right)$
 
 \begin{theorem}[Toy theorem]
-    Let $\Pi$ have indistinguishable encryptions. then, for any PPT adversary $\mathcal{B}$, there exists a negligible
+    Let $\Pi$ have indistinguishable encryptions. Then, for any PPT adversary $\mathcal{B}$, there exists a negligible
     function $v \left(\cdot\right)$ such that \[
         \p \left[\mathcal{B} \left(1^n, Enc_k \left(m\right)\right) = LSB \left(m\right)\right] \leq
         \displaystyle\frac{1}{2} + v \left(n\right)
