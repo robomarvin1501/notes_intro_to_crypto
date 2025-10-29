@@ -1,0 +1,194 @@
+\documentclass{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{blindtext}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[bookmarks=true]{hyperref}
+\usepackage{bookmark}
+\usepackage{bbm}
+\usepackage{wrapfig}
+\usepackage[autostyle=true]{csquotes}
+\graphicspath{ {./images/} }
+\usepackage[bottom=0.5cm, right=1.5cm, left=1.5cm, top=1.5cm]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{exercise}{Exercise}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}[section]
+
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\p}{\ensuremath{\mathbb{P}}}
+\newcommand{\E}{\ensuremath{\mathbb{E}}}
+\newcommand{\M}{\ensuremath{\mathcal{M}}}
+\newcommand{\C}{\ensuremath{\mathcal{C}}}
+\newcommand{\K}{\ensuremath{\mathcal{K}}}
+\newcommand{\1}{\ensuremath{\mathbbm{1}}}
+\newcommand{\B}{\ensuremath{\mathbbm{B}}}
+
+\title{Lecture 2 - Private key encryption}
+\author{Gidon Rosalki}
+\date{2025-10-29}
+
+
+\begin{document}
+\maketitle
+\section{Reminder}\label{sec:reminder} % (fold)
+Last week we discussed symmetric encryption, and perfect secrecy: \[
+    \p \left[M = m | C = c\right] = \p \left[M = m\right]
+\]
+which has the limitations of only considering security for a single message, and that the key must be as long as the
+message.
+% section Reminder (end)
+
+\section{Computational security}\label{sec:computational_security} % (fold)
+Computational security is that all the information is present, given $Enc_k \left(m\right)$ one may completely determine
+$k$ and $m$. It should be \textbf{computationally infeasible} to retrieve any useful information. Here we have two
+realistic relaxations compared to last week: \begin{enumerate}
+    \item Security is preserved only against \textbf{computationally bounded} adversaries (e.g. 2000 years using
+        currently technology)
+    \item Allow such adversaries to succeed with some \textit{negligible} probability (small enough that it will
+        essentially never happen)
+\end{enumerate}
+
+\subsection{Approaches}\label{sub:approaches} % (fold)
+\subsubsection{Concrete approach}\label{sec:concrete_approach} % (fold)
+
+\begin{definition}[]
+    A scheme is $\left(t, \varepsilon\right)$-secure if every adversary, running for time at most $t$ succeeds in breaking
+    the scheme with probability at most $\varepsilon$.
+\end{definition}
+
+We have some sample parameters of $t = 2^{60}$, which is the order of the number of seconds since the big bang, and
+$\varepsilon = 2^{-60}$, which is order of occurring once every 100 billion years. \\
+This is very useful in practice, and may be tailored to specific technology. However, in general we would like a notion
+of security that is essentially independent of the underlying technology. 
+
+% subsubsection Concrete approach (end)
+
+\subsubsection{Asymptotic approach}\label{sec:asymptotic_approach} % (fold)
+\begin{definition}[]
+    A scheme is secure if every \textbf{probabilistic polynomial-time} (PPT) adversary succeeds in breaking the scheme
+    with only \textbf{negligible} probability.
+\end{definition}
+
+\begin{definition}[PPT]
+    An algorithm $A$ runs in \textbf{probabilistic polynomial-time} if there exists a polynomial $p \left(\cdot\right)$
+    such that, for any input $x \in \left\{0, 1\right\}^*$, and a random tape $r \in \left\{0, 1\right\}^*$, the
+    computation of $A \left(x; r\right)$ terminates within $p \left(\left|x\right|\right)$ steps
+\end{definition}
+
+The security parameter: \begin{itemize}
+    \item KeyGen takes as input the security parameter $1^n$, and outputs $k \in \K_n$
+    \item Keys produced by $KeyGen \left(1^n\right)$ should provide security against adversaries whose running time is
+        polynomial in $n$ (so increasing $n$ provides better security)
+    \item $\K = \displaystyle\bigcup_{n \in \N}^{}\K_n,\ \M =\displaystyle\bigcup_{n \in \N}^{}\M_n,\ \C =
+        \displaystyle\bigcup_{n \in \N}^{}\C_n$
+\end{itemize}
+
+\begin{definition}[Negligible]
+    A function $f: \N \to \R^+$ is \textbf{negligible} if for every polynomial $p \left(\cdot\right)$ there exists an
+    $N$ such that $\forall n > N$, it holds that $f \left(n\right) < \displaystyle\frac{1}{p \left(n\right)}$
+\end{definition}
+
+For example, $2^{-n}, 2^{-\sqrt{n}}, 2^{-\log^2 \left(n\right)} $ are all negligible functions, where
+$\displaystyle\frac{1}{2}, \displaystyle\frac{1}{\log^2 \left(n\right)}, \displaystyle\frac{1}{n^5}$ are non negligible.
+
+\begin{theorem}[]
+    Let $v_1 \left(n\right), v_2 \left(n\right)$ be negligible functions. Then, for any positive polynomial $p
+    \left(n\right)$, the function $p \left(n\right) \cdot \left(v_1 \left(n\right) + v_2 \left(n\right)\right)$ is
+    negligible.
+
+    \begin{proof}[Proof ]
+        A negligible function is $\displaystyle\frac{1}{\hat{p}}$, where $\hat{p}$ is larger than every polynomial. As a
+        result, whatever we put in the numerator, will not impact our result. Therefore, the sum remains a negligible
+        function. Multiplying by a polynomial is like writing $\displaystyle\frac{1}{\frac{\hat{p}}{p}}$,
+        or subtracting in the powers: $n^{l - c}$, but since $l$ is asymptotically larger than all polynomials, we still
+        have a negligible function.
+    \end{proof}
+\end{theorem}
+
+So why these choices? \enquote{Efficient}: PPT, and \enquote{negligible}: smaller than any inverse polynomial. It is
+intuitively well-behaved under composition: \[
+    poly \left(n\right) \cdot poly \left(n\right) = poly \left(n\right)
+\]
+Polynomially many invocations of a PPT algorithm is still a PPT algorithm.
+\[
+    poly \left(n\right) \cdot negligible \left(n\right) = negligible \left(n\right)
+\]
+Polynomially many invocations of a PPT algorithm that succeeds with a negligible probability is an algorithm that
+succeeds with a negligible probability overall. 
+% subsubsection Asymptotic approach (end)
+% subsection Approaches (end)
+
+% section Computational security (end)
+
+\section{Indistinguishable encryptions}\label{sec:indistinguishable_encryptions} % (fold)
+The most basic notion of security for symmetric-key encryption: Encryptions of any two messages should be
+indistinguishable. The adversary still observes only a single ciphertext. \[
+    Enc_k \left(m_0\right) \approx Enc_k \left(m_1\right)
+\]
+This seems weaker compared to perfect secrecy. Perfectly-secure encryption reveals no information, so intuitively, what
+security does indistinguishable encryptions provide?
+
+Given $\Pi = \left(KeyGen, Enc, dec\right)$, and an adversary $\mathcal{A}$, consider the experiment $IND_{\Pi,
+\mathcal{A}} \left(n\right)$, where one of two plaintexts $m_0, m_1$ is encrypted by the system,
+and then $\mathcal{A}$ needs to figure out which plaintext it was from the returned ciphertext $c$. The system is
+indistinguishable if $\mathcal{A}$ cannot do better than a coin flip.
+\begin{definition}[Indistinguishable encryption]
+    $\Pi$ has indistinguishable encryption if for every PPT adversary $\mathcal{A}$ there eixsts a negligible function
+    $v \left(\cdot\right)$ such that \[
+        \p \left[IND_{\Pi, \mathcal{A}} \left(n\right) = 1\right] \leq \displaystyle\frac{1}{2} + v \left(n\right)
+    \]
+    where the probability is taken over the random coins used by $\mathcal{A}$, and by the experiment.
+\end{definition}
+
+Recall the one time pad: \begin{itemize}
+    \item $\K = \M = \C = \left\{0, 1\right\}^l$
+    \item KeyGen uniformly samples $k \gets \left\{0, 1\right\}^l$
+    \item $Enc_k \left(m\right) = m \oplus k$, and $Dec_k \left(c\right) = c \oplus k$
+\end{itemize}
+Perfectly secure since $\p \left[M = m | C = c\right] = \p \left[M = m\right]$, but requires the key $k$ to be as long
+as the message $m$. Way too long. Can we guarantee computational security with shorter keys?
+% section Indistinguishable encryptions (end)
+
+\section{Pseudo-random generator}\label{sec:pseudo_random_generator} % (fold)
+Our goal is to expand a short, random seed into a long \enquote{random looking} value: \[
+    G: \left\{0, 1\right\}^l \to \left\{0, 1\right\}^l
+\]
+\enquote{Random looking} means \enquote{indistinguishable} from the uniform distribution.
+
+\begin{definition}[PRG]
+    Let $G: \left\{0, 1\right\}^l \to \left\{0, 1\right\}^l$ bea  polynomial-time computable function, and let $l
+    \left(\cdot\right)$ be a polynomial such that for any input $s \in \left\{0, 1\right\}^n$, we have $G \left(s\right)
+    \in \left\{0, 1\right\}^{l \left(n\right)}$. Then, $G$ is a \textbf{pseudorandom generator} if the following two
+    conditions hold: \begin{itemize}
+        \item Expansion: $l \left(n\right) > n$
+        \item Pseudorandomness: For every PPT \enquote{distinguisher} $\mathcal{D}$, there exists a negligible function
+            $v \left(\cdot\right)$ such that \[
+                \left|\p_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right)\right) = 1\right] -
+                \p_{r \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[\mathcal{D} \left(r\right) = 1\right]\right|
+                \leq v \left(n\right)
+            \]
+    \end{itemize}
+\end{definition}
+% section Pseudo-random generator (end)
+
+\section{PRG-based OTP}\label{sec:prg_based_otp} % (fold)
+
+% section PRG-based OTP (end)
+
+\section{Indistinguishable encryptions revisited}\label{sec:indistinguishable_encryptions_revisited} % (fold)
+
+% section Indistinguishable encryptions revisited (end)
+
+\end{document}
