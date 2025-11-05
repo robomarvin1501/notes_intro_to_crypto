@@ -60,7 +60,7 @@ end of the semester.
     $l \left(n\right) > n$.
 \end{definition}
 PRGs enable that for every PPT $D$, there exists $\mathcal{V}$, a negligible function $\forall n$ such that \[
-    \left|\p_{s \gets \left\{0, 1\right\}^n} \left[ D \left(G \left(s\right)\right) = 1\right] - \p_{r \gets \left\{0,
+    \left|\Pr_{s \gets \left\{0, 1\right\}^n} \left[ D \left(G \left(s\right)\right) = 1\right] - \Pr_{r \gets \left\{0,
     1\right\}^{l \left(n\right)}} \left[D \left(r\right) = 1\right]\right| < \mathcal{V} \left(n\right)
 \]
 
@@ -68,17 +68,17 @@ PRGs enable that for every PPT $D$, there exists $\mathcal{V}$, a negligible fun
     Given a PRG $G$, such that $\forall n \in \N,\ s \in \left\{0, 1\right\}^n$ it holds that $G \left(s\right) \in
     \left\{0, 1\right\}^{l \left(n\right)}$ for some function $l : l \left(n\right) > n$. Show that there exists a
     negligible function $\mathcal{V} \left(\cdot\right)$ such that \[
-        \displaystyle\frac{1}{8} - \mathcal{V} \left(n\right) \leq \p_{s \gets \left\{0, 1\right\}^n} \left[G
+        \displaystyle\frac{1}{8} - \mathcal{V} \left(n\right) \leq \Pr_{s \gets \left\{0, 1\right\}^n} \left[G
         \left(s\right) \text{ starts with } 000\right] \leq \displaystyle\frac{1}{8} + \mathcal{V} \left(n\right)
     \]
 
     \begin{proof}[Solution]
-        Let us start by assuming the contradiction. Let there exist a polynomial $p$ and infinite $n$s, such that:
+        We prove by contradiction.  Assume there exists a polynomial $p \left(\cdot\right)$ such that for infinitely many $n$,
         \begin{gather*}
-            \p_{s \gets \left\{0, 1\right\}^n} \left[G \left(s\right) \text{ starts with } 000\right] >
+            \Pr_{s \gets \left\{0, 1\right\}^n} \left[G \left(s\right) \text{ starts with } 000\right] >
             \displaystyle\frac{1}{8} + \displaystyle\frac{1}{p \left(n\right)} \\
             \text{ or } \\
-            \p_{s \gets \left\{0, 1\right\}^n} \left[G \left(s\right) \text{ starts with } 000\right] <
+            \Pr_{s \gets \left\{0, 1\right\}^n} \left[G \left(s\right) \text{ starts with } 000\right] <
             \displaystyle\frac{1}{8} - \displaystyle\frac{1}{p \left(n\right)} \\
         \end{gather*}
         Without loss of generality, we will assume that the first inequality is true, for $p \left(\cdot\right)$, and
@@ -88,9 +88,31 @@ PRGs enable that for every PPT $D$, there exists $\mathcal{V}$, a negligible fun
                 0, &\text{ else } \\
             \end{cases}
         \]
-        We will note that $D$ is a PPT,  % TODO Complete the proof, question 1 from the tutorial
+        We will note that $D$ is a PPT. Since in a string of length $l \left(n\right)$, each bit is sampled randomly
+        from $\left\{0, 1\right\}$, we know that \[
+            \Pr_{r \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[r \text{ starts with } 000\right] =
+            \displaystyle\frac{1}{2^3} = \displaystyle\frac{1}{8}
+        \]
+        Now, $D$'s distinguishing advantage between random strings, and the output of $G$ may be calculated as follows:
+        By the definition of $D$, and according to the contradicting assumption, for enough values of $n \in \N$ it
+        holds that: \begin{align*}
+            \left|\Pr_{s \gets \left\{0, 1\right\}^n} \left[D \left(G \left(s\right)\right) = 1\right] - \Pr_{r \gets
+                \left\{0, 1\right\}}^{l \left(n\right)} \left[D \left(r\right) = 1\right]\right| &>
+                \left|\displaystyle\frac{1}{8} + \displaystyle\frac{1}{p \left(n\right)} -
+                \displaystyle\frac{1}{8}\right| \\ 
+                &\geq \displaystyle\frac{1}{p \left(n\right)}
+        \end{align*}
+        which contradicts the assumption that $G$ is a PRG.
     \end{proof}
 \end{exercise}
+We will note that in this proof we used 2 facts that are related to the start of the string beginning with $000$: \begin{enumerate}
+    \item This may be checked efficiently 
+    \item This property has a probability of $\displaystyle\frac{1}{8}$ of occurring, for a string that is chosen from a
+        uniform distribution
+\end{enumerate}
+Conclusion: Every feature on binary strings that can be efficiently tested exists for the output of a PRG with
+approximately the same probability as it exists in a string sampled from the uniform distribution (the difference
+between the probabilities is bounded b a negligible function).
 
 \begin{exercise}
     Let there be $G_1, G_2$ PRGs. We will define \[
@@ -108,10 +130,10 @@ PRGs enable that for every PPT $D$, there exists $\mathcal{V}$, a negligible fun
             \item Else, return 0
         \end{enumerate}
         For $G$, \[
-            \p \left[D \left(G \left(s\right)\right) = 1\right] = 1 
+            \Pr \left[D \left(G \left(s\right)\right) = 1\right] = 1 
         \]
         However, \[
-            \p \left[D \left(s\right) = 1\right] = \displaystyle\frac{1}{2^{\frac{n}{2}}}
+            \Pr \left[D \left(s\right) = 1\right] = \displaystyle\frac{1}{2^{\frac{n}{2}}}
         \]
         As a result, $G$ is \textbf{not} a PRG.
     \end{proof}
@@ -131,7 +153,7 @@ Let there be $\Pi = \left(KeyGen, Enc, Dec\right)$, an encryption system. For ev
 $IND_{\Pi, A} \left(n\right) = 1$ if $b' = b$. Otherwise, $IND_{\Pi, A} \left(n\right) = 0$. We will say that $\Pi$ is
 an indistinguishable encryption system if for every PPT function $A$, there exists a negligible function $v
 \left(\cdot\right)$, such that \[
-    \p \left[IND_{\Pi, A} \left(n\right) = 1\right] \leq \displaystyle\frac{1}{2} + v \left(n\right)
+    \Pr \left[IND_{\Pi, A} \left(n\right) = 1\right] \leq \displaystyle\frac{1}{2} + v \left(n\right)
 \]
 for every $n \in \N$. 
 
@@ -148,12 +170,12 @@ for every $n \in \N$.
     \begin{proof}[Solution]
         $G$ is necessarily a PRG. Let us assume the contradiction that it is not: There exists a PPT $D$, and there
         exists the polynomial $p \left(\cdot\right)$, such that \[
-            \left|\p_{s \gets \left\{0, 1\right\}^n} \left[ D \left(G \left(s\right)\right) = 1\right] - \p_{r \gets \left\{0,
+            \left|\Pr_{s \gets \left\{0, 1\right\}^n} \left[ D \left(G \left(s\right)\right) = 1\right] - \Pr_{r \gets \left\{0,
             1\right\}^{l \left(n\right)}} \left[D \left(r\right) = 1\right]\right| > \displaystyle\frac{1}{p \left(n\right)}
         \]
         In this case, it will hold that $\Pi$ is not IND-secure. Let us assume that there are infinite values of $n$,
         that enable the above inequality, but without the absolute value: \[
-            \p_{s \gets \left\{0, 1\right\}^n} \left[ D \left(G \left(s\right)\right) = 1\right] - \p_{r \gets \left\{0,
+            \Pr_{s \gets \left\{0, 1\right\}^n} \left[ D \left(G \left(s\right)\right) = 1\right] - \Pr_{r \gets \left\{0,
             1\right\}^{l \left(n\right)}} \left[D \left(r\right) = 1\right] > \displaystyle\frac{1}{p \left(n\right)}
         \]
         Let us consider the algorithm $A$ that partakes in the experiment $IND_{\Pi, A} \left(n\right)$, defined as
@@ -164,24 +186,24 @@ for every $n \in \N$.
         \end{enumerate}
         When $A$ returns 0, then it is also true that $c^* = G \left(k\right) \oplus m_0$ is distributed evenly over
         $\left\{0, 1\right\}^{l \left(n\right)}$. Therefore: \[
-            \p \left[IND_{\Pi, A} \left(n\right) = 1 | b = 0\right] = 1 - \p_{r \gets \left\{0, 1\right\}^{l
+            \Pr \left[IND_{\Pi, A} \left(n\right) = 1 | b = 0\right] = 1 - \Pr_{r \gets \left\{0, 1\right\}^{l
             \left(n\right)}} \left[D \left(r\right) = 1\right]
         \]
         Therefore, when $A$ returns $1$, it holds that $c^* = G \left(k\right) \oplus 0^{l \left(n\right)} = G
         \left(k\right)$, where $k \gets \left\{0, 1\right\}^n$. Therefore \[
-            \p \left[IND_{\Pi, A} \left(n\right) = 1 | b = 1\right] = \p_{s \gets \left\{0, 1\right\}^{n}} \left[D \left(r\right) = 1\right]
+            \Pr \left[IND_{\Pi, A} \left(n\right) = 1 | b = 1\right] = \Pr_{s \gets \left\{0, 1\right\}^{n}} \left[D \left(r\right) = 1\right]
         \]
         Overall, we get for infinite values of $n \in \N$, it holds that \begin{align*}
-            \p \left[IND_{\Pi, A} \left(n\right) = 1\right] &= \p \left[IND_{\Pi, A} \left(n\right) = 1 | b = 0\right]
-                \cdot \p \left[b = 0\right]  + \p \left[IND_{\Pi, A} \left(n\right) = 1 | b = 1\right] \cdot \p \left[b =
+            \Pr \left[IND_{\Pi, A} \left(n\right) = 1\right] &= \Pr \left[IND_{\Pi, A} \left(n\right) = 1 | b = 0\right]
+                \cdot \Pr \left[b = 0\right]  + \Pr \left[IND_{\Pi, A} \left(n\right) = 1 | b = 1\right] \cdot \Pr \left[b =
                 1\right] \\ 
-                                                            &= \p \left[D \left(G \left(\text{PRG}\right)\right) = 1\right] \cdot
-                                                            \displaystyle\frac{1}{2} + \left(1 - \p \left[D
+                                                            &= \Pr \left[D \left(G \left(\text{PRG}\right)\right) = 1\right] \cdot
+                                                            \displaystyle\frac{1}{2} + \left(1 - \Pr \left[D
                                                                 \left(\text{random}\right) = 0\right]\right) \cdot
                                                                 \displaystyle\frac{1}{2} \\
-                                                            &= \displaystyle\frac{1}{2} \left(\p_{s \gets \left\{0,
+                                                            &= \displaystyle\frac{1}{2} \left(\Pr_{s \gets \left\{0,
                                                                 1\right\}^n} \left[D \left(G \left(s\right)\right) = 1\right]
-                                                        + 1 - \p_{r \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[D
+                                                        + 1 - \Pr_{r \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[D
                                                     \left(r\right) = 1\right]\right) \\ 
                                                             &\geq \displaystyle\frac{1}{2} + \displaystyle\frac{1}{2 p
                                                             \left(n\right)} \\
@@ -189,12 +211,12 @@ for every $n \in \N$.
                                                             \left(n\right)}
         \end{align*}
         The final inequalities follows from our initial assumption: \[
-            \p_{s \gets \left\{0, 1\right\}^n} \left[ D \left(G \left(s\right)\right) = 1\right] - \p_{r \gets \left\{0,
+            \Pr_{s \gets \left\{0, 1\right\}^n} \left[ D \left(G \left(s\right)\right) = 1\right] - \Pr_{r \gets \left\{0,
             1\right\}^{l \left(n\right)}} \left[D \left(r\right) = 1\right] > \displaystyle\frac{1}{p \left(n\right)}
         \]
         This is a contradiction to the given that $\Pi$ is IND-secure. Therefore, $G$ is a PRG. If we consider the other
         direction for our assumption (because of the absolute value), as in: \[
-             \p_{r \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[D \left(r\right) = 1\right] -\p_{s \gets
+             \Pr_{r \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[D \left(r\right) = 1\right] -\Pr_{s \gets
              \left\{0, 1\right\}^n} \left[ D \left(G \left(s\right)\right) = 1\right] > \displaystyle\frac{1}{p
              \left(n\right)}
         \]
@@ -213,14 +235,65 @@ for every $n \in \N$.
     \end{enumerate}
     \begin{proof}[Solution]
         \begin{enumerate}
-            \item There exists a computable $f$, and PPT $D$ such that \[
-                    \p \left[D \left(f \left(x\right)\right) = 1\right] - \p \left[D \left(f \left(y\right)\right) =
-                    1\right] \geq \displaystyle\frac{1}{p \left(n\right)}
+            \item We will assume the contradiction that there exists a PPT function $f$, for which the distributions $f
+                \left(X\right)$ and $f \left(Y\right)$ are distinguishable. Then, there exists a PPT distinguisher $A$
+                such that for infinitely many $n$: \[
+                    \left|
+                        \Pr_{x \leftarrow X_n}[A(1^n, f(x)) = 1]
+                        -
+                        \Pr_{y \leftarrow Y_n}[A(1^n, f(y)) = 1]
+                    \right| > \frac{1}{p(n)}.
                 \]
-                We will make $D'$, that differentiates between $X, Y$: \begin{align*}
-                    D' \left(z \in \left\{x, y\right\}\right)
-                \end{align*}
-                So we will run % TODO
+                Let us define a new distinguisher $D \left(1^n, z\right) = A \left(1^n, f \left(z\right)\right)$. We
+                will note that since $A$ is a PPT, then so too is $D$. Therefore, for every $n \in \N$ it holds that:
+                \[
+                    \Pr_{x \gets X_n} \left[D \left(1^n, x\right)\right] = \Pr_{x \gets X_n} \left[A \left(1^n, f
+                    \left(x\right)\right) = 1\right]
+                \] 
+                and also \[
+                    \Pr_{y \gets Y_n} \left[D \left(1^n, y\right)\right] = \Pr_{y \gets Y_n} \left[A \left(1^n, f
+                    \left(y\right)\right) = 1\right]
+                \]
+                Therefore, for infinite values of $n \in \N$ \[
+                    \left|\Pr_{x \gets X_n} \left[D \left(1^n, x\right) = 1\right] - \Pr_{y \gets Y} \left[D \left(1^n,
+                    y\right) = 1\right]\right| > \displaystyle\frac{1}{p \left(n\right)}
+                \]
+                So $D$ is a PPT algorithm, that distinguishes between $X$ and $Y$, with non negligible probability
+                for infinite values of $n \in \N$, which is a contradiction to the assumption that these two
+                distributions are indistinguishable. 
+            \item It is not. Let there be $G$, a PRG, such that for every $n \in \N$, $G: \left\{0, 1\right\}^n \to
+                \left\{0, 1\right\}^{n  +1}$. We will look at the following example: \begin{itemize}
+                    \item $\forall n \in \N$ the distribution $X_n$ takes a random $s \gets \left\{0, 1\right\}^n$, and
+                        returns $G \left(s\right)$
+                    \item $\forall n \in \N$ the distribution $X_n$ takes a random $r \gets \left\{0, 1\right\}^{n +
+                        1}$, and returns $r$
+                    \item $\forall n \in \N$, given the input $y \in \left\{0, 1\right\}^{n + 1}$, the function $f$
+                        checks if $y$ is in the image of $G$ (as in, if there exists $s \in \left\{0, 1\right\}^n : y =
+                        G \left(s\right)$). If so, $f \left(y\right) = 1$, otherwise $f \left(y\right) = 0$
+                \end{itemize}
+                Firstly, we will note that since $G$ is a PRG, it holds that the distributions $X =
+                \left\{X_n\right\}_{n \in \N}$, and $Y = \left\{Y\right\}_{n \in \N}$ are indistinguishable. Now, we
+                will show that $f \left(X\right)$ and $f \left(Y\right)$ are distinguishable. Let there be $D$, an
+                algorithm that given input $\left(1^n, b\right)$, where $b \in \left\{0, 1\right\}$, returns the bit
+                $b$. For every $n \in \N$ it holds that: \begin{gather*}
+                    \left|\Pr_{x \gets X_n} \left[D \left(1^n, f \left(x\right)\right) = 1\right] - \Pr_{y \gets Y_n}
+                    \left[D \left(1^n, f \left(y\right) = 1\right)\right]\right| \\
+                    = \left|\Pr_{s \gets \left\{0,
+                    1\right\}^n} \left[D \left(1^n, f \left(G \left(s\right)\right)\right) = 1\right] - \Pr_{r \gets
+                    \left\{0, 1\right\}^{n + 1}} \left[D \left(1^n, f \left(r\right)\right) = 1\right]\right| \\ 
+                    = \left|\Pr_{s \gets \{0,1\}^{n + 1}} [D(1^n, 1) = 1]
+                       - \Pr_{r \gets \{0,1\}^{n + 1}} [r \in \mathrm{Image}(G)]
+                         \cdot \Pr_{r \gets \{0,1\}^{n + 1}} [D(1^n, f(r)) = 1 \mid r \in \mathrm{Image}(G)] \right.\\
+                    \quad \left.
+                       - \Pr_{r \gets \{0,1\}^{n + 1}} [r \notin \mathrm{Image}(G)]
+                         \cdot \Pr_{r \gets \{0,1\}^{n + 1}} [D(1^n, f(r)) = 1 \mid r \notin \mathrm{Image}(G)]
+                    \right| \\ 
+                    = \left|1 - \Pr_{r \gets \left\{0, 1\right\}^{n + 1}} \left[r \in Image \left(G\right)\right] \cdot
+                    1 - \Pr_{r \gets \left\{0, 1\right\}^{n + 1}} \left[r \notin Image \left(G\right)\right] \cdot
+                    0\right| \\ 
+                    = \left|1 - \displaystyle\frac{\left|Image \left(G\right)\right|}{2^{n + 1}}\right| \\ 
+                    \geq \displaystyle\frac{1}{2}
+                \end{gather*}
         \end{enumerate}
     \end{proof}
 \end{exercise}
