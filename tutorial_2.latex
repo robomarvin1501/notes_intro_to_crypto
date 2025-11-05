@@ -34,7 +34,7 @@
 \newcommand{\1}{\ensuremath{\mathbbm{1}}}
 \newcommand{\B}{\ensuremath{\mathbbm{B}}}
 
-\title{Lecture 3}
+\title{Tutorial 2}
 \author{Gidon Rosalki}
 \date{2025-11-05}
 
@@ -53,10 +53,8 @@ notes. We also defined \textit{one way functions}, which we will not use extensi
 end of the semester. 
 % section Recap (end)
 
-\section{Tutorial}\label{sec:tutorial} % (fold)
-This is a tutorial of IND, and semantic security. We will later on continue to subjects for this week. 
 
-\subsection{Pseudorandom Generators (PRGs)}\label{sub:pseudorandom_generators_prngs_} % (fold)
+\section{Pseudorandom Generators (PRGs)}\label{pseudorandom_generators_prngs_} % (fold)
 \begin{definition}[PRG]
     A PRG is a polytime computable function $G : \left\{0, 1\right\}^n \to \left\{0, 1\right\}^{l \left(n\right)}$ for
     $l \left(n\right) > n$.
@@ -118,9 +116,9 @@ PRGs enable that for every PPT $D$, there exists $\mathcal{V}$, a negligible fun
         As a result, $G$ is \textbf{not} a PRG.
     \end{proof}
 \end{exercise}
-% subsection Pseudorandom Generators (PRNGs) (end)
+% section Pseudorandom Generators (PRNGs) (end)
 
-\subsection{Indistinguishable proofs}\label{sub:indistinguishable_proofs} % (fold)
+\section{Indistinguishable proofs}\label{indistinguishable_proofs} % (fold)
 Let there be $\Pi = \left(KeyGen, Enc, Dec\right)$, an encryption system. For every algorithm $A$, and $\forall n \in
 \N$, we will define the experiment $IND_{\Pi, A} \left(n\right)$, as follows: \begin{enumerate}
     \item $k \gets KeyGen \left(1^n\right)$
