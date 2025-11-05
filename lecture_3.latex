@@ -167,23 +167,63 @@ for every $n \in \N$.
         When $A$ returns 0, then it is also true that $c^* = G \left(k\right) \oplus m_0$ is distributed evenly over
         $\left\{0, 1\right\}^{l \left(n\right)}$. Therefore: \[
             \p \left[IND_{\Pi, A} \left(n\right) = 1 | b = 0\right] = 1 - \p_{r \gets \left\{0, 1\right\}^{l
-            \left(n\right)} \left[D \left(r\right) = 1\right]}
+            \left(n\right)}} \left[D \left(r\right) = 1\right]
         \]
         Therefore, when $A$ returns $1$, it holds that $c^* = G \left(k\right) \oplus 0^{l \left(n\right)} = G
         \left(k\right)$, where $k \gets \left\{0, 1\right\}^n$. Therefore \[
-            \p \left[IND_{\Pi, A} \left(n\right) = 1 | b = 1\right] = \p_{s \gets \left\{0, 1\right\}^{n} \left[D \left(r\right) = 1\right]}
+            \p \left[IND_{\Pi, A} \left(n\right) = 1 | b = 1\right] = \p_{s \gets \left\{0, 1\right\}^{n}} \left[D \left(r\right) = 1\right]
         \]
         Overall, we get for infinite values of $n \in \N$, it holds that \begin{align*}
             \p \left[IND_{\Pi, A} \left(n\right) = 1\right] &= \p \left[IND_{\Pi, A} \left(n\right) = 1 | b = 0\right]
                 \cdot \p \left[b = 0\right]  + \p \left[IND_{\Pi, A} \left(n\right) = 1 | b = 1\right] \cdot \p \left[b =
                 1\right] \\ 
+                                                            &= \p \left[D \left(G \left(\text{PRG}\right)\right) = 1\right] \cdot
+                                                            \displaystyle\frac{1}{2} + \left(1 - \p \left[D
+                                                                \left(\text{random}\right) = 0\right]\right) \cdot
+                                                                \displaystyle\frac{1}{2} \\
                                                             &= \displaystyle\frac{1}{2} \left(\p_{s \gets \left\{0,
                                                                 1\right\}^n} \left[D \left(G \left(s\right)\right) = 1\right]
-                                                        + 1 - \p_{r \gets \left\{0, 1\right\}^{l \left(n\right)} \left[D
-                                                    \left(r\right) = 1\right]}\right) \\ 
+                                                        + 1 - \p_{r \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[D
+                                                    \left(r\right) = 1\right]\right) \\ 
                                                             &\geq \displaystyle\frac{1}{2} + \displaystyle\frac{1}{2 p
+                                                            \left(n\right)} \\
+                                                            &> \displaystyle\frac{1}{2} + \displaystyle\frac{1}{p'
                                                             \left(n\right)}
         \end{align*}
+        The final inequalities follows from our initial assumption: \[
+            \p_{s \gets \left\{0, 1\right\}^n} \left[ D \left(G \left(s\right)\right) = 1\right] - \p_{r \gets \left\{0,
+            1\right\}^{l \left(n\right)}} \left[D \left(r\right) = 1\right] > \displaystyle\frac{1}{p \left(n\right)}
+        \]
+        This is a contradiction to the given that $\Pi$ is IND-secure. Therefore, $G$ is a PRG. If we consider the other
+        direction for our assumption (because of the absolute value), as in: \[
+             \p_{r \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[D \left(r\right) = 1\right] -\p_{s \gets
+             \left\{0, 1\right\}^n} \left[ D \left(G \left(s\right)\right) = 1\right] > \displaystyle\frac{1}{p
+             \left(n\right)}
+        \]
+        Then we may use the same proof, but swapping $A$ to return the opposite of $D$, i.e., $D$ returns 0, $A$ returns
+        1. 
+    \end{proof}
+\end{exercise}
+
+\begin{exercise}
+    Let there be $X = \left\{X_n\right\}_{n \in \N}$ and $Y = \left\{Y_n\right\}_{n \in \N}$, efficiently computable
+    distributions that are computationally indistinguishable. \begin{enumerate}
+        \item Prove that for every PT function $f$, the distributions $f \left(Y\right) = \left\{f
+            \left(Y_n\right)\right\}_{n \in \N}$ and $f \left(X\right) = \left\{f \left(X_n\right)\right\}_{n \in \N}$
+            are computationally indistinguishable. 
+        \item Is the theorem in part 1 still true if $f$ is not PT?
+    \end{enumerate}
+    \begin{proof}[Solution]
+        \begin{enumerate}
+            \item There exists a computable $f$, and PPT $D$ such that \[
+                    \p \left[D \left(f \left(x\right)\right) = 1\right] - \p \left[D \left(f \left(y\right)\right) =
+                    1\right] \geq \displaystyle\frac{1}{p \left(n\right)}
+                \]
+                We will make $D'$, that differentiates between $X, Y$: \begin{align*}
+                    D' \left(z \in \left\{x, y\right\}\right)
+                \end{align*}
+                So we will run % TODO
+        \end{enumerate}
     \end{proof}
 \end{exercise}
 % section Tutorial (end)
