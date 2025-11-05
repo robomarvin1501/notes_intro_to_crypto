@@ -1,0 +1,105 @@
+\documentclass{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{blindtext}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[bookmarks=true]{hyperref}
+\usepackage{bookmark}
+\usepackage{bbm}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage[autostyle=true]{csquotes}
+\graphicspath{ {./images/} }
+\usepackage[bottom=0.5cm, right=1.5cm, left=1.5cm, top=1.5cm]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{exercise}{Exercise}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}[section]
+
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\p}{\ensuremath{\mathbb{P}}}
+\newcommand{\E}{\ensuremath{\mathbb{E}}}
+\newcommand{\F}{\ensuremath{\mathcal{F}}}
+\newcommand{\1}{\ensuremath{\mathbbm{1}}}
+\newcommand{\B}{\ensuremath{\mathbbm{B}}}
+
+\title{Lecture 3 - Private key encryption II}
+\author{Gidon Rosalki}
+\date{2025-11-05}
+
+
+\begin{document}
+\maketitle
+\section{Recap}%
+\label{sec:Recap}
+Last week we discussed computational secrecy, which includes indistinguishable encryptions, semantic security. To
+achieve this we used the tool of Pseudorandom Generators (PRGs), and investigated One time pads that use PRGs. These
+have short keys, but each key can still only be used once. 
+
+\section{Computational Indistinguishability}\label{sec:computational_indistinguishability} % (fold)
+Two probability distributions $X = \left\{X_n\right\}_{n \in \N}$ and $Y = \left\{Y_n\right\}_{n \in \N}$ are
+computationally indistinguishable if no \enquote{efficient} algorithm \enquote{can tell them apart}. \\ 
+
+\textbf{Example I (PRG G)}: \begin{align*}
+    X_n &= G \left(s\right) \text{ for } s \gets \left\{0, 1\right\}^n \\ 
+    Y_n &= \text{ uniform distribution over } \left\{0, 1\right\}^{l \left(n\right)}
+\end{align*}
+
+\textbf{Example II (IND-secure)}: Let $\Pi = \left(KeyGen, Enc, Dec\right)$: \begin{align*}
+    X_n &= Enc_k \left(000\right) \text{ for } k \gets KeyGen \left(1^n\right)
+    Y_n &= Enc_k \left(101\right) \text{ for } k \gets KeyGen \left(1^n\right)
+\end{align*}
+
+\begin{definition}[Computationally indistinguishable]
+    Two probability distributions $X = \left\{X_n\right\}_{n \in \N}$ and $Y = \left\{Y_n\right\}_{n \in \N}$ are
+    \textbf{computationally indistinguishable} if for every PPT distinguisher $D$ there exists a negligible function $v
+    \left(\cdot\right)$ such that \[
+        \left|\Pr_{x \gets X_n} \left[D \left(1^n, x\right) = 1\right] - \Pr_{y \gets Y_n} \left[D \left(1^n, y\right) =
+        1\right]\right| \leq v \left(n\right)
+    \]
+\end{definition}
+This is denoted as $X \approx^c Y$.
+
+\begin{theorem}[]
+    Let $G: \left\{0, 1\right\}^n \to \left\{0, 1\right\}^{4n}$ be a PRG, then $H \left(s_1, s_2\right) = G
+    \left(s_1\right) || G \left(s_2\right)$ is a PRG. 
+
+    \begin{proof}[Proof ]
+        Our paradigm for this kind of proof is \textit{reduction} via a \textit{hybrid argument}. \\ 
+        \textbf{Reduction}: Given a distinguisher $D$, for $H$, construct a distinguisher $A$ for $G$. \\ 
+        \textbf{Hybrid argument}: Let us suppose that between $G \left(s_1\right), G \left(s_2\right)$ $D$ has
+        advantage $\varepsilon$. Let us create a new PRG, that given $s_1, s_2$, ignores $s_2$, and returns $G
+        \left(s_1\right), r_2$. So, between $G \left(s_1\right), G \left(s_2\right)$ and $G \left(s_1\right), r_2$, it
+        holds that $D$ has at least the advantage $\displaystyle\frac{\varepsilon}{2}$, or between $G \left(s_1\right),
+        r_2$ and $r_1, r_2$ it holds that $D$ has the advantage of at least $\displaystyle\frac{\varepsilon}{2}$. So:
+        \begin{align*}
+            \varepsilon &\leq \left|\p \left[D \left(G \left(s_1\right) || G \left(s_2\right)\right) = 1\right] - \p
+            \left[D \left(r_1 || r_2\right) = 1\right]\right| \\ 
+                        &\leq \left|\p \left[D \left(G \left(s_1\right) || G \left(s_2\right)\right) = 1\right] - \p
+                        \left[D \left(G \left(s_1\right) || r_2\right) = 1\right]\right| + \left|\p \left[D \left(G
+                        \left(s_1\right) || r_2\right) = 1\right] - \p \left[D \left(r_1 || r_2\right) = 1\right]\right|
+        \end{align*}
+
+        Let us define $A$, which on input $z \in \left\{0, 1\right\}^{4n}$ with sample $s_1 \gets \left\{0,
+        1\right\}^{n}$ and output $D \left(G \left(s_1\right) || z\right)$. In this case, we have created an adversary
+        that distinguishes between the first 2 cases based off the difference of $G \left(s_2\right)$ and $r_2$. We may
+        similarly create a second adversary that performs the same, and outputs $D \left(Z || r_2\right)$. Since
+        \textit{one} of these transitions must be distinguishable with an advantage of at least
+        $\displaystyle\frac{\varepsilon}{2}$, we have found an adversary $A$ for $G$, which is a contradiction to the
+        given that $G$ is a PRG.
+    \end{proof}
+\end{theorem}
+% section Computational Indistinguishability (end)
+
+\end{document}
