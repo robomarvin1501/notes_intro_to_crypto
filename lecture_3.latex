@@ -1,0 +1,192 @@
+\documentclass{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{blindtext}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[bookmarks=true]{hyperref}
+\usepackage{bookmark}
+\usepackage{bbm}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage[autostyle=true]{csquotes}
+\graphicspath{ {./images/} }
+\usepackage[bottom=0.5cm, right=1.5cm, left=1.5cm, top=1.5cm]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{exercise}{Exercise}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}[section]
+
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\p}{\ensuremath{\mathbb{P}}}
+\newcommand{\E}{\ensuremath{\mathbb{E}}}
+\newcommand{\F}{\ensuremath{\mathcal{F}}}
+\newcommand{\1}{\ensuremath{\mathbbm{1}}}
+\newcommand{\B}{\ensuremath{\mathbbm{B}}}
+
+\title{Lecture 3}
+\author{Gidon Rosalki}
+\date{2025-11-05}
+
+
+\begin{document}
+\maketitle
+\section{Recap}\label{sec:recap} % (fold)
+So far, we have discussed \textit{perfect secrecy}, and demonstrated its requirements, along with methods such as the
+one time pad. It came with the significant drawbacks of each key having to be single use, and it needing exceedingly
+large keys (at least the length of the plaintext). We went on to discuss a slight reduction of the security provided by
+this with \textit{indistinguishable encryption} (IND), which makes use of pseudo random generators, that take a smaller
+key, and output a much larger pseudo random output. This can be used with a one time pad, thus allowing shorter keys,
+but each key can still only be used once. \\ 
+We also defined \textit{semantic security}, a powerful mathematical definition that should be reviewed in last weeks
+notes. We also defined \textit{one way functions}, which we will not use extensively, but may well return to come the
+end of the semester. 
+% section Recap (end)
+
+\section{Tutorial}\label{sec:tutorial} % (fold)
+This is a tutorial of IND, and semantic security. We will later on continue to subjects for this week. 
+
+\subsection{Pseudorandom Generators (PRGs)}\label{sub:pseudorandom_generators_prngs_} % (fold)
+\begin{definition}[PRG]
+    A PRG is a polytime computable function $G : \left\{0, 1\right\}^n \to \left\{0, 1\right\}^{l \left(n\right)}$ for
+    $l \left(n\right) > n$.
+\end{definition}
+PRGs enable that for every PPT $D$, there exists $\mathcal{V}$, a negligible function $\forall n$ such that \[
+    \left|\p_{s \gets \left\{0, 1\right\}^n} \left[ D \left(G \left(s\right)\right) = 1\right] - \p_{r \gets \left\{0,
+    1\right\}^{l \left(n\right)}} \left[D \left(r\right) = 1\right]\right| < \mathcal{V} \left(n\right)
+\]
+
+\begin{exercise}
+    Given a PRG $G$, such that $\forall n \in \N,\ s \in \left\{0, 1\right\}^n$ it holds that $G \left(s\right) \in
+    \left\{0, 1\right\}^{l \left(n\right)}$ for some function $l : l \left(n\right) > n$. Show that there exists a
+    negligible function $\mathcal{V} \left(\cdot\right)$ such that \[
+        \displaystyle\frac{1}{8} - \mathcal{V} \left(n\right) \leq \p_{s \gets \left\{0, 1\right\}^n} \left[G
+        \left(s\right) \text{ starts with } 000\right] \leq \displaystyle\frac{1}{8} + \mathcal{V} \left(n\right)
+    \]
+
+    \begin{proof}[Solution]
+        Let us start by assuming the contradiction. Let there exist a polynomial $p$ and infinite $n$s, such that:
+        \begin{gather*}
+            \p_{s \gets \left\{0, 1\right\}^n} \left[G \left(s\right) \text{ starts with } 000\right] >
+            \displaystyle\frac{1}{8} + \displaystyle\frac{1}{p \left(n\right)} \\
+            \text{ or } \\
+            \p_{s \gets \left\{0, 1\right\}^n} \left[G \left(s\right) \text{ starts with } 000\right] <
+            \displaystyle\frac{1}{8} - \displaystyle\frac{1}{p \left(n\right)} \\
+        \end{gather*}
+        Without loss of generality, we will assume that the first inequality is true, for $p \left(\cdot\right)$, and
+        infinite $n$s. We will construct a distinguisher $D$, such that \[
+            D \left(y \in \left\{0, 1\right\}^*\right) = \begin{cases}
+                1, &\text{ if } y \text{ starts with }000 \\
+                0, &\text{ else } \\
+            \end{cases}
+        \]
+        We will note that $D$ is a PPT,  % TODO Complete the proof, question 1 from the tutorial
+    \end{proof}
+\end{exercise}
+
+\begin{exercise}
+    Let there be $G_1, G_2$ PRGs. We will define \[
+        G \left(s\right) = G_1 \left(s\right) || G_2 \left(s\right)
+    \]
+    Where the double line is string joining. Prove or disprove that $G$ is a PRG.
+    \begin{proof}[Solution]
+        This is not the case. Consider the case where $G_1 = G_2$. In this case, the output of $G$ will not be
+        pseudorandom, since we can construct a distinguisher that checks if the first half of the string is equal to the
+        second half: \\ 
+        More formally, let there be $H = G_1 = G_2$. Therefore, $G \left(s\right) = H \left(s\right) || H
+        \left(s\right)$. We can theorise that for all $H$, $G$ is not a PRG. Let us construct $D \left(z\right)$: \begin{enumerate}
+            \item Check if the first and second half are the same. 
+            \item If yes, return 1 
+            \item Else, return 0
+        \end{enumerate}
+        For $G$, \[
+            \p \left[D \left(G \left(s\right)\right) = 1\right] = 1 
+        \]
+        However, \[
+            \p \left[D \left(s\right) = 1\right] = \displaystyle\frac{1}{2^{\frac{n}{2}}}
+        \]
+        As a result, $G$ is \textbf{not} a PRG.
+    \end{proof}
+\end{exercise}
+% subsection Pseudorandom Generators (PRNGs) (end)
+
+\subsection{Indistinguishable proofs}\label{sub:indistinguishable_proofs} % (fold)
+Let there be $\Pi = \left(KeyGen, Enc, Dec\right)$, an encryption system. For every algorithm $A$, and $\forall n \in
+\N$, we will define the experiment $IND_{\Pi, A} \left(n\right)$, as follows: \begin{enumerate}
+    \item $k \gets KeyGen \left(1^n\right)$
+    \item $A$ receives $1^n$ as input, and outputs a pair of messages $\left(m_0, m_1\right)$
+    \item $b \gets \left\{0, 1\right\}$, and we compute $c^* \gets Enc_k \left(m_b\right)$, and pass $c^*$ to $A$
+    \item $A$ returns $b' \in \left\{0, 1\right\}$
+\end{enumerate}
+
+% subsection Indistinguishable proofs (end)
+$IND_{\Pi, A} \left(n\right) = 1$ if $b' = b$. Otherwise, $IND_{\Pi, A} \left(n\right) = 0$. We will say that $\Pi$ is
+an indistinguishable encryption system if for every PPT function $A$, there exists a negligible function $v
+\left(\cdot\right)$, such that \[
+    \p \left[IND_{\Pi, A} \left(n\right) = 1\right] \leq \displaystyle\frac{1}{2} + v \left(n\right)
+\]
+for every $n \in \N$. 
+
+\begin{exercise}
+    Let there be $l \left(n\right) : \forall n \in \N\ l \left(n\right) > n$. Let there be a determinstic PT $G$, such
+    that for all $n \in \N$, and for all $s \in \left\{0, 1\right\}^n$, it holds that $G \left(s\right) \in \left\{0,
+    1\right\}^{l \left(n\right)}$. We will consider the system $\Pi = \left(KeyGen, Enc, Dec\right)$, defined as
+    follows: \begin{enumerate}
+        \item $k \gets KeyGen \left(1^n\right)$
+        \item $Enc_k \left(m\right) \implies c = G \left(k\right) \oplus m$
+        \item $Dec_k \left(c\right) \implies m = c \oplus G \left(k\right)$
+    \end{enumerate}
+    It is given that $\Pi$ is IND-secure. Is $G$ necessarily a PRG? 
+    \begin{proof}[Solution]
+        $G$ is necessarily a PRG. Let us assume the contradiction that it is not: There exists a PPT $D$, and there
+        exists the polynomial $p \left(\cdot\right)$, such that \[
+            \left|\p_{s \gets \left\{0, 1\right\}^n} \left[ D \left(G \left(s\right)\right) = 1\right] - \p_{r \gets \left\{0,
+            1\right\}^{l \left(n\right)}} \left[D \left(r\right) = 1\right]\right| > \displaystyle\frac{1}{p \left(n\right)}
+        \]
+        In this case, it will hold that $\Pi$ is not IND-secure. Let us assume that there are infinite values of $n$,
+        that enable the above inequality, but without the absolute value: \[
+            \p_{s \gets \left\{0, 1\right\}^n} \left[ D \left(G \left(s\right)\right) = 1\right] - \p_{r \gets \left\{0,
+            1\right\}^{l \left(n\right)}} \left[D \left(r\right) = 1\right] > \displaystyle\frac{1}{p \left(n\right)}
+        \]
+        Let us consider the algorithm $A$ that partakes in the experiment $IND_{\Pi, A} \left(n\right)$, defined as
+        follows: \begin{enumerate}
+            \item A generates $m_0 \gets \left\{0, 1\right\}^{l \left(n\right)}$, and $m_1 \gets 0^{l \left(n\right)}$. 
+            \item $A$ receives $c^*$, for $m_b$, and runs $D \left(c^*\right)$, and returns 1 \textbf{if and only if}
+                $D$ returns 1 
+        \end{enumerate}
+        When $A$ returns 0, then it is also true that $c^* = G \left(k\right) \oplus m_0$ is distributed evenly over
+        $\left\{0, 1\right\}^{l \left(n\right)}$. Therefore: \[
+            \p \left[IND_{\Pi, A} \left(n\right) = 1 | b = 0\right] = 1 - \p_{r \gets \left\{0, 1\right\}^{l
+            \left(n\right)} \left[D \left(r\right) = 1\right]}
+        \]
+        Therefore, when $A$ returns $1$, it holds that $c^* = G \left(k\right) \oplus 0^{l \left(n\right)} = G
+        \left(k\right)$, where $k \gets \left\{0, 1\right\}^n$. Therefore \[
+            \p \left[IND_{\Pi, A} \left(n\right) = 1 | b = 1\right] = \p_{s \gets \left\{0, 1\right\}^{n} \left[D \left(r\right) = 1\right]}
+        \]
+        Overall, we get for infinite values of $n \in \N$, it holds that \begin{align*}
+            \p \left[IND_{\Pi, A} \left(n\right) = 1\right] &= \p \left[IND_{\Pi, A} \left(n\right) = 1 | b = 0\right]
+                \cdot \p \left[b = 0\right]  + \p \left[IND_{\Pi, A} \left(n\right) = 1 | b = 1\right] \cdot \p \left[b =
+                1\right] \\ 
+                                                            &= \displaystyle\frac{1}{2} \left(\p_{s \gets \left\{0,
+                                                                1\right\}^n} \left[D \left(G \left(s\right)\right) = 1\right]
+                                                        + 1 - \p_{r \gets \left\{0, 1\right\}^{l \left(n\right)} \left[D
+                                                    \left(r\right) = 1\right]}\right) \\ 
+                                                            &\geq \displaystyle\frac{1}{2} + \displaystyle\frac{1}{2 p
+                                                            \left(n\right)}
+        \end{align*}
+    \end{proof}
+\end{exercise}
+% section Tutorial (end)
+
+
+\end{document}
