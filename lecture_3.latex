@@ -102,4 +102,161 @@ This is denoted as $X \approx^c Y$.
 \end{theorem}
 % section Computational Indistinguishability (end)
 
+\section{Security against a CPA}\label{sec:security_against_a_cpa} % (fold)
+Given $\Pi = \left(KeyGen, Enc, Dec\right)$ and an adversary $\mathcal{A}$, we considered the experiment $IND_{\Pi,
+\mathcal{A}} \left(n\right)$. Does this experiment model realistic attacks? Not especially, since it assumes that it can
+only observe a single encryption, which is not especially realistic. 
+
+CPA is an extension of this system, where once again, we choose a key $k \gets KeyGen \left(1^n\right)$, $\mathcal{A}$
+provides $m_0, m_1$, we choose $b \gets \left\{0, 1\right\}$, return $c^* \gets Enc_k \left(m_b\right)$, and
+$\mathcal{A}$ needs to choose $b'$. Here, $\mathcal{A}$ provides as many $m$s for encryption as it likes, which are
+encrypted by $k$. Then it provides $m_0, m_1$, $b$ is chosen, and $c^* \gets Enc_k \left(m_b\right)$ is returned to
+$\mathcal{A}$. $\mathcal{A}$ can then request more encryptions of $m$s, and then has to return $b'$, which value it
+thought $b$ to be. Note, OTP does \textit{not} stand up to this type of attack, nor does any other deterministic
+encryption system. \\ 
+It may also be said that $\mathcal{A}$ has access to an encryption oracle, denoted $\mathcal{A}^{Enc_k
+\left(\cdot\right)}$.
+
+\begin{definition}[CPA secure]
+    $\Pi$ has \textbf{indistinguishable encryptions under a chosen plaintext attack} if for every PPT adversary $\mathcal{A}$
+    there exists a negligible function $v \left(\cdot\right)$ such that \[
+        \Pr \left[IND_{\Pi, \mathcal{A}}^{CPA} \left(n\right) = 1\right] \leq \displaystyle\frac{1}{2} + v \left(n\right)
+    \]
+\end{definition}
+So, a $\Pi$ that is CPA secure must used a \textbf{randomised} encryption algorithm. We will also provide the notation
+\[
+    IND_{\Pi, \mathcal{A}}^{CPA} \left(n\right) = \begin{cases}
+        1, &\text{ if }b' = b\\
+        0, &\text{ otherwise}
+    \end{cases}
+\]
+
+We shall ask, is CPA security \enquote{too strong}? Well, no, since adversaries may often know, influence, or even
+determine the encrypted content, and CPA security captures all such influences.
+% section Security against a CPA (end)
+
+\section{Pseudorandom functions}\label{sec:pseudorandom_functions} % (fold)
+A pseudorandom function is a function that \enquote{looks like} a truly random function. What is a truly random
+function? Let there be the sets of all the functions in the world (relevant to us): \begin{gather*}
+    Func_{n \to l} = \text{ the set of all functions from } \left\{0, 1\right\}^n \text{ to } \left\{0, 1\right\}^l \\ 
+    \left|Func_{n \to l}\right| = \left|\left\{0, 1\right\}^l\right|^{\left|\left\{0, 1\right\}^n\right|} = 2^{l \cdot
+    2^n}
+\end{gather*}
+A truly randon function is a function $h$, sampled uniformly from $Func_{n \to l}$. For each $x \in \left\{0,
+1\right\}^n$ the value $h \left(x\right) \in \left\{0, 1\right\}^l$ is
+chosen uniformly and independently of all other $x$’s. \\ 
+
+Pseudorandom functions are an efficiently computable keyed function \[
+    F_k \left(\cdot\right): \left\{0, 1\right\}^n \to \left\{0, 1\right\}^l
+\]
+that is \textit{indistinguishable} from a truly random function. Our distinguisher $\mathcal{D}$ needs to provide an
+input $x$, and then distinguish whether or not it received in return $h \left(x\right)$, with $h$ sampled uniformly from
+$Func_{n \to l}$, or if it received $F_k \left(x\right)$, where $k$ is sampled uniformly from $\left\{0, 1\right\}^n$.
+
+\begin{definition}[PRF]
+    An efficiently computable keyed function \[
+        F: \left\{0, 1\right\}^n \times \left\{0, 1\right\}^n \to \left\{0, 1\right\}^{l \left(n\right)}
+    \]
+    is \textbf{pseudorandom} if for every PPT distinguisher $\mathcal{D}$ there exists a negligible function $v
+    \left(\cdot\right)$ such that \[
+        \left|\Pr \left[\mathcal{D}^{F_k \left(\cdot\right)} \left(1^n\right) = 1\right] - \Pr \left[\mathcal{D}^{h
+        \left(\cdot\right)} \left(1^n\right) = 1\right]\right| \leq v \left(n\right)
+    \]
+    where $k \gets \left\{0, 1\right\}^n$ and $h \gets Func_{n \to l}$
+\end{definition}
+
+This defines the security of PRFs with respect to \textit{uniformly distributed} keys $k \in \left\{0, 1\right\}^n$.
+More generally, keys may be of any length, and not uniformly distributed. This is captured via a PPT key-generation
+algorithm $k \gets KeyGen \left(1^n\right)$. 
+
+The methodology for using PRFs is as follows: \begin{enumerate}
+    \item Prove security assuming a truly random function is used 
+    \item Prove that if an adversary can break the scheme when PRF is used, then it can be used to distinguish the PRF
+        from a truly random function
+\end{enumerate}
+% section Pseudorandom functions (end)
+
+\section{CPA secure encryptions from PRFs}\label{sec:cpa_secure_encryptions_from_prfs} % (fold)
+Let $F: \left\{0, 1\right\}^n \times \left\{0, 1\right\}^n \to \left\{0, 1\right\}^l$ be a PRF. \begin{itemize}
+    \item Key generation: Sample $k \gets \left\{0, 1\right\}^n$
+    \item Encryption: On input $k \in \left\{0, 1\right\}^n$ and $m \in \left\{0, 1\right\}^l$, sample $r \gets
+        \left\{0, 1\right\}^l$ and we get output \[
+            c = \left(r, F_k \left(r\right) \oplus m\right)
+        \]
+    \item Decryption: On input $k \in \left\{0, 1\right\}^n$ and $c = \left(r, s\right)$, output $m = F_k \left(r\right)
+        \oplus s$
+\end{itemize}
+
+\begin{theorem}[]
+    If $F$ is a PRF, then the scheme $\Pi_F$ above is CPA secure
+
+    \begin{proof}[Proof ]
+        We will ebgin by showing that this is a correct encryption scheme: \begin{align*}
+            r &\gets \left\{0, 1\right\}^n \\
+            Enc \left(k, m\right) &= \left(r, F_k \left(r\right) \oplus m\right) \\
+            Dec \left(k, \left(r, s\right)\right) &= F_k \left(r\right) \oplus s \\ 
+                                                  &= F_k \left(r\right) \oplus \left(F_k \left(r\right) \oplus
+                                                  m\right) \\ 
+                                                  &= m
+        \end{align*}
+        So why does encrypting the same message twice result in a different $c$? Due to $r$ changing every time, and so
+        $F_k \left(r\right)$ is a different, completely random seeming series of bits, every time. Consider $m = 0$,
+        encrypted many different times. The results will be: \begin{gather*}
+            \left(r_1, F_k \left(r_1\right)\right) \\ 
+            \left(r_2, F_k \left(r_2\right)\right) \\ 
+            \left(r_3, F_k \left(r_3\right)\right) \\ 
+            \vdots
+        \end{gather*}
+        Which are all different, completely random seeming series of bits. 
+
+        So, how will we prove this? Reduction! As always! \\ 
+        Consider the above scheme, called $\Pi_F$. Let us define the scheme $\Pi_h$, where instead of using $F_k$, we
+        use $h$. We will note that $\Pi_h$ is not efficient, and will not be used in reality, since it uses a truly
+        random function. We will show that $\Pi_h$ is CPA, and that we cannot distinguish between $\Pi_h$ and $\Pi_F$,
+        and thus $\Pi_F$ is also CPA. 
+
+        Let $\mathcal{A}$ be a PPT adversary, then \begin{align*}
+            \Pr \left[IND_{\Pi_F, \mathcal{A}}^{CPA} \left(n\right) = 1\right] &\leq \left|\Pr \left[IND_{\Pi_F,
+            \mathcal{A}}^{CPA} \left(n\right) = 1\right] - \Pr \left[IND_{\Pi_h, \mathcal{A}}^{CPA} \left(n\right) =
+        1\right]\right| \\ 
+                                                                               &+ \p \left[IND_{\Pi_h,
+                                                                               \mathcal{A}}^{CPA} \left(n\right) =
+                                                                           1\right] \\ 
+        \end{align*}
+        We will begin by claiming that there exists a negligible $v \left(n\right)$ such that \[
+            \left|\Pr \left[IND_{\Pi_F, \mathcal{A}}^{CPA} \left(n\right) = 1\right] - \Pr \left[IND_{\Pi_h,
+            \mathcal{A}}^{CPA} \left(n\right) = 1\right]\right| \leq v \left(n\right)
+        \]
+        We will additionally claim: Let $q \left(n\right)$ be the number of queries made by $\mathcal{A}$ to the
+        encryption oracle, then \[
+            \Pr \left[IND_{\Pi_h, \mathcal{A}}^{CPA} \left(n\right) = 1\right] \leq \displaystyle\frac{1}{2} +
+            \displaystyle\frac{q \left(n\right)}{2^n}
+        \]
+        So, 
+        \begin{align*}
+            \Pr \left[IND_{\Pi_F, \mathcal{A}}^{CPA} \left(n\right) = 1\right] &\leq \left|\Pr \left[IND_{\Pi_F,
+            \mathcal{A}}^{CPA} \left(n\right) = 1\right] - \Pr \left[IND_{\Pi_h, \mathcal{A}}^{CPA} \left(n\right) =
+                1\right]\right| \\ 
+                                                                               &+ \p \left[IND_{\Pi_h,
+                                                                               \mathcal{A}}^{CPA} \left(n\right) =
+                                                                           1\right] \\ 
+                                                                               &\leq \displaystyle\frac{1}{2} +
+                                                                               \left(\displaystyle\frac{q
+                                                                               \left(n\right)}{2^n} + v \left(n\right)\right)
+        \end{align*}
+
+        Let us begin with the first claim: There exists negligible $v \left(n\right)$ \[
+            \left|\Pr \left[IND_{\Pi_F, \mathcal{A}}^{CPA} \left(n\right) = 1\right] - \Pr \left[IND_{\Pi_h,
+            \mathcal{A}}^{CPA} \left(n\right) = 1\right]\right| \leq v \left(n\right)
+        \]
+        and prove by reduction: Given an adversary $\mathcal{A}$ for the encryption scheme, construct a distinguisher
+        $\mathcal{D}$ for the PRF. $\mathcal{D}$ has oracle access to a function $\mathcal{O}$, which is either $F_k
+        \left(\cdot\right)$, or a truly random $h \left(\cdot\right)$. $\mathcal{D}$ emulates the CPA experiment to
+        $\mathcal{A}$, and observes whether $\mathcal{A}$ succeeds. If $\mathcal{A}$ succeeds, $\mathcal{D}$ outputs 1,
+        else, $\mathcal{D}$ outputs 0.
+    \end{proof}
+\end{theorem}
+
+% section CPA secure encryptions from PRFs (end)
+
 \end{document}
