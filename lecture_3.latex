@@ -17,6 +17,8 @@
 \usepackage{wrapfig}
 \usepackage{tabularx}
 \usepackage[autostyle=true]{csquotes}
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows}
 \graphicspath{ {./images/} }
 \usepackage[bottom=0.5cm, right=1.5cm, left=1.5cm, top=1.5cm]{geometry}
 
@@ -253,10 +255,162 @@ Let $F: \left\{0, 1\right\}^n \times \left\{0, 1\right\}^n \to \left\{0, 1\right
         $\mathcal{D}$ for the PRF. $\mathcal{D}$ has oracle access to a function $\mathcal{O}$, which is either $F_k
         \left(\cdot\right)$, or a truly random $h \left(\cdot\right)$. $\mathcal{D}$ emulates the CPA experiment to
         $\mathcal{A}$, and observes whether $\mathcal{A}$ succeeds. If $\mathcal{A}$ succeeds, $\mathcal{D}$ outputs 1,
-        else, $\mathcal{D}$ outputs 0.
+        else, $\mathcal{D}$ outputs 0. \\ 
+        Let us assume the contradiction that there exists a PPT adversary $\mathcal{A}$, and a polynomial $p
+        \left(n\right)$ such that \[
+            \left|\Pr \left[IND_{\Pi_F, \mathcal{A}}^{CPA} \left(n\right) = 1\right] - \Pr \left[IND_{\Pi_h,
+            \mathcal{A}}^{CPA} \left(n\right) = 1\right]\right| \geq \displaystyle\frac{1}{p \left(n\right)}
+        \]
+        for infinitely many $n$s. The distinguisher $\mathcal{D}^{\mathcal{O}}$ will sample $b \gets \left\{0,
+        1\right\}$, and invoke $\mathcal{A}$. It will respond to $\mathcal{A}$'s encryption, and challenge queries,
+        using $\mathcal{O}$, and output $1$ \textbf{if and only if} $b' = b$. This leaves us with two cases: \begin{enumerate}
+            \item $\mathcal{O} = F_k$ where $k \gets \left\{0, 1\right\}^n$. $\mathcal{A}$'s view is identical to
+                $IND_{\Pi_F, \mathcal{A}}^{CPA} \left(n\right)$ \[
+                    \Pr \left[D^{F_k \left(\cdot\right)} \left(1^n\right) = 1\right] = \Pr \left[IND_{\Pi_F,
+                    \mathcal{A}}^{CPA} \left(n\right) = 1\right]
+                \]
+            \item $\mathcal{O} = h$, where $h \gets Func_{n \to l}$. Here, $\mathcal{A}$'s view is identical to
+                $IND_{\Pi_h, \mathcal{A}}^{CPA} \left(n\right)$ and \[
+                    \Pr \left[D^{h \left(\cdot\right)} \left(1^n\right) = 1\right] = \Pr \left[IND_{\Pi_h,
+                    \mathcal{A}}^{CPA} \left(n\right) = 1\right]
+                \]
+        \end{enumerate}
+        Thus a contradiction, and we have shown claim 1. 
+
+        Claim 2: Let $q \left(n\right)$ be the number of queries made by $\mathcal{A}$ to the encryption oracle, then \[
+            \Pr \left[IND_{\Pi_h, \mathcal{A}}^{CPA} \left(n\right) = 1\right] \leq \displaystyle\frac{1}{2} +
+            \displaystyle\frac{q \left(n\right)}{2^n}
+        \]
+        Each encryption query $m_i$ is answered with $\left(r_i, h \left(r_i\right) \oplus m_i\right)$ for a uniform,
+        and independently chosen $r_i \gets \left\{0, 1\right\}^n$. The \textit{repeat} is the event in which $r^*$ is
+        used at least once by the encryption oracle (ie $r^* = r_i$). If \textit{repeat} does not occur, then $h
+        \left(r^*\right)$ is completely uniform and independent of $\mathcal{A}$'s view, and therefore $\mathcal{A}$'s
+        view is independent of $b$: \[
+            \Pr \left[IND_{\Pi_h, \mathcal{A}}^{CPA} \left(n\right) = 1 | \overline{\text{\textit{Repeat}}}\right] =
+            \displaystyle\frac{1}{2}
+        \]
+        So \begin{align*}
+            \Pr \left[IND_{\Pi_h, \mathcal{A}}^{CPA} \left(n\right) = 1 \right] &\leq \Pr \left[IND_{\Pi_h,
+            \mathcal{A}}^{CPA} \left(n\right) = 1 | \overline{\text{\textit{Repeat}}}\right] + \Pr
+            \left[\text{\textit{Repeat}}\right] \\ 
+                                                                                &= \displaystyle\frac{1}{2} +
+                                                                                \displaystyle\frac{q \left(n\right)}{2^n}
+        \end{align*}
     \end{proof}
 \end{theorem}
 
+Our world of crypto primitives so far is from PRF, we can build both PRG, and CPA-secure symmetric key encryption, and
+from both PRG, and CPA-secure symmetric key encryption, we can build IND-secure symmetric key encryption.
+\begin{center}
+\begin{tikzpicture}[
+    node distance=3cm and 4cm,
+    state/.style={draw, rounded corners, minimum width=3cm, minimum height=1cm, align=center},
+    every edge/.style={draw, ->, thick}
+]
+    % Nodes
+    \node[state] (prf) {PRF};
+    \node[state, right=of prf] (prg) {PRG};
+    \node[state, below=of prf] (cpa) {CPA-secure \\ symmetric encryption};
+    \node[state, below=of prg] (ind) {IND-secure \\ symmetric encryption};
+
+    % Arrows
+    \draw (prf) edge[above] node[font=\small]{via construction} (prg);
+    \draw (prg) edge[right] node[font=\small]{implies} (ind);
+    \draw (prf) edge[left] node[font=\small]{used to build} (cpa);
+    \draw (cpa) edge[below] node[font=\small]{implies} (ind);
+\end{tikzpicture}
+\end{center}
+
 % section CPA secure encryptions from PRFs (end)
 
+\section{Practical heuristics block ciphers}\label{sec:practical_heuristics_block_ciphers} % (fold)
+In practice, block ciphers are designed to be secure instantiations of pseudorandom permutations (PRPs).  A block cipher
+is an efficiently-computable keyed permutation \[
+    F: \left\{0, 1\right\}^n \times \left\{0, 1\right\}^l \to \left\{0, 1\right\}^l
+\]
+They have concrete security rather than asymptotic security, and a block cipher is considered \enquote{secure} if the best known
+\enquote{attack} requires time roughly $2^n$ ($\approx$brute-force search for the key). 
+
+DES was the The Data Encryption Standard. It was developed in the 1970s by IBM, with help from the NSA, and adopted in
+1977. The key length is 56 bits, with block length of 64 bits. The best known attack in practice is essentially a brute
+force key search, which is eminently possible by your smartphone, since the key length is so short. Thus it is no longer
+considered secure. It remains widely used in the strengthened form 3DES: \[
+    3DES_{k_1, k_2, k_3} \left(x\right) = DES_{k_1} \left(DES_{k_2}^{-1} \left(DES_{k_3} \left(x\right)\right)\right)
+\]
+So there are $3 \cdot 56$ bit keys, but can be broken in $2^{2 \cdot 56}$. It is also (unsurprisingly) slower than DES. 
+
+These days, we have moved on from DES to AES. In 1997 NIST published a call fro candidate block ciphers to replace DES.
+15 candidates were proposed, each being extensibely analysed by the public and other teams. The winner (originall called
+Rijndael) was announced in late 2000, and was chosen based on security, efficiency, ability to implement in hardware,
+and so on. It uses key lengths of 128/192/256, with a block length of 128 bits. To date, there are no known practical
+attacks better than brute-force key search. It is massively widely used, with all modern hardware having built in
+optimisations. Recall the definition of CPA secure encryption from any PRF: \[
+    Enc_k \left(m; r\right) = \left(r, F_k \left(r\right) \oplus m\right)
+\]
+In practice, AES as a PRF enables one to encrypt 128 bit blocks: \[
+    Enc_k \left(m; r\right) = \left(r, AES_k \left(r\right) \oplus m\right)
+\]
+Why not simply $AES_k \left(m\right)$? AES is deterministic, and so susceptible to CPA attacks.
+
+In order to encrypt long messages, we break them up into 128 bit blocks: \[
+    Enc_k \left(m_1 \dots m_l; r_1 \dots r_l\right) = \left(r_1, AES_k \left(r_1\right) \oplus m_1\right) \dots \left(r_l, AES_k \left(r_l\right) \oplus m_l\right)
+\]
+This has the drawback of the ciphertext length being twice the plaintext. This can be improved by changing the structure
+slightly: \[
+    Enc_k \left(m_1 \dots m_l; r_1\right) = \left(r, AES_k \left(r + 1\right) \oplus m_1\right) \left(AES_k \left(r +
+    2\right) \oplus m_l\right) \dots \left(AES_k \left(r + l\right) \oplus m_l\right)
+\]
+This is called \textit{counter mode}
+\begin{theorem}[]
+    If $F$ is a PRF, then counter mode is CPA secure. 
+
+    \begin{proof}[Proof overview]
+        Assume for simplicity that all messages consist of $l$ blocks. The sequence \[
+            s_i = \left(r_i, F_k \left(r_i + 1\right), \dots, F_k \left(r_i + l\right)\right)
+        \]
+        used for encrypting the $i$th message is pseudorandom. Any $s_i$, and $s_{i'}$ are \enquote{independent} , unless
+        $r_i + j = r_{i'} + j'$
+    \end{proof}
+\end{theorem}
+
+There is also ECB mode (electronic code book), where \[
+    Enc_k \left(m_1 \dots m_l\right)= \left(F_k \left(m_1\right), F_k \left(m_2\right), \dots, F_k \left(m_l\right)\right)
+\]
+ECB mode is deterministic and thus \textbf{not secure}. 
+\begin{figure}[H]
+    \center
+    \includegraphics[scale=0.2]{lecture_3_ecb_mode}
+    \caption{ECB mode}
+\end{figure}
+
+We can map from PRGs to PRFs 
+
+\begin{theorem}[]
+    Let $G$ be a PRG with expansion $2n$, then there exists a PRF $F$ mapping $n$-bit inputs to
+    $n$-bit outputs
+\end{theorem}
+
+We will construct as follows: We will denote $G \left(s\right) = G_0 \left(s\right) G_1 \left(s\right)$, where
+\begin{gather*}
+    \left|G_0 \left(s\right)\right| = \left|G_1 \left(s\right)\right| = \left|s\right|
+\end{gather*}
+We will define \begin{gather*}
+    F_k \left(x\right)= G_{x_n} \left(\dots G_{x_1} \left(k\right) \dots\right) \\ 
+    \text{where } x = x_1 \dots x_n
+\end{gather*}
+We can then construct a binomial tree, starting at $k$, who has the children $G_0 \left(k\right)$ and $G_1
+\left(k\right)$, and keep this iteration going. The series of subfixes to $G$ will indicate the value given to $F_k$,
+for example the node $G_1 \left(G_1 \left(k\right)\right)$ will represent $F_k \left(11\right)$.
+\begin{figure}[H]
+    \center
+    \includegraphics[scale=0.2]{lecture_3_prf_tree}
+    \caption{PRG to PRF tree}
+\end{figure}
+
+This can be proven using the hybrid $\mathcal{H}_i$. Values on level $i$ are sampled uniformly, and independently.
+Values on all levels $\geq i$ are computed using $G$. This has the problem that level $i$ has $2^i$ values, but we can
+resolve this given $\mathcal{D}$ runs in time $t = t \left(n\right)$, we need at most $t$ values for the $i$th level. We
+reduce to distinguishing $G \left(s_1\right) \dots G \left(s_t\right)$ from $U_{2tn}$
+
+% section Practical heuristics block ciphers (end)
 \end{document}
