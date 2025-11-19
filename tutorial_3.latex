@@ -1,0 +1,146 @@
+\documentclass{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{blindtext}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[bookmarks=true]{hyperref}
+\usepackage{bookmark}
+\usepackage{bbm}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage[autostyle=true]{csquotes}
+\graphicspath{ {./images/} }
+\usepackage[bottom=0.5cm, right=1.5cm, left=1.5cm, top=1.5cm]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{exercise}{Exercise}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}[section]
+
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\p}{\ensuremath{\mathbb{P}}}
+\newcommand{\E}{\ensuremath{\mathbb{E}}}
+\newcommand{\F}{\ensuremath{\mathcal{F}}}
+\newcommand{\1}{\ensuremath{\mathbbm{1}}}
+\newcommand{\B}{\ensuremath{\mathbbm{B}}}
+
+\title{Tutorial 3}
+\author{Gidon Rosalki}
+\date{2025-11-19}
+
+
+\begin{document}
+\maketitle
+\section{Reminder}\label{sec:reminder} % (fold)
+WE began with One Time Pads (OTPs), that enable \textit{perfect secrecy}, but have the problems of single use keys, and
+exceedingly long keys. We then moved on to \textit{Indistinguishable Encryptions}, and \textit{PRG}s, which enabled
+smaller keys. We then continued on to create a scheme, using \textit{Pseudo Random Functions} that was resistant to
+\textit{Chosen Plaintext Attacks}, and showed that PRGs are equivalent to PRFs.
+% section Reminder (end)
+
+\begin{exercise}
+    Given $\Pi_1 = \left(KeyGen_1, Enc_1, Dec_1\right)$, and $\Pi_2 = \left(KeyGen_2, Enc_2, Dec_2\right)$, one of
+    $\Pi_1, \Pi_2$ is IND. Create a scheme $\Pi$ that is IND.
+    \begin{proof}[Solution]
+        $\Pi$ will be as follows: \begin{itemize}
+            \item $KeyGen \left(1^n\right)$: The key will be constructed of 2 parts: $\left(k_1, k_2\right)$, where for
+                $i \in \left\{1, 2\right\}$ $k_i$ comes from $KeyGen_i$
+            \item $Enc \left(k, m\right)$: $Enc_{k_2} \left(Enc_{k_1} \left(m\right)\right)$
+            \item $Dec \left(k, c\right)$: $Dec_{k_1} \left(Dec_{k_2} \left(c\right)\right)$
+        \end{itemize}
+        The correctness of the scheme is obvious from the construction, since both the base schemes are correct. We must
+        now prove that it is IND-secure: \\ 
+
+        Let us assume towards contradiction that the scheme is not IND-secure, so there exists an polynomial adversary
+        $A$ that can win the IND game against $\Pi$. There are 2 cases: \\ 
+
+        \textbf{Case 1}: $\Pi_1$ is IND-secure, and $\Pi_2$ is not. We will thus build the adversary $B$ that breaks
+        $\Pi_1$ as follows: \begin{enumerate}
+            \item It does this by generating $m_0, m_1$ from $A$
+            \item $k_2 \gets KeyGen_2 \left(1^n\right)$
+            \item Get $c = Enc_{k_1} \left(m_b\right)$
+            \item Compute $Enc_{k_2} \left(c\right)$, and send it to $A$
+            \item $A$ returns $b'$, which $B$ then returns
+        \end{enumerate}
+
+        \textbf{Case 2}: $\Pi_2$ is IND-secure, and $\Pi_1$ is not. We will build $B$ that breaks $\Pi_2$ as follows:
+        \begin{enumerate}
+            \item Generate $m_0, m_1$ from $A$
+            \item $k_1 \gets KeyGen_1$
+            \item Create $p_0, p_1$ via $Enc_{k_1} \left(m_i\right)$
+            \item Send these for encryption by $Enc_{k_2}$, and then send those to $A$, which can by assumption
+                differentiate them.
+        \end{enumerate}
+
+        In both cases, we have built an adversary that can break the IND-secure scheme, which is a contradiction, and so
+        we can conclude that $\Pi$ is IND-secure.
+    \end{proof}
+\end{exercise}
+
+\begin{exercise}
+    Let there be a PRF $F_k, G_k: \left\{0, 1\right\}^n \to \left\{0, 1\right\}^n$, which means that \[
+        \forall PPT\ D: \Pr_{k \gets \left\{0, 1\right\}^n} \left[D^{F_k \left(\cdot\right)} = 1\right] -
+        \Pr_{r \gets Funcs_{n \to n}} \left[D^{r \left(\cdot\right)} = 1\right] < neg \left(n\right)
+    \]
+    In short, we cannot distinguish between the output of a PRF, and a truly random function. \\ 
+    Prove / Disprove \[
+        \forall PPT D:\ \left|\Pr \left[D^{F_k \left(\cdot\right)} = 1\right] - \Pr \left[D^{G_k
+        \left(\cdot\right)} = 1\right]\right| \leq neg \left(n\right)
+    \]
+    Or in Spanish, para cada PPT $D$, no podemos distinguir entre la salida de dos PRF. \\ 
+    Finally, in English, for every PPT $D$, we cannot distinguish between the output of two PRFs. 
+    \begin{proof}[Solution]
+        We shall prove this as follows: \begin{align*}
+            \forall D:\ \left|\Pr \left[D^{F_k} = 1\right] - \Pr \left[D^{G_k} = 1\right]\right|
+            &\leq \left|\Pr \left[D^{F_k} = 1\right] - \Pr_{r \gets Funcs} \left[D^{r} =
+                1\right]\right| + \left|\Pr \left[D^{G_k} = 1\right] - \Pr_{r \gets Funcs} \left[D^{r} =
+                1\right]\right| \\ 
+            &\leq neg + neg \\ 
+            &= neg
+        \end{align*}
+        As required (since adding together 2 negligible functions is still negligible).
+    \end{proof}
+\end{exercise}
+
+\begin{exercise}
+    Given two functions $F_k, G_k: \left\{0, 1\right\}^n \to \left\{0, 1\right\}^n$, where one of them is a PRF, prove
+    or disprove that $H_{k_1, k_2}$ is a PRF, where \[
+        H_{k_1, k_2} \left(x\right) = G_{k_1} \left(F_{k_2} \left(x\right)\right)
+    \]
+    \begin{proof}[Solution]
+        This is not the case. There are 2 cases: \\ 
+
+        \textbf{Case 1}: $G$ is a PRF, and $F$ is not. We may then set $F \left(x\right) = 0$. As a result \[
+            H_{k_1, k_2} = G_{k_1} \left(0\right)
+        \]
+        Which is a constant output, and as a result, $H_{k_1, k_2}$ is definitely not a PRF. 
+
+        \textbf{Case 2}: Here $F$ is a PRF, and $G$ is not. Let us set $G \left(x\right) = 0$: \[
+            H_{k_1, k_2} = G_{k_1} \left(F_{k_2} \left(x\right)\right) = 0
+        \]
+        Which is trivially not pseudorandom.
+    \end{proof}
+\end{exercise}
+
+\begin{exercise}
+    Let there be a PRF $F$. We will create \[
+        H_k \left(x\right) = F_{F_k \left(0\right)} \left(x\right) \| F_k \left(x\right)
+    \]
+    Prove or disprove that $H$ is a PRF.
+
+    \begin{proof}[Solution]
+        
+    \end{proof}
+\end{exercise}
+
+\end{document}
