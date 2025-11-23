@@ -1,0 +1,108 @@
+\documentclass{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{blindtext}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[bookmarks=true]{hyperref}
+\usepackage{bookmark}
+\usepackage{bbm}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage[autostyle=true]{csquotes}
+\graphicspath{ {./images/} }
+\usepackage[bottom=0.5cm, right=1.5cm, left=1.5cm, top=1.5cm]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{exercise}{Exercise}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}[section]
+
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\p}{\ensuremath{\mathbb{P}}}
+\newcommand{\E}{\ensuremath{\mathbb{E}}}
+\newcommand{\F}{\ensuremath{\mathcal{F}}}
+\newcommand{\1}{\ensuremath{\mathbbm{1}}}
+\newcommand{\B}{\ensuremath{\mathbbm{B}}}
+
+\title{Lecture 4}
+\author{Gidon Rosalki}
+\date{2025-11-19}
+
+
+\begin{document}
+\maketitle
+\section{Introduction}\label{sec:introduction} % (fold)
+
+We are going to discuss Message Authentication Codes, where we verify the authenticity of a sent message. You receive a
+message, and can verify that it came from \textit{me}, and nobody else (Like Eve. Seriously, screw Eve. Or don't, that
+might be what she wants).
+
+We are going to discuss authenticating fixed length messages, and arbitrary length messages. We will do this through
+collision resistant hash functions, where we use the \enquote{hash and authenticate} paradigm. After this, we will link
+it back to encryption.
+
+% section Introduction (end)
+
+\section{Message authentication}\label{sec:message_authentication} % (fold)
+Alice and Bob wish to communicate, and Eve completely controls the channel. We would like to assure the receiver of a
+message, that it has not been modified. If Alice sends Bob a message that says \enquote{Pay Charlie \$10}, Eve can
+change it to say \enquote{Pay Eve \$10,000} (You may also pretend that Bob is your Bank). Encryption ensures data
+secrecy, that no one else knows the contents, and \textit{authentication} ensures the integrity of the data, that it
+remained unchanged. These concepts are orthogonal, one does not enable the other.
+
+\subsection{Message Authentication Code (MAC)}\label{sub:message_authentication_code_mac_} % (fold)
+The syntax is $\Pi = \left(Gen, Mac, \text{Vrfy}\right)$, where the key-generation algorithm $Gen$ on input $1^n$ outputs a key
+$k$, the tag generation algorithm $Mac$ takes a key $k$, and a message $m \in \left\{0, 1\right\}^*$, and outputs a tag
+$t \in \left\{0, 1\right\}^*$, and the verification algorithm Vrfy takes a key $k$, message $m$, and tag $t$, and
+outputs a bit $b$. \\ 
+The correctness comes from: \[
+    \forall k, m\ \text{Vrfy}_k \left(m, Mac_k \left(m\right)\right) = 1
+\]
+The security of MACs is found as follows: The adversary $\mathcal{A}$ can adaptively ask for tags of messages of its choice, and
+attempts to forge a valid tag on a new message $\left(m^*, t^*\right)$. Let $Q$ be the set of all queries asked by $\mathcal{A}$.
+We then have \[
+    MacForge_{\Pi, \mathcal{A}} \left(n\right) = \begin{cases}
+        1, &\text{ if }\text{Vrfy}_k \left(m^*, t^*\right) = 1 \land m^* \notin Q\\
+        0, &\text{ otherwise}
+    \end{cases}
+\]
+
+\begin{definition}[MAC scheme]
+    A MAC scheme $\Pi = \left(Gen, Mac, \text{Vrfy}\right)$ is secure if for every PPT adversary $\mathcal{A}$, there xists a negligible
+    function $v \left(\cdot\right)$ such that \[
+        \Pr \left[MacForge_{\Pi, \mathcal{A}} \left(n\right) = 1\right] \leq v \left(n\right)
+    \]
+\end{definition}
+This definition does \textbf{not} prevent replay attacks. Eve may send the message \enquote{Send Charlie \$10} as many
+times as she likes, and it will appear legitimate, thanks to the deterministic MAC.
+% subsection Message Authentication Code (MAC) (end)
+
+\subsection{Fixed length MAC}\label{sub:fixed_length_mac} % (fold)
+Let $F: \left\{0, 1\right\}^n \times \left\{0, 1\right\}^n \to \left\{0, 1\right\}^n$ be a PRF. \begin{itemize}
+    \item Key generation: Sample $k \gets \left\{0, 1\right\}^n$ 
+    \item Tag generation: On input $k \in \left\{0, 1\right\}^n$ and $m \in \left\{0, 1\right\}^n$ output $t = F_k
+        \left(m\right)$ 
+    \item Verification: On input $k \in \left\{0, 1\right\}^n$, $m \in \left\{0, 1\right\}^n$, and $t \in \left\{0,
+        1\right\}^n$, output $1$ if $t = F_k \left(m\right)$, and 0 otherwise
+\end{itemize}
+
+\begin{theorem}[]
+    If $F$ is a PRF, then the above MAC scheme is secure
+    \begin{proof}[Proof ]
+        % TODO next lecture
+    \end{proof}
+\end{theorem}
+% subsection Fixed length MAC (end)
+% section Message authentication (end)
+
+\end{document}
