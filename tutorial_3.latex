@@ -42,7 +42,7 @@
 \begin{document}
 \maketitle
 \section{Reminder}\label{sec:reminder} % (fold)
-WE began with One Time Pads (OTPs), that enable \textit{perfect secrecy}, but have the problems of single use keys, and
+We began with One Time Pads (OTPs), that enable \textit{perfect secrecy}, but have the problems of single use keys, and
 exceedingly long keys. We then moved on to \textit{Indistinguishable Encryptions}, and \textit{PRG}s, which enabled
 smaller keys. We then continued on to create a scheme, using \textit{Pseudo Random Functions} that was resistant to
 \textit{Chosen Plaintext Attacks}, and showed that PRGs are equivalent to PRFs.
@@ -94,11 +94,11 @@ smaller keys. We then continued on to create a scheme, using \textit{Pseudo Rand
     \]
     In short, we cannot distinguish between the output of a PRF, and a truly random function. \\ 
     Prove / Disprove \[
-        \forall PPT D:\ \left|\Pr \left[D^{F_k \left(\cdot\right)} = 1\right] - \Pr \left[D^{G_k
+        \forall PPT\ D:\ \left|\Pr \left[D^{F_k \left(\cdot\right)} = 1\right] - \Pr \left[D^{G_k
         \left(\cdot\right)} = 1\right]\right| \leq neg \left(n\right)
     \]
     Or in Spanish, para cada PPT $D$, no podemos distinguir entre la salida de dos PRF. \\ 
-    Finally, in English, for every PPT $D$, we cannot distinguish between the output of two PRFs. 
+    Finally, in English, sbe rirel CCG $Q$, jr pnaabg qvfgvathvfu orgjrra gur bhgchg bs gjb CESf. 
     \begin{proof}[Solution]
         We shall prove this as follows: \begin{align*}
             \forall D:\ \left|\Pr \left[D^{F_k} = 1\right] - \Pr \left[D^{G_k} = 1\right]\right|
@@ -137,9 +137,53 @@ smaller keys. We then continued on to create a scheme, using \textit{Pseudo Rand
         H_k \left(x\right) = F_{F_k \left(0\right)} \left(x\right) \| F_k \left(x\right)
     \]
     Prove or disprove that $H$ is a PRF.
-
     \begin{proof}[Solution]
-        
+        $H$ is \textit{not} a PRF. Let there be an oracle $z \gets \left\{H, r\right\}$, and we will construct the
+        distinguisher $D^{z \left(\cdot\right)}$ as follows: \begin{enumerate}
+            \item $z \left(0\right) = L$
+            \item Compute $F_L \left(8\right)$
+            \item $z \left(8\right)$
+        \end{enumerate}
+        If $z = H_k$ then $z \left(8\right) = F_{F_k \left(0\right)} \left(8\right) \| F_k \left(8\right)$. Note that
+        $F_{F_k \left(0\right)} \left(8\right) = F_L \left(8\right)$. Therefore, we can distinguish between this, and
+        the output of a random function, where this would simply be random noise.
+    \end{proof}
+\end{exercise}
+
+\begin{exercise}
+    Given \[
+        W_{k_1, k_2} \left(x\right) = F_{F_{k_1} \left(0\right)} \| F_{k_2} \left(x\right)
+    \]
+    Where $F$ is a PRF, is $W$ a PRF: 
+    \begin{proof}[Solution]
+        Let us begin by proving the following 2 theorems:
+        \begin{theorem}[]
+            $H_k \left(x\right) = F_{F_k \left(0\right)}$ is a PRF
+
+            \begin{proof}[Proof ]
+                We will begin with the distinguisher \begin{align*}
+                    \left| \Pr \left[D^{F_{F_k \left(0\right)} \left(\cdot\right)} = 1\right] - \Pr \left[D^{r
+                    \left(\cdot\right)} = 1\right] \right| &\leq \left|\Pr \left[D^{F_{F_k \left(0\right)}
+            \left(\cdot\right)}\right] - \Pr \left[D^{F_{r \left(0\right)} \left(\cdot\right)} = 1\right]\right| -
+            \left|\Pr \left[D^{F_{r \left(0\right)} \left(\cdot\right)} = 1\right] - \Pr \left[D^{r \left(\cdot\right)}
+            = 1\right]\right| \\ 
+                                                           &\leq neg
+                \end{align*}
+            \end{proof}
+        \end{theorem}
+        \begin{theorem}[]
+            $G_{k_1, k_2} \left(x\right) = L_{k_1} \left(x\right) \| F_{k_2} \left(x\right)$ is a PRF, where $L, F$ are
+            PRFs.
+
+            \begin{proof}[Proof ]
+                We want to show that $L_{k_1} \left(x\right) \| F_{k_2} \left(x\right)$ is a PRF, or indistinguishable
+                from concatenating two parts of random noise $r \left(\cdot\right) \| r \left(\cdot\right)$. We may do
+                this with a hybrid proof, by showing that $L_{k_1} \| r \left(\cdot\right)$ is indistinguishable from
+                the PRF, and then that it is also indistinguishable from $r \left(\cdot\right) \| r \left(\cdot\right)
+                $.
+                % TODO extend explanation based off presentation or from the PDF
+            \end{proof}
+        \end{theorem}
     \end{proof}
 \end{exercise}
 
