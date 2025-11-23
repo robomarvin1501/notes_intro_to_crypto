@@ -144,7 +144,7 @@ function? Let there be the sets of all the functions in the world (relevant to u
     \left|Func_{n \to l}\right| = \left|\left\{0, 1\right\}^l\right|^{\left|\left\{0, 1\right\}^n\right|} = 2^{l \cdot
     2^n}
 \end{gather*}
-A truly randon function is a function $h$, sampled uniformly from $Func_{n \to l}$. For each $x \in \left\{0,
+A truly random function is a function $h$, sampled uniformly from $Func_{n \to l}$. For each $x \in \left\{0,
 1\right\}^n$ the value $h \left(x\right) \in \left\{0, 1\right\}^l$ is
 chosen uniformly and independently of all other $x$’s. \\ 
 
