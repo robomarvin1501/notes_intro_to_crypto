@@ -134,15 +134,15 @@ Let $F: \left\{0, 1\right\}^n \times \left\{0, 1\right\}^n \to \left\{0, 1\right
 % subsection Fixed length MAC (end)
 
 \subsection{Arbitrary length messages}\label{sub:arbitrary_length_messages} % (fold)
-Give \[
-    \hat{\Pi} = \left(\hat{\text{Gen}}, \hat{\text{Mac}}, \hat{\text{Vrfy}}\right)
+Given \[
+    \widehat{\Pi} = \left(\hat{\text{Gen}}, \hat{\text{Mac}}, \hat{\text{Vrfy}}\right)
 \]
 for fixed length messages, we want to define $\Pi = \left(Gen, Mac, \text{Vrfy}\right)$ for arbitrary length
 messages. Here is a first (naïve) attempt: 
 \subsubsection{Attempt 1}\label{sec:attempt_} % (fold)
-Let $Mac_k \left(m\right) = \left(t_1, \dots, t_d\right)$ where $t_i = \hat{\text{Mac}}_k \left(m_i\right)$, $Gen =
-\hat{\text{Gen}}$, and $\text{Vrfy}_k \left(\left(m_1, \dots, m_d\right), \left(t_1, \dots, t_d\right)\right) = 1$
-\textbf{if and only if} $\hat{\text{Vrfy}}_k \left(m_i, t_i\right) = 1$ for every $i \in \left[d\right]$. 
+Let $Mac_k \left(m\right) = \left(t_1, \dots, t_d\right)$ where $t_i = \widehat{\text{Mac}}_k \left(m_i\right)$, $Gen =
+\widehat{\text{Gen}}$, and $\text{Vrfy}_k \left(\left(m_1, \dots, m_d\right), \left(t_1, \dots, t_d\right)\right) = 1$
+\textbf{if and only if} $\widehat{\text{Vrfy}}_k \left(m_i, t_i\right) = 1$ for every $i \in \left[d\right]$. 
 
 This is completely insecure. Consider \[
     t = \left(t_1, t_2\right)
@@ -152,9 +152,9 @@ m_1$.
 % subsubsection Attempt 1 (end)
 
 \subsubsection{Attempt 2}\label{sec:attempt_} % (fold)
-$Mac_k \left(m\right) = \left(t_1, \dots, t_d\right)$, where $t_i = \hat{\text{Mac}}_k \left(d, m_i\right)$, $\text{Gen}
-= \hat{\text{Gen}}$, and $\text{Vrfy}_k \left(\left(m_1, \dots, m_d\right), \left(t_1, \dots, t_d\right)\right) = 1$
-\textbf{if and only if} $\hat{\text{Vrfy}}_k \left(\left(d, m_i\right), t_i\right) = 1$  for every $i \in
+$Mac_k \left(m\right) = \left(t_1, \dots, t_d\right)$, where $t_i = \widehat{\text{Mac}}_k \left(d, m_i\right)$, $\text{Gen}
+= \widehat{\text{Gen}}$, and $\text{Vrfy}_k \left(\left(m_1, \dots, m_d\right), \left(t_1, \dots, t_d\right)\right) = 1$
+\textbf{if and only if} $\widehat{\text{Vrfy}}_k \left(\left(d, m_i\right), t_i\right) = 1$  for every $i \in
 \left[d\right]$.
 
 This is also insecure. Consider if $t = \left(t_1, t_2\right)$ is a valid tag for $m = \left(m_1, m_2\right)$, then $t^*
@@ -162,9 +162,9 @@ This is also insecure. Consider if $t = \left(t_1, t_2\right)$ is a valid tag fo
 % subsubsection Attempt 2 (end)
 
 \subsubsection{Attempt 3}\label{sec:attempt_} % (fold)
-$Mac_k \left(m\right) = \left(t_1, \dots, t_d\right)$, where $t_i = \hat{\text{Mac}}_k \left(d, i, m_i\right)$, $\text{Gen}
-= \hat{\text{Gen}}$, and $\text{Vrfy}_k \left(\left(m_1, \dots, m_d\right), \left(t_1, \dots, t_d\right)\right) = 1$
-\textbf{if and only if} $\hat{\text{Vrfy}}_k \left(\left(d, i, m_i\right), t_i\right) = 1$  for every $i \in
+$Mac_k \left(m\right) = \left(t_1, \dots, t_d\right)$, where $t_i = \widehat{\text{Mac}}_k \left(d, i, m_i\right)$, $\text{Gen}
+= \widehat{\text{Gen}}$, and $\text{Vrfy}_k \left(\left(m_1, \dots, m_d\right), \left(t_1, \dots, t_d\right)\right) = 1$
+\textbf{if and only if} $\widehat{\text{Vrfy}}_k \left(\left(d, i, m_i\right), t_i\right) = 1$  for every $i \in
 \left[d\right]$.
 
 This is still insecure. If $t = \left(t_1, t_2\right)$ is a valid tag for $m = \left(m_1, m_2\right)$, and similarly $t'
@@ -173,10 +173,10 @@ valid tag for $m^* = \left(m_1, m_2'\right)$
 % subsubsection Attempt 3 (end)
 
 \subsubsection{Solution 1}\label{sec:solution_} % (fold)
-$Mac_k \left(m\right) = \left(r, t_1, \dots, t_d\right)$, where $t_i = \hat{\text{Mac}}_k \left(r, d, i, m_i\right)$,
-and $r$ is sampled uniformly, and independently for each message $m$. $\text{Gen} = \hat{\text{Gen}}$, and
+$Mac_k \left(m\right) = \left(r, t_1, \dots, t_d\right)$, where $t_i = \widehat{\text{Mac}}_k \left(r, d, i, m_i\right)$,
+and $r$ is sampled uniformly, and independently for each message $m$. $\text{Gen} = \widehat{\text{Gen}}$, and
 $\text{Vrfy}_k \left(\left(m_1, \dots, m_d\right), \left(r, t_1, \dots, t_d\right)\right) = 1$ \textbf{if and only if}
-$\hat{\text{Vrfy}}_k \left(\left(r, d, i, m_i\right), t_i\right) = 1$  for every $i \in \left[d\right]$.
+$\widehat{\text{Vrfy}}_k \left(\left(r, d, i, m_i\right), t_i\right) = 1$  for every $i \in \left[d\right]$.
 
 This is a solution, but has the drawback of very long tags.
 % subsubsection Solution 1 (end)
@@ -231,6 +231,168 @@ Bringing us to the definition
         \Pr \left[HashColl_{\Phi, \mathcal{A}} \left(n\right) = 1\right] \leq v \left(n\right)
     \]
 \end{definition}
+
+Can we find collisions? Well, if our function produces output of length $n$ bits, then we could $2^n + 1$ inputs, but
+this will take forever. Instead, we have \textbf{The Birthday Attack}. \\ 
+Given $H : \left\{0, 1\right\}^* \to \left\{0, 1\right\}^l$, sample $q = \mathcal{O} \left(2^{\frac{l}{2}}\right)$
+inputs uniformly and independently. This finds colliding pair of inputs with a constant probability ($2^l$ pairs). To
+think about this in general, given output of $2^n$, then similar to the birthday paradox from probability and
+statistics, taking $\sqrt{2^n} = 2^{\frac{n}{2}}$ possible inputs, and testing them, will give us a shared output with
+probability of 50\%. 
+
+In practice $l \geq 128$. Popular heuristic (unkeyed) functions include MD5, SHA1, SHA3, and so on. Both MD5, and SHA1
+are horrifically insecure, but still heavily used. They can still be useful in non crypto contexts, but should now
+\textit{never} be used in a crypto context. 
+
+Generally, in order to to create an arbitrary length hash function, we start with a fixed length has function, and
+extend it. 
 % section Collision-Resistant Hash Functions (end)
+
+\section{Authenticating Arbitrary-Length Messages}\label{sec:authenticating_arbitrary_length_messages} % (fold)
+Given \[
+    \widehat{\Pi} = \left(\hat{\text{Gen}}, \hat{\text{Mac}}, \hat{\text{Vrfy}}\right)
+\]
+for fixed length messages, and a collision resistant hash function $\Phi = \left(Gen_H, H\right)$, define $\Pi =
+\left(Gen, Mac, \text{Vrfy}\right)$ for arbitrary length messages. 
+
+Reconsider Solution 3 above: \\
+\begin{itemize}
+    \item $Mac_{k, s} \left(m\right) = \widehat{Mac}_k \left(H_s \left(m\right)\right)$
+    \item $Gen = \left(\widehat{Gen}, Gen_H\right)$
+    \item $\text{Vrfy}_{k, s} \left(m, t\right) = 1 \Leftrightarrow \widehat{Vrfy}_k \left(H_s \left(m\right), t\right) = 1$
+\end{itemize}
+
+\begin{exercise}
+    Let $Mac_k \left(m\right)$ samples $s \gets Gen_H \left(1^n\right)$, and outputs $\left(s, \widehat{Mac}_k \left(H_s
+    \left(m\right)\right)\right)$. Is this secure? 
+
+    \begin{proof}[Solution]
+        This is insecure. In general, our family our functions should overall be difficult to find collisions within,
+        but it is \textit{possible} that there exists a function within the family where it is incredibly easy to find
+        within it collisions. Since $s$ is generated, our adversary can choose an $s$ for which the function $H_s$ has
+        many collisions. Consider the following: \begin{itemize}
+            \item The adversary requests the signature of 0, and gets in response $\left(s, Mac_k \left(H_s
+                \left(0\right)\right)\right)$. Let us denote $a = H_s \left(0\right)$. 
+            \item We will now find a function within the family that maps \textit{everything} to $a$. 
+            \item The adversary will now pick this value for $s$, and the signature of every message $m$ will be \[
+                    Mac_k \left(H_s \left(m\right)\right) = Mac_k \left(a\right) = Mac_k \left(H_s \left(0\right)\right)
+            \]
+    \end{itemize}
+    \end{proof}
+\end{exercise}
+ Let us return to Solution 3. \begin{theorem}[]
+    If $\widehat{\Pi}$ is a secure MAC, and $\Phi$ is collision resistant, then $\Pi$ is a secure MAC.
+
+    \begin{proof}[Proof ]
+        Consider the event \enquote{collision}. $\mathcal{A}$ asks for a tag on some $m_i$ such that $m_i \ne m^*$, and $H_s
+        \left(m_i\right) = H)s \left(m^*\right)$. Whenever \enquote{collision} occurs, then we can use $\mathcal{A}$ to
+        find a non trivial collision, and whenever \enquote{collision} does not occur (and $\mathcal{A}$ wins), then we
+        can use $\mathcal{A}$ to forge a tag on the fixed length message \[
+            H_s \left(m^*\right) \notin \left\{H_s \left(m_1\right), \dots, H_s \left(m_q\right)\right\}
+        \]
+
+        Let $\mathcal{A}$ be any PPT adversary, then \begin{align*}
+            \Pr \left[MacForge_{\Pi, \mathcal{A}} \left(n\right) = 1\right] &\leq \Pr \left[\text{collision}\right] +
+            \Pr \left[MacForge_{\Pi, \mathcal{A}} \left(n\right) \land \overline{\text{collision}}\right] \\ 
+        \end{align*}
+        Since \[
+            \Pr \left[A\right] = \Pr \left[A \land B\right] + \Pr \left[A \land \overline{B}\right] \leq \Pr
+            \left[B\right] + \Pr \left[A \land \overline{B}\right]
+        \]
+
+        Let \textbf{claim I} be that there exists a negligible function $v_1 \left(n\right)$ such that \[
+            \Pr \left[\text{collision}\right] \leq v_1 \left(n\right)
+        \]
+        and \textbf{claim II} be that there exists a negligible function $v_2 \left(n\right)$ such that \[
+            \Pr \left[MacForge_{\Pi, \mathcal{A}} \left(n\right) \land \overline{\text{collision}}\right] \leq v_2
+            \left(n\right) 
+        \]
+
+        Proof of Claim I: \\
+        Let us assume towards a contradiction that there exists a PPT adversary $\mathcal{A}$, and a polynomial $p
+        \left(n\right)$ such that \[
+            \Pr \left[\text{collision}\right] \geq \displaystyle\frac{1}{p \left(n\right)}
+        \]
+        % TODO the collision finder C 27
+        The collision finder $\mathcal{C}$ will \begin{itemize}
+            \item On input $s$, sample $k \gets \widehat{Gen} \left(1^n\right)$, and invoke $\mathcal{A}$
+            \item Respond to $\mathcal{A}$'s queries, using $\left(k, s\right)$
+                % TODO
+        \end{itemize}
+
+        Proof of Claim II: \\ 
+        Let us assume towradrs contradiction that there exists a PPT adversary $\mathcal{A}$, and a polynomial $p
+        \left(n\right)$, such that  \[
+            \Pr \left[MacForge_{\Phi, \mathcal{A}} \left(n\right)= 1 \land \overline{\text{collision}}\right] \geq
+            \displaystyle\frac{1}{p \left(n\right)}
+        \]
+        for infinitely many $n$s. The forger $\hat{\mathcal{A}}$ will \begin{itemize}
+            \item Sample $s \gets Gen_H \left(1^n\right)$, and invoke $\mathcal{A}$
+            \item Respond to $\mathcal{A}$'s queries $m_i$ by forwarding $H_s \left(m_i\right)$ to the oracle
+                $\widehat{Mac}_k \left(\cdot\right)$, and then forwarding back its response to $\mathcal{A}$ 
+            \item Output $\left(H_s \left(m^*\right), t^*\right)$
+        \end{itemize}
+
+        So \begin{align*}
+            \Pr \left[MacForge_{\hat{\Pi}, \hat{\mathcal{A}}} \left(n\right) = 1\right] &= \Pr
+            \left[MacForge_{\Pi, \mathcal{A}} \left(n\right) = 1 \land \overline{\text{collision}}\right] \\ 
+                                                                                        &\geq \displaystyle\frac{1}{p
+                                                                                        \left(n\right)}
+        \end{align*}
+        Which is a contradiction.
+    \end{proof}
+\end{theorem}
+% section Authenticating Arbitrary-Length Messages (end)
+
+\section{Returning to encryption}\label{sec:returning_to_encryption} % (fold)
+Recall that CPA-secure encryptions may be built from any PRF, and hold that \[
+    Enc_k \left(m; r\right) = \left(r, F_k \left(r\right) \oplus m\right)
+\]
+This has a rather serious problem. An adversary can change the contents of a message, without the recipient knowing. The
+adversary will also not know how he has changed it, but he can change it, and none will know that this has happened. \[
+    Enc_k \left(m \oplus 1^n; r\right) = \left(r, F_k \left(r\right) \oplus m \oplus 1^n\right)
+\]
+So, we want to achieve both encryption, and authenticated messages, creating \textbf{authenticated encryption}. 
+
+Let us consider \begin{gather}
+    k = \left(k_E, k_M\right) \\
+    c \gets Enc_{k_E} \left(m\right) \\ 
+    t \gets Mac_{k_M} \left(m, t\right)
+\end{gather}
+Which can then all be reversed \begin{gather}
+    k = \left(k_E, k_M\right) \\
+    m \gets Dec_{k_E} \left(c\right) \\ 
+    ? \gets Mac_{k_M} \left(m, t\right)
+\end{gather}
+This may well be insecure. We have no guarantees that our MAC system does not leak information about the message. In
+fact, we may completely leak $m$, since we have no security guarantees. 
+
+This may be improved to
+\begin{gather}
+    k = \left(k_E, k_M\right) \\
+    c \gets Enc_{k_E} \left(m\right) \\ 
+    t \gets Mac_{k_M} \left(c, t\right)
+\end{gather}
+Which can then all be reversed \begin{gather}
+    k = \left(k_E, k_M\right) \\
+    m \gets Dec_{k_E} \left(c\right) \\ 
+    ? \gets Mac_{k_M} \left(c, t\right)
+\end{gather}
+If the encryption is CPA-secure, and the MAC is secure, then this construction is a CPA-secure encryption scheme, with a
+secure MAC. 
+
+\subsection{Chosen Ciphertext Attack CCA}\label{sub:chosen_ciphertext_attack_cca} % (fold)
+This has brought us to chosen ciphertext attack schemes. Here, $\mathcal{A}$ can adaptively ask for encryptions of
+messages of its choice, and for decryptions of ciphertexts of its choice (aside from the challenge ciphertext $c^*$). 
+
+\begin{definition}[CCA-IND]
+    $\Pi$ has indistinguishable encryptions under a chosen-ciphertext attack if for every PPT adversary $\mathcal{A}$
+    there exists a negligible function $v \left(\cdot\right)$ such that \[
+        \Pr \left[IND_{\Pi, \mathcal{A}}^{CCA} \left(n\right) = 1\right] \leq \displaystyle\frac{1}{2} + v \left(n\right)
+    \]
+\end{definition}
+
+% subsection Chosen Ciphertext Attack CCA (end)
+% section Returning to encryption (end)
 
 \end{document}
