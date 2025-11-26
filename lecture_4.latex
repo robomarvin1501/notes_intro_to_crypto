@@ -78,8 +78,8 @@ We then have \[
 \]
 
 \begin{definition}[MAC scheme]
-    A MAC scheme $\Pi = \left(Gen, Mac, \text{Vrfy}\right)$ is secure if for every PPT adversary $\mathcal{A}$, there xists a negligible
-    function $v \left(\cdot\right)$ such that \[
+    A MAC scheme $\Pi = \left(Gen, Mac, \text{Vrfy}\right)$ is secure if for every PPT adversary $\mathcal{A}$, there
+    exists a negligible function $v \left(\cdot\right)$ such that \[
         \Pr \left[MacForge_{\Pi, \mathcal{A}} \left(n\right) = 1\right] \leq v \left(n\right)
     \]
 \end{definition}
@@ -99,10 +99,138 @@ Let $F: \left\{0, 1\right\}^n \times \left\{0, 1\right\}^n \to \left\{0, 1\right
 \begin{theorem}[]
     If $F$ is a PRF, then the above MAC scheme is secure
     \begin{proof}[Proof ]
-        % TODO next lecture
+        The concept is that given a forger $\mathcal{A}$, for the MAC scheme, we construct a distinguisher
+        $\mathcal{D}$ for the PRF. $\mathcal{D}$ has oracle access to a function $\mathcal{O}$, which is either $F_k$,
+        or a truly random $h$. Additionally, $\mathcal{D}$ runs $\mathcal{A}$ internally, and simulates the experiment
+        $MacForge_{\Pi, \mathcal{A}}$ to $\mathcal{A}$ using $\mathcal{O}$.
+        
+        Let us assume towards a contradiction that there exists a PPT adversary $\mathcal{A}$, and a polynomial $p
+        \left(n\right)$ such that \[
+            \Pr \left[MacForge_{\Pi, \mathcal{A}} \left(n\right) = 1\right] \geq \displaystyle\frac{1}{p \left(n\right)}
+        \]
+        for infinitely many $n$s. The distinguisher $\mathcal{D}^\mathcal{O}$ will invoke $\mathcal{A}$, and respond to
+        each of its queries $m$ with $t = \mathcal{O} \left(m\right)$. It will output 1 \textbf{if and only if} $m^*
+        \notin \mathcal{Q}$, and $t^* = \mathcal{O} \left(m^*\right)$, where $\mathcal{Q}$ is the set of all queries
+        asked by $\mathcal{A}$. There are 2 cases: \\ 
+        \textbf{Case 1}: If $\mathcal{O} = F_k$ is a PRF, then $\mathcal{A}$'s view is identical to $MacForge_{\Pi,
+        \mathcal{A}} \left(n\right)$, and so \[
+            \Pr \left[D^{F_k \left(\cdot\right)} \left(1 ^ {n}\right) = 1\right] = \Pr \left[MacForge_{\Pi, \mathcal{A}}
+            \left(n\right) = 1\right]
+        \]
+        \textbf{Case 2}: If $\mathcal{O} = h$ is a truly random function, then if $m^* \notin \mathcal{Q}$, then
+        $\mathcal{A}$'s view is independent of $\mathcal{O} \left(m^*\right)$, and so \[
+            \Pr \left[D^{h \left(\cdot\right)} \left(1^n\right) = 1\right] = 2 ^ {-n}
+        \]
+
+        From here, we may calculate \begin{gather}
+            \left|\Pr \left[D^{F_k \left(\cdot\right)} \left(1^n\right) = 1\right] - \Pr \left[D^{h \left(\cdot\right)}
+            \left(1^n\right) = 1\right]\right| \\ 
+            = \left|\Pr \left[MacForge_{\Pi, \mathcal{A}} \left(n\right) = 1\right] - 2^{-n}\right| \\ 
+            \geq \displaystyle\frac{1}{p \left(n\right)} - 2^{-n} \\
+        \end{gather}
+        So, we have successfully distinguished between a truly random function, and a PRF, which is a contradiction.
     \end{proof}
 \end{theorem}
 % subsection Fixed length MAC (end)
+
+\subsection{Arbitrary length messages}\label{sub:arbitrary_length_messages} % (fold)
+Give \[
+    \hat{\Pi} = \left(\hat{\text{Gen}}, \hat{\text{Mac}}, \hat{\text{Vrfy}}\right)
+\]
+for fixed length messages, we want to define $\Pi = \left(Gen, Mac, \text{Vrfy}\right)$ for arbitrary length
+messages. Here is a first (naïve) attempt: 
+\subsubsection{Attempt 1}\label{sec:attempt_} % (fold)
+Let $Mac_k \left(m\right) = \left(t_1, \dots, t_d\right)$ where $t_i = \hat{\text{Mac}}_k \left(m_i\right)$, $Gen =
+\hat{\text{Gen}}$, and $\text{Vrfy}_k \left(\left(m_1, \dots, m_d\right), \left(t_1, \dots, t_d\right)\right) = 1$
+\textbf{if and only if} $\hat{\text{Vrfy}}_k \left(m_i, t_i\right) = 1$ for every $i \in \left[d\right]$. 
+
+This is completely insecure. Consider \[
+    t = \left(t_1, t_2\right)
+\]
+If $t$ is  avalid tag for $m = \left(m_1, m_2\right)$, then it also holds that $t^* = t_1$ is a valid tag for $m^* =
+m_1$. 
+% subsubsection Attempt 1 (end)
+
+\subsubsection{Attempt 2}\label{sec:attempt_} % (fold)
+$Mac_k \left(m\right) = \left(t_1, \dots, t_d\right)$, where $t_i = \hat{\text{Mac}}_k \left(d, m_i\right)$, $\text{Gen}
+= \hat{\text{Gen}}$, and $\text{Vrfy}_k \left(\left(m_1, \dots, m_d\right), \left(t_1, \dots, t_d\right)\right) = 1$
+\textbf{if and only if} $\hat{\text{Vrfy}}_k \left(\left(d, m_i\right), t_i\right) = 1$  for every $i \in
+\left[d\right]$.
+
+This is also insecure. Consider if $t = \left(t_1, t_2\right)$ is a valid tag for $m = \left(m_1, m_2\right)$, then $t^*
+= \left(t_2, t_1\right)$ is a valid tag for $m^* = \left(m_2, m_1\right)$. 
+% subsubsection Attempt 2 (end)
+
+\subsubsection{Attempt 3}\label{sec:attempt_} % (fold)
+$Mac_k \left(m\right) = \left(t_1, \dots, t_d\right)$, where $t_i = \hat{\text{Mac}}_k \left(d, i, m_i\right)$, $\text{Gen}
+= \hat{\text{Gen}}$, and $\text{Vrfy}_k \left(\left(m_1, \dots, m_d\right), \left(t_1, \dots, t_d\right)\right) = 1$
+\textbf{if and only if} $\hat{\text{Vrfy}}_k \left(\left(d, i, m_i\right), t_i\right) = 1$  for every $i \in
+\left[d\right]$.
+
+This is still insecure. If $t = \left(t_1, t_2\right)$ is a valid tag for $m = \left(m_1, m_2\right)$, and similarly $t'
+= \left(t_1', t_2'\right)$ is a valid tag for $m' = \left(m_1', m_2'\right)$, then $t^* = \left(t_1, t_2'\right)$ is a
+valid tag for $m^* = \left(m_1, m_2'\right)$
+% subsubsection Attempt 3 (end)
+
+\subsubsection{Solution 1}\label{sec:solution_} % (fold)
+$Mac_k \left(m\right) = \left(r, t_1, \dots, t_d\right)$, where $t_i = \hat{\text{Mac}}_k \left(r, d, i, m_i\right)$,
+and $r$ is sampled uniformly, and independently for each message $m$. $\text{Gen} = \hat{\text{Gen}}$, and
+$\text{Vrfy}_k \left(\left(m_1, \dots, m_d\right), \left(r, t_1, \dots, t_d\right)\right) = 1$ \textbf{if and only if}
+$\hat{\text{Vrfy}}_k \left(\left(r, d, i, m_i\right), t_i\right) = 1$  for every $i \in \left[d\right]$.
+
+This is a solution, but has the drawback of very long tags.
+% subsubsection Solution 1 (end)
+
+\subsubsection{Solution 2 (CBC-MAC)}\label{sec:solution_cbc_mac_} % (fold)
+Let $Mac_k \left(m\right)= t_d$, where \begin{itemize}
+    \item $t_0 = 0^n$, and $t_i = F_k \left(t_{i - 1} \oplus m_i\right)$ for $i \in \left[d\right]$
+    \item $F_k$ can be any PRF
+    \item $d$ must be fixed ahead of time
+\end{itemize}
+In short, we take the result of the signature of the first block $m_1$, and XOR it with the second block $m_2$, and then
+compute the signature of that. This is continued on recursively until the end: 
+
+\begin{figure}[H]
+    \center
+    \includegraphics[scale=0.2]{lecture_4_CBCMAC}
+    \caption{CBC-MAC}
+\end{figure}
+
+This is great because it is very easy to implement, so that solves many bug issues, and lots of the parts may be
+implemented in hardware. 
+% subsubsection Solution 2 (CBC-MAC) (end)
+
+\subsubsection{Solution 3 - Hash and Authenticate}\label{sec:solution_hash_and_authenticate} % (fold)
+We will compress $m$ into a short fingerprint $H \left(m\right)$, and then authenticate $H \left(m\right)$ instead of
+$m$ itself. It is critical for our hashing function $H$, that it is very difficult to find $m \ne m'$ such that $H
+\left(m\right) = H \left(m'\right)$.
+% subsubsection Solution 3 - Hash and Authenticate (end)
+% subsection Arbitrary length messages (end)
 % section Message authentication (end)
+
+\section{Collision-Resistant Hash Functions}\label{sec:collision_resistant_hash_functions} % (fold)
+The purpose of Collision-Resistant Hash Functions is that they compress arbitrarily long inputs into short,
+fixed-length outputs. It should be very hard to find $x \ne x'$ such that $H \left(x\right) = H \left(x'\right)$.
+
+Syntactically: $\Phi = \left(\text{Gen}, H\right)$: 
+\begin{itemize}
+    \item The key generation algorithm Gen, on input $1^n$ outputs a key $s$
+    \item The evaluation algorithm $H$ on input $s$, and $x \in \left\{0, 1\right\}^*$ outputs $H_s \left(x\right) \in
+        \left\{0, 1\right\} ^ {l \left(n\right)}$
+\end{itemize}
+So, our adversary is playing \[
+    HashColl_{\Phi, \mathcal{A}} \left(n\right) = \begin{cases}
+        1, &\text{ if }H_s \left(x\right) = H_s \left(x'\right) \land x \ne x'\\
+        0, &\text{ otherwise }\\
+    \end{cases}
+\]
+Bringing us to the definition 
+\begin{definition}[Collision Resistant]
+    $\Phi$ is \textbf{collision resistant} if for every PPT adversary $\mathcal{A}$ there exists a negligible function
+    $v \left(\cdot\right)$ such that \[
+        \Pr \left[HashColl_{\Phi, \mathcal{A}} \left(n\right) = 1\right] \leq v \left(n\right)
+    \]
+\end{definition}
+% section Collision-Resistant Hash Functions (end)
 
 \end{document}
