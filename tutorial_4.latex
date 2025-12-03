@@ -1,0 +1,86 @@
+\documentclass[a4paper]{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{blindtext}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[bookmarks=true]{hyperref}
+\usepackage{bookmark}
+\usepackage{bbm}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage[autostyle=true]{csquotes}
+\graphicspath{ {./images/} }
+\usepackage[bottom=0.5cm, right=1.5cm, left=1.5cm, top=1.5cm]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{exercise}{Exercise}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}[section]
+
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\p}{\ensuremath{\mathbb{P}}}
+\newcommand{\E}{\ensuremath{\mathbb{E}}}
+\newcommand{\F}{\ensuremath{\mathcal{F}}}
+\newcommand{\1}{\ensuremath{\mathbbm{1}}}
+\newcommand{\B}{\ensuremath{\mathbbm{B}}}
+
+\title{Tutorial 4}
+\author{Gidon Rosalki}
+\date{2025-12-03}
+
+
+\begin{document}
+\maketitle
+
+\section{Question 1}\label{sec:question_} % (fold)
+Let there be a family of collision resistant hash functions $\left\{H_s\right\}_{s \in \left\{0, 1\right\}^*}$, such
+that $H_{s'}: \left\{0, 1\right\} ^ {2n} \to \left\{9, 1\right\}^n$. Build a new family of CRHFs $\left\{H_s'\right\}_{s
+\in \left\{0, 1\right\}^*}$ such that $H_s': \left\{0, 1\right\} ^ {l n \to \left\{0, 1\right\}^n}$, such that $l \geq
+3$. 
+
+A hash function is collision resistant if \[
+    \forall PPT\ \mathcal{A}\ \Pr \left[A \left(H_s\right) \to x_1, x_2\ :\ H_s \left(x_1\right) = H_s
+    \left(x_2\right)\right] \leq neg \left(n\right)
+\]
+
+\subsection{Solution}\label{sub:solution} % (fold)
+To achieve this we will split the input into inputs of size $2n$, such that \begin{align*}
+    H_s' \left(x\right) &= H_s' \left(x_1 x_2 \dots x_l\right) 
+\end{align*}
+We may now input $x_1 \| x_2$ into $H_s$: $H_s \left(x_1 \| x_2\right) = y_1$, we now compute $H_s \left(y_1 \|
+x_3\right) = y_2$, and so on. The output will be the resultant hash. 
+
+Why is this CR? Let us begin with $l = 3$, which will extend to arbitrary length $l$. We will assume towards
+contradiction that there exists a collision, so therefore there exists an adversary $\mathcal{A}$ which can output
+$\begin{bmatrix}
+    x \\
+    x' \\
+\end{bmatrix}$ where $H_s' \left(x\right) = H_s' \left(x'\right)$. We will use this to construct an algorithm to find
+the collision. Let there be the algorithm $\mathcal{B}$ as follows: \begin{enumerate}
+    \item Run $\mathcal{A}$, which returns $\begin{bmatrix}
+        x \\
+        x' \\
+    \end{bmatrix} = \begin{bmatrix}
+            x_1 & x_2 & x_3 \\
+            x_1' & x_2' & x_3' \\
+        \end{bmatrix}$
+    \item If $H_s \left(x_1 \| x_2\right) = H_s \left(x_1 \| x_2\right)$, then it returns that pair, and we are done. If
+        not, then it must hold that \[
+            H_s \left(H_s \left(x_1 \| x_2\right) \| x_3\right) = H_s \left(H_s \left(x_1' \| x_2'\right) \| x_3'\right) 
+        \]
+\end{enumerate}
+
+% subsection Solution (end)
+% section Question 1 (end)
+
+\end{document}
