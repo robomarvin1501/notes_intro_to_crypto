@@ -81,6 +81,71 @@ the collision. Let there be the algorithm $\mathcal{B}$ as follows: \begin{enume
 \end{enumerate}
 
 % subsection Solution (end)
+
+\subsection{Solution II}\label{sub:solution_ii} % (fold)
+An alternative is to instead build a tree, where we pad the input into the nearest power of 2, split it into blocks of
+size $n$, and then run $H_s$ on each pair of blocks. We then continue doing this recursively until we reach a single
+hash of length $n$. This may be proven similarly as to the previous solution. 
+
+How does this compare to the previous? The first solution only needs $O \left(1\right)$ of memory, where the second
+requires $O \left(\log \left(n\right)\right)$ of memory. However, a benefit of the second method is that we can split it
+trivially across many processing cores, where for the first solution each step is dependent on the previous, and so it
+cannot be split so easily. \\
+An additional benefit of the first solution is that it is incredibly easy to implement, whereas the second is a bit more
+complicated. However, an additional benefit of this second method is as follows. If we consider this has to be a hash of
+your entire hard disk, then when we change a block, we do not need to recompute every hash further up the chain from
+this block, but rather only the hashes in the tree that are impacted by this singular block. 
+% subsection Solution II (end)
 % section Question 1 (end)
+
+\section{Question 2}\label{sec:question_} % (fold)
+Let there be a PRF $F_k: \left\{0, 1\right\}^{2n} \to \left\{0, 1\right\}^{2n}$. Let $\Pi = \left(KeyGen, MAC, Vrfy\right)$.
+\begin{itemize}
+    \item $KeyGen \left(1^n\right) \to k$ for PRF
+    \item $MAC \left(k, m\right) \to F_{F_k \left(0 ^ {2n}\right)} \left(m \| 0^n\right) \| F_k \left(m \|
+        1^n\right) = t $
+    \item $Vrfy \left(k, m, t\right) = 1$ \textbf{if and only if} $MAC \left(k, m\right) = t$
+\end{itemize}
+Is this a secure MAC algorithm?
+
+\subsection{Solution}\label{sub:solution} % (fold)
+It is so. Let us assume towards contradiction that there exists $\mathcal{A}$ that can win the MacForge game against
+$\Pi$. We want to build $\mathcal{B}$ that can win the PRF game. So, $\mathcal{B}$ has an oracle
+$\mathcal{B}^\mathcal{O}$. Remember, the MacForge game is that $\mathcal{A}$ has oracle access to MAC, and it spits out
+$\left(m^*, t^*\right)$ such that it has not asked the Mac of $m^*$, and its hash is $\mathcal{t^*}$. 
+
+Let us define the new function $F_{\mathcal{O} \left(0^{2n}\right)} \left(m \| 0^n\right) \| \mathcal{O} \left(m ||
+1^n\right)$. 
+\begin{enumerate}
+    \item $\mathcal{A}$ asks questions, and we use this function to ask them 
+    \item Return $Vrfy \left(m^*, t^*\right)$
+\end{enumerate}
+\textbf{Case I}: If $\mathcal{O}$ is random, then there is no way that $\mathcal{A}$ can guess the output, which is at
+least partially dependent on $\mathcal{O}$, so therefore $\Pr \left[Vrfy = 1\right] \leq \displaystyle\frac{1}{2^n}$
+
+\textbf{Case II}: Here $\mathcal{O}$ is a PRF, then $\mathcal{A}$ is playing the regular MAC game, and so can guess the
+output, and we will return that this is a PRF. 
+% subsection Solution (end)
+
+\subsection{Extension}\label{sub:extension} % (fold)
+Given a family of PRF functions $F_k : \left\{0, 1\right\}^{2n} \to \left\{0, 1\right\}^n$. Is $F_k$ CRH? 
+
+No it is not. We will build a family $F'_{k, a, b}$ such that it is still pseudorandom, but since we know $k$, we can
+show that it is not a CRH. \[
+    F_{k, a, b} = \begin{cases}
+        0, &\text{ if }x = a\\
+        0, &\text{ if }x = b\\
+        F_k \left(x\right),&\text{ else}
+    \end{cases}
+\]
+We will theorise firstly that this family is pseudorandom. Since it is highly unlikely that our adversary will find $a$
+or $b$, we may state that $F'$ is a PRF. \\
+
+Secondly, we will theorise that $F'$ is not collision resistant. This follows obviously. PRFs are only PRFs if we do not
+have access to the key in $F_k$. Since for CRFs we are given the key, we may trivially bring $a, b$ which are a
+collision, and so disprove the fact that $F'$ is collision resistant. 
+
+% subsection Extension (end)
+% section Question 2 (end)
 
 \end{document}
