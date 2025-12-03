@@ -390,9 +390,144 @@ messages of its choice, and for decryptions of ciphertexts of its choice (aside 
     there exists a negligible function $v \left(\cdot\right)$ such that \[
         \Pr \left[IND_{\Pi, \mathcal{A}}^{CCA} \left(n\right) = 1\right] \leq \displaystyle\frac{1}{2} + v \left(n\right)
     \]
+    In this case, we may also say that $\Pi$ is CCA-secure.
 \end{definition}
 
+We will observe that CCA-security implies authenticity. Given $Enc_k \left(m\right)$, it is hard to generate $Enc_k
+\left(m'\right)$ for a \enquote{related} $m'$ (such as $m' = m + 1$). This is because if he could, then he could take
+$c^*$, and flip the bits. This is (under the assumption) a legal encryption, which could then be decrypted into the
+inverse bits of $m_b$, so he could then take the decryption of the inverse of $c^*$, flip its bits, and identify which
+$m_i$ was returned encrypted to $c^*$. 
+
+We will note that it feels a little unrealistic. Honest parties do not typically decrypt arbitrary adversarially chosen
+ciphertexts. Nevertheless, adversaries may be able to influence what gets encrypted / decrypted, and learn some partial
+information. For example, in WWII, the US cryptanalysts might have tried to send encrypted messages to the Japananese,
+and then monitor their behaviour. An adversary may send certain ciphertexts on behalf of a user to the user's bank, and
+then the bank will decrypt these ciphertexts and its response will leak information to the adversary. Furthermore, an
+encryption scheme might be used as part of an authentication protocol where one party sends a ciphertext to the other,
+who then decrypts it and returns the result. Thus we can see, that CCA is a realistic security requirement in the real
+world. 
+
+We will thus note that CPA security does \textbf{not} imply CCA security, since we can affect the output of encryption
+function, and get another valid encryption: 
+\begin{align*}
+    Enc_k \left(m; r\right) &= \left(r, F_k \left(r\right) \oplus m \right) \\
+    Enc_k \left(m \oplus 1^n; r\right) &= \left(r, F_k \left(r\right) \oplus m \oplus 1^n\right)
+\end{align*}
+
+\subsubsection{CCA-Secure encryption scheme}\label{sec:cca_secure_encryption_scheme} % (fold)
+The main idea here is that adversaries should not be able to generate new \enquote{valid} ciphertexts, and that the
+decryption oracle becomes useless. Our solution is called \textit{Encrypt-then-Authenticate}: \\ 
+Let $\Pi_E = \left(KeyGen_E, Enc, Dec\right)$ be a CPA secure encryption scheeme, and let $\Pi_M = \left(KeyGen_M, Enc,
+Dec\right)$ be a secure MAC. Let us define $\Pi' = \left(KeyGen', Enc', Dec'\right)$ as \begin{itemize}
+    \item $KeyGen' \left(1^n\right)$ output $k = \left(k_E, k_M\right)$ where $k_E \gets Gen_E \left(1^n\right)$ and
+        $k_M \gets KeyGen_M \left(1^n\right)$
+    \item $Enc_k' \left(m\right)$ output $\left(c, t\right)$ where $c \gets Enc_{k_E} \left(m\right)$ and $t \gets
+        Mac_{k_M} \left(c\right)$
+    \item $Dec_k' \left(c, t\right)$ If $Vrfy_{k_M} \left(c, t\right) = 1$ then output $Dec_{k_E} \left(c\right)$,
+        otherwise output $\perp$ 
+\end{itemize}
+
+\begin{theorem}[]
+    Let us assume that $\Pi_E$ is a CPA-secure encryption scheme, and that $\Pi_M$ is a secure MAC with \textbf{unique
+    tags}, then $\Pi'$ is a CCA secure encryption scheme. 
+    \begin{proof}[Proof ]
+        We will first note that MAC with unique tags means that for any key $k_M$ and message $m$, there exists
+        \textit{exactly} one $t$ such that $Vrfy_{k_M} \left(m, t\right) = 1$. Any MAC scheme with a deterministic Mac
+        algorithm can be modified to have unique tags by using \enquote{canonical verification} instead of its own Vrfy
+        algorithm: On input $\left(k_M, m, t\right)$ output 1 if and only if $t = Mac_{k_M} \left(m\right)$ and 0 otherwise
+
+        \textbf{Proof idea}: \\
+        We will call $\left(c, t\right)$ valid w.r.t $\left(k_E, k_M\right)$ if $Vrfy_{k_M} \left(c, t\right) = 1$, and
+        invalid otherwise. Consider the event ValidQuery. $\mathcal{A}$ queries the decryption oracle with a valid
+        ciphertext, that was \textbf{not} produced by the encryption oracle. If $\Pr \left[ValidQuery\right]$ is
+        non-negligible, then we can use $\mathcal{A}$ to break the MAC $\Pi_M$. If it is negligible, then we can use
+        $\mathcal{A}$ to break the CPA security of $\Pi_E$
+
+        Let $\mathcal{A}$ be a PPT adversary, then: \begin{gather}
+            \Pr \left[IND_{\Pi', \mathcal{A}} ^ {CCA} \left(n\right) = 1\right] \\ 
+            \leq \Pr \left[ValidQuery\right] + \Pr \left[IND_{\Pi', \mathcal{A}} ^ {CCA} \left(n\right) = 1 \land
+            \overline{ValidQuery}\right]
+        \end{gather}
+
+        \begin{theorem}[Claim II]
+            \textbf{Claim II}: There exists a negligible $v \left(n\right)$ such that \[
+                \Pr \left[IND_{\Pi', \mathcal{A}} ^ {CCA} \left(n\right) = 1 \land \overline{ValidQuery}\right] \leq
+                \displaystyle\frac{1}{2} + v \left(n\right)
+            \]
+            \begin{proof}[Proof ]
+                We will assume towards contradiction that there exists a polynomial $p \left(n\right)$, such that for
+                infinitely many $n$s \[
+                    \Pr \left[IND_{\Pi', \mathcal{A}} ^ {CCA} \left(n\right) = 1 \land \overline{ValidQuery}\right] \geq
+                    \displaystyle\frac{1}{2} + \displaystyle\frac{1}{p \left(n\right)}
+                \]
+                We will construct an adversary $\mathcal{B}$ such that for infinitely many $n$s \[
+                    \Pr \left[IND_{\Pi_E, \mathcal{B}} ^ {CCA} \left(n\right) = 1 \land \overline{ValidQuery}\right] \geq
+                    \displaystyle\frac{1}{2} + \displaystyle\frac{1}{p \left(n\right)}
+                \]
+                $\mathcal{B}$ will sample $k_M$, and invoke $\mathcal{A}$, and respond to its queries. It will then
+                output the same $\left(m_0, m_1\right)$, and $b'$. \\
+                It will query the oracle $Enc_{k_E} \left(\cdot\right)$ to obtain a ciphertext $c$, compute $t \gets
+                Mac_{k_M} \left(c\right)$, and return $\left(c, t\right)$. \\
+                For the decryption query, if $\left(c, t\right)$ was a response to a previous query $m$, then return
+                $m$, and otherwise return $\perp$.
+
+                Since ValidQuery does not occur, then $\mathcal{B}$ does not need a decryption oracle for simulating
+                $\mathcal{A}$'s view. Thus: \begin{gather}
+                    \Pr \left[IND_{\Pi_E, \mathcal{B}} ^ {CPA} \left(n\right) = 1\right] \\ 
+                    \geq \Pr \left[IND_{\Pi_E, \mathcal{B}} ^ {CPA} \left(n\right) \land \overline{ValidQuery}\right] \\
+                    = \Pr \left[IND_{\Pi_E, \mathcal{A}} ^ {CPA} \left(n\right) \land \overline{ValidQuery}\right] \\
+                    \geq \displaystyle\frac{1}{2} + \displaystyle\frac{1}{p \left(n\right)}
+                \end{gather}
+            \end{proof}
+        \end{theorem}
+
+        \begin{theorem}[Claim I]
+            \textbf{Claim I}: There exists a negligible $v \left(n\right)$ such that $\Pr \left[ValidQuery\right] \leq v
+            \left(n\right)$
+            
+            \begin{proof}[Proof ]
+                Let us assume towards contradiction that there exists a polynomial $p \left(n\right)$ such that $\Pr
+                \left[ValidQuery\right] \geq \displaystyle\frac{1}{p \left(n\right)}$ for infinitely many $n$'s. Let $q
+                \left(n\right)$ be a polynomial upper bound on the number of decryption queries made by $\mathcal{A}$.
+                We will construct a PPT adversary $\mathcal{B}$ such that $\Pr \left[MacForge_{\Pi_M, \mathcal{B}} =
+                1\right] \geq \displaystyle\frac{1}{p \left(n\right) \cdot q \left(n\right)}$ for infinitely many $n$s
+
+                We will construct $\mathcal{B}$ as follows: Sample $k_E, b$ and $i \gest \left\{1, \dots, q\right\}$,
+                invoke $\mathcal{A}$, and respond to its queries. For an encryption query $m$, we will compute $c \gets
+                Enc_{k_E} \left(m\right)$, and query the oracle $Mac_{k_M} \left(\cdot\right)$ with $c$ to obtain the
+                tag $t$. Finally, return $\left(c, t\right)$. \\
+                For the first $i - 1$ decryption queries $\left(c, t\right)$, if $\left(c, t\right)$ was a response to a
+                previous encryption query $m$, then return $m$, and otherwise $\perp$. For the $i$th decryption query
+                $\left(c, t\right)$, output $\left(c^*, t^*\right)  =\left(c, t\right)$ as the (potential) forgery.
+
+                We will observe that ValidQuery occurs, and that $\mathcal{B}$ geusses the index $i$ of the first valid
+                decryption query that was not obtained from a previous encryption query. Therefore, $Vrfy_{k_M}
+                \left(c^*, t^*\right) = 1$ and $\mathcal{B}$ did not query $Mac_{k_M} \left(\cdot\right)$ on $c^*$. So,
+                we may conclude \begin{align*}
+                    \Pr \left[MacForge_{\Pi_M, \mathcal{B}} = 1\right] &\geq \Pr \left[ValidQuery \land \mathcal{B}
+                    \text{ guesses } i\right] \\ 
+                                                                       &= \displaystyle\frac{\Pr
+                                                                       \left[ValidQuery\right]}{q \left(n\right)} \\ 
+                                                                       &\geq \displaystyle\frac{1}{p \left(n\right)
+                                                                       \cdot q \left(n\right)}
+                \end{align*}
+            \end{proof}
+        \end{theorem}
+    \end{proof}
+\end{theorem}
+% subsubsection CCA-Secure encryption scheme (end)
 % subsection Chosen Ciphertext Attack CCA (end)
 % section Returning to encryption (end)
+
+\section{Crypto primitives so far}\label{sec:crypto_primitives_so_far} % (fold)
+So far, we have seen PRFs, PRGs, built PRGs from PRFs. From PRGs we have create IND-secure symmetric key encryption,
+and built CPA-secure symmetric key encryption from PRFs. Furthermore, we built IND-secure from CPA-secure. PRFs were also
+used to create MACs for fixed length messages, we then combined fixed length MAC and CPA-secure to make CCA secure
+symmetric key encryption. Finally, from MAC for fixed length messages, and Collision Resistant Hash Function, we made
+MAC for arbitrary length messages. 
+
+This concludes this section of the course, covering symmetric encryption. 
+% section Crypto primitives so far (end)
 
 \end{document}
