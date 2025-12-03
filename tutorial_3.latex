@@ -154,7 +154,7 @@ smaller keys. We then continued on to create a scheme, using \textit{Pseudo Rand
     Given \[
         W_{k_1, k_2} \left(x\right) = F_{F_{k_1} \left(0\right)} \| F_{k_2} \left(x\right)
     \]
-    Where $F$ is a PRF, is $W$ a PRF: 
+    Where $F$ is a PRF. Is $W$ a PRF? 
     \begin{proof}[Solution]
         Let us begin by proving the following 2 theorems:
         \begin{theorem}[]
