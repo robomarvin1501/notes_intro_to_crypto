@@ -493,7 +493,7 @@ Dec\right)$ be a secure MAC. Let us define $\Pi' = \left(KeyGen', Enc', Dec'\rig
                 We will construct a PPT adversary $\mathcal{B}$ such that $\Pr \left[MacForge_{\Pi_M, \mathcal{B}} =
                 1\right] \geq \displaystyle\frac{1}{p \left(n\right) \cdot q \left(n\right)}$ for infinitely many $n$s
 
-                We will construct $\mathcal{B}$ as follows: Sample $k_E, b$ and $i \gest \left\{1, \dots, q\right\}$,
+                We will construct $\mathcal{B}$ as follows: Sample $k_E, b$ and $i \gets \left\{1, \dots, q\right\}$,
                 invoke $\mathcal{A}$, and respond to its queries. For an encryption query $m$, we will compute $c \gets
                 Enc_{k_E} \left(m\right)$, and query the oracle $Mac_{k_M} \left(\cdot\right)$ with $c$ to obtain the
                 tag $t$. Finally, return $\left(c, t\right)$. \\
