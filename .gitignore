@@ -2,3 +2,5 @@
 Makefile
 venv/
 homework/
+deployment
+build.sh
