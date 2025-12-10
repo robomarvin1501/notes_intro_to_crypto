@@ -50,9 +50,11 @@ publish a \textit{public key} they everyone can see, and keep secret a \textit{p
 public key can only be decrypted by the private key, and the inverse is also true. This obviously sounds wonderful, I
 can verify that a message comes from me by signing it with my private key, and ensure only one person can read it by
 encrypting with their public key, but to do this, we need to find a way to share around the public keys, in a trusted
-format. Also, public key encryption is \textit{expensive}.
-
-% TODO 5
+format. Also, public key encryption is \textit{hard}. What do we mean by hard? Efficiency is measured asymptotically in
+terms of the input length. \[
+    \text{input length} = O \left(\log \left(\text{input}\right)\right)
+\]
+So, we can classify problems as \enquote{easy} or \enquote{hard}, based off the input length.
 
 \subsection{GCD}\label{sub:gcd} % (fold)
 For any $a, b \in \Z_{\geq 0}$,  there are unique $q, r \in \Z_{\geq 0}$ with $a = qb + r \land r < b$. The greatest
@@ -86,7 +88,10 @@ Euclidean algorithm will compute $gcd \left(a, b\right), X, Y$ in polynomial tim
         = 1$, then there exist $x, y \in \Z$ such that $px + qy = 1$. By the previously proven clain, \[
             p \mid qk_2 \land gcd \left(p, q\right) = 1 \implies p \mid k_2
         \]
-    Let $k_2 $ % TODO 8
+        Let $k_2 = pk_3$, and let us substitute $kk_2 = pk_3$ into $N = qk_2$, so \[
+            N = q \left(p k_3\right) = pqk_3
+        \]
+        Hence, $pq \mid N$
     \end{proof}
 \end{theorem}
 % subsection GCD (end)
@@ -100,8 +105,10 @@ Let $a, b, N \in \Z$ such that $N > 1$.
 \begin{example}[]
     How do we compute $\left[1093028 \cdot 190301 \mod 100\right]$?
     \begin{proof}[Solution]
-        % TODO 10
         \begin{align*}
+            1093028 \cdot 190301 &= \left[1093028 \mod 100\right] \cdot \left[190301 \mod 100\right] \mod 100 \\ 
+                                 &= 28 \cdot 1 \mod 100 \\ 
+                                 &= 28
         \end{align*}
     \end{proof}
 \end{example}
@@ -134,7 +141,7 @@ The above theorem implies that there are polynomial time algorithms for addition
 inverse computation, and exponentiation modulo $N$.
 
 So given $b, N$ such that $gcd \left(b, N\right)= 1$, then to find $b ^ {-1}$ we can use the extended Euclidean
-algorithm, and take $X$ % TODO missed what he said 1429
+algorithm on $b, N$, and take $X, k$ such that $bX + kN = 1$. So therefore, $X \mod N$ is the inverse of $b$.
 % subsection Modular arithmetic (end)
 
 \subsection{Groups}\label{sub:groups} % (fold)
@@ -164,9 +171,8 @@ group. \\
 $\left(\Z_N, + \mod N\right)$ is a commutative group, where $\Z_N = \left\{0, \dots, N - 1\right\}$
 % subsubsection Examples (end)
 
-% TODO there was a theorem, slide 14?
 \begin{theorem}[]
-    
+    Let $\G$ be a group, and $a, b, c \in \G$. Then $ac = bc$ \textbf{if and only if} $a = b$
 \end{theorem}
 
 \subsubsection{Group exponentiation}\label{sec:group_exponentiation} % (fold)
@@ -194,7 +200,14 @@ $\left(\Z_N, + \mod N\right)$ is a commutative group, where $\Z_N = \left\{0, \d
             \odot \left(h_1 \odot \dots \odot h_m\right)
         \end{gather}
         Note that $h_1, \dots, h_m$ are all the elements of the finite group. If we for example consider $\G =
-        \left(\left\{1, 2, 3, 4\right\}, +\right)$, then take $g = 2$, then we can see that this holds. % TODO complete the example
+        \left(\left\{1, 2, 3, 4\right\}, +\right)$, then take $g = 2$, then we can see that this holds: \begin{align*}
+            1 \odot 2 \odot 3 \odot 4 &= \left(2 \odot 1\right) \odot \left(2 \odot 2\right) \odot \left(2 \odot
+            3\right) \odot \left(2 \odot 4\right)  \\ 
+                                      &= \left(2\right) \odot \left(4\right) \odot \left(1\right) \odot \left(3\right) \\
+                                      &= 2 \odot 4 \odot 1 \odot 3 \\ 
+                                      &= 1 \odot 2 \odot 3 \odot 4
+        \end{align*}
+        As we can see, this only holds if commutativity holds.
     \end{proof}
 \end{theorem}
 
@@ -215,7 +228,8 @@ $\left(\Z_N, + \mod N\right)$ is a commutative group, where $\Z_N = \left\{0, \d
 
     \begin{proof}[Proof ]
         \begin{gather}
-            \forall g \in \G\ f_d \left(f_e \left(g\right)\right) = g ^ {ed} = g ^ {\left[ed \mod m\right]} % TODO 17
+            \forall g \in \G\ f_d \left(f_e \left(g\right)\right) = g ^ {ed} = g ^ {\left[ed \mod m\right]} = g ^ {1} =
+            g
         \end{gather}
     \end{proof}
 \end{theorem}
@@ -236,7 +250,7 @@ Ie, all the numbers less than $N$ that are invertible mod $N$.
                 \left|Z_N ^ {*}\right| = \displaystyle\prod_{i}^{} p_i ^ {e_i - 1} \left(p_i - 1\right)
             \]
             This is Euler's totient function, named $\phi \left(N\right)$
-    \end{itemize}% TODO 17
+    \end{itemize}
     Note: \begin{itemize}
         \item $\phi \left(p\right) = p - 1$ 
         \item $\phi \left(pq\right) = \left(p - 1\right) \left(q - 1\right)$
@@ -255,7 +269,9 @@ is \enquote{easy}, given $x, y$ it is easy to compute $x \cdot y$. However, fact
 \cdot y$, it does not seem trivial to compute $x$ and $y$. \\ 
 It should be note that factoring is not \textit{always} hard: \begin{itemize}
     \item Half of the time a random number is even
-    \item A third of the time it is divisible by 3 % TODO 18
+    \item A third of the time it is divisible by 3 
+    \item The hardest numbers to factor seem to be those that are the products of two equal length primes
+        (\textbf{important}, this will be incredibly relevant later, in things like RSA)
 \end{itemize}
 % subsection Hard problems (end)
 % section Number theory (end)
@@ -317,7 +333,47 @@ $\G \cong \mathbbm{H}$ means that they are essentially the smae group (up to the
     \odot_{\mathbbm{H}} h'\right)$
 \end{definition}
 
-% TODO 24 - 26
+\subsubsection{Chinese Remainder Theorem}\label{sec:chinese_remainder_theorem} % (fold)
+The (simplified) CRT: Let $N = pq$, with $gcd \left(p, q\right) = 1$. Then \[
+    \Z_N \cong \Z_p \times \Z_q \land \Z_N^* \cong \Z_p^* \times \Z_q^*
+\]
+where in both cases, the isomorphism $f$ is given by $f \left(x\right) = \left(\left[x \mod p\right], \left[x \mod
+q\right]\right)$. \\ 
+For $x \in \left\{0, \dots, N- 1\right\}$, we define $x_p = \left[x \mod p\right]$, and $x_q = \left[x \mod q\right]$.
+\\
+An example: $15 = 5 \cdot 3$: \begin{gather}
+    \Z_{15}^* = \left\{1, 2, 4, 7 ,8, 11, 13, 14\right\} = \Z_{5}^* \times \Z_3^* \\ 
+    1 \to \left(1, 1\right) \\ 
+    2 \to \left(2, 2\right) \\ 
+    4 \to \left(4, 1\right) \\ 
+    7 \to \left(2, 1\right) \\ 
+    8 \to \left(3, 2\right) \\ 
+    11 \to \left(1, 2\right) \\ 
+    13 \to \left(3, 1\right) \\ 
+    14 \to \left(4, 2\right)
+\end{gather}
+
+If $\G \cong \mathbbm{H}$, and both $f$ and $f ^ {-1}$ can be computed efficiently, then we can use $\mathbbm{H}$ to
+speed up computations in $\G$: \[
+    g_1 \odot_{\mathbbm{G}} = f ^ {-1} \left(f \left(g_1\right) \odot_{\mathbbm{H}} f \left(g_2\right)\right)
+\]
+So, returning to the above example with $\Z_{15}^*$, what if we want to compute $14 \cdot 13 \mod 15$? Well, \begin{align*}
+    \left[14 \cdot 13 \mod 15\right] &\stackrel{f}{\longrightarrow}  \left(4, 2\right) \cdot \left(3, 1\right) \\ 
+                                     &= \left(\left[4 \cdot 3 \mod 5\right], \left[2, \cdot 1 \mod 3\right]\right) \\ 
+                                     &= \left(2, 2\right) \\ 
+                                     &\stackrel{f ^ {-1}}{\longrightarrow} 2
+\end{align*}
+
+So, for $N = pq$, computing $f \left(x\right) = \left(x_p, x_q\right)$ is easy. So all we need to do is compute $f ^
+{-1}$: \begin{gather}
+    f ^ {-1} \left(x_p, x_q\right) = \left[x_p \cdot 1_p + x_q \cdot 1_q \mod N\right]
+\end{gather}
+Where $Ap + Bq = 1$ and \begin{gather}
+    1_p = \left[Bq \mod N\right]
+    1_q = \left[Ap \mod N\right]
+\end{gather}
+Which is not hard, since there are so many possible solutions.
+% subsubsection Chinese Remainder Theorem (end)
 
 % subsection RSA assumption (end)
 
@@ -403,7 +459,7 @@ Given $\mathcal{G}$, construct $\\Pi = \left(Gen, H\right)$ as follows: \begin{i
     \end{proof}
 \end{theorem}
 
-\subssubsection{Crypto primitives}\label{sub:crypto_primitives} % (fold)
+\subsubsection{Crypto primitives}\label{sub:crypto_primitives} % (fold)
 So, we have shown that the RSA assumption implies the factoring assumption, which implies everything we learnt so far
 (OWF, PRG, PRF, MAC, CPA/CCA secure symmetric key encryption). Additionally, the DL assumption implies CRHF, which in
 turn applies all these primitives as well. 
@@ -429,7 +485,11 @@ However, there exist algorithms that factor numbers, that can run in much less t
 algorithm is the general number field sieve, which runs in $2 ^ {O \left(n ^ {\frac{1}{3}} \cdot \left(\log n\right)^
 {\frac{2}{3}}\right)}$
 
-% TODO 37
+There are two classes of algorithms for DLog, those for arbitrary (generic) groups, and those that target specific
+groups. The best generic algorithm runs in $2 ^ {\frac{n}{2}}$, and is known to be \enquote{generically} optimal. \\ 
+For subgroups of $\Z_p^*$, the best known algorithm is the number field sieve, which runs in $2 ^ {O \left(n ^
+{\frac{1}{3}} \cdot \left(\log n\right)^ {\frac{2}{3}}\right)}$. \\
+Nothing better than $2 ^ {\frac{n}{2}}$ is known for elliptic-curve groups.
 
 As a result of all this, recommended by NIST is \enquote{112 bit security}. For factoring, we want
 $\left|\left|N\right|\right| = 2048$ bits, and DLog in order $q$ subgroups of $\Z_p^*$  where
