@@ -1,0 +1,452 @@
+\documentclass[a4paper]{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{blindtext}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[bookmarks=true]{hyperref}
+\usepackage{bookmark}
+\usepackage{bbm}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage[autostyle=true]{csquotes}
+\graphicspath{ {./images/} }
+\usepackage[bottom=0.5cm, right=1.5cm, left=1.5cm, top=1.5cm]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{exercise}{Exercise}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}[section]
+
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\p}{\ensuremath{\mathbb{P}}}
+\newcommand{\E}{\ensuremath{\mathbb{E}}}
+\newcommand{\F}{\ensuremath{\mathbbm{F}}}
+\newcommand{\1}{\ensuremath{\mathbbm{1}}}
+\newcommand{\G}{\ensuremath{\mathbbm{G}}}
+
+\title{Lecture 5 - Number Theory and Hardness Assumptions}
+\author{Gidon Rosalki}
+\date{2025-12-10}
+
+
+\begin{document}
+\maketitle
+\noindent\textbf{Notice:} If you find any mistakes, please open an issue at \href{https://github.com/robomarvin1501/notes\_intro\_to\_crypto}{\texttt{https://github.com/robomarvin1501/notes\_intro\_to\_crypto}}
+
+\section{Number theory}\label{sec:number_theory} % (fold)
+Practical private key cryptography can be based on block ciphers, and hash functions. However, public key cryptography
+requires more structure. Public key cryptography is when instead of 2 people having 1 shared key between them, they both
+publish a \textit{public key} they everyone can see, and keep secret a \textit{private key}. Encryptions made with the
+public key can only be decrypted by the private key, and the inverse is also true. This obviously sounds wonderful, I
+can verify that a message comes from me by signing it with my private key, and ensure only one person can read it by
+encrypting with their public key, but to do this, we need to find a way to share around the public keys, in a trusted
+format. Also, public key encryption is \textit{expensive}.
+
+% TODO 5
+
+\subsection{GCD}\label{sub:gcd} % (fold)
+For any $a, b \in \Z_{\geq 0}$,  there are unique $q, r \in \Z_{\geq 0}$ with $a = qb + r \land r < b$. The greatest
+common divisor (or GCD) is the largest $c \in \Z_{\geq 0}$ such that $c \mid a \land c \mid b$: \[
+    gcd \left(a, b\right) = c \in \Z_{\geq 0} : c \mid a \land c \mid b
+\]
+We can express $gcd \left(a, b\right)$ as $aX + bY$ for $X, Y \in \Z$, and it is the smallest positive integer that can
+be expressed this way. The Euclidean algorithm computes $gcd \left(a, b\right)$ in polynomial time. The extended
+Euclidean algorithm will compute $gcd \left(a, b\right), X, Y$ in polynomial time. 
+
+\begin{theorem}[]
+    If $c \mid ab$ and $gcd \left(c, a\right) = 1$ then $c \mid b$. In particular, if $p$ is prime, and $p \mid ab$ then
+    $p \mid a \lor p \mid b$.
+    \begin{proof}[Proof ]
+        Since $c \mid ab$, let us write $ab = ck$ for some $k \in \Z$. From $gcd \left(c, a\right) = 1$, then there
+        exist $x, y \in \Z$ such that $cx + ay = 1$. We may multiply $cx + ay = 1$ by $b$, and receive \[
+            b cx + bay = b
+        \]
+        Let us substitute $ab = ck$ into $b ay$: \[
+            b = c \left(xb + ky\right)
+        \]
+        Since $xb + ky  \in \Z$, we know that $c \mid b$
+    \end{proof}
+\end{theorem}
+
+\begin{theorem}[]
+    $p \mid N \land q \mid N \land gcd \left(p, q\right) = 1 \implies pq \mid N$
+
+    \begin{proof}[Proof ]
+        Since $p \mid N$ let us write $N = pk_1$. Similarly for $q$ we may write $N = qk_2$. From $gcd \left(p, q\right)
+        = 1$, then there exist $x, y \in \Z$ such that $px + qy = 1$. By the previously proven clain, \[
+            p \mid qk_2 \land gcd \left(p, q\right) = 1 \implies p \mid k_2
+        \]
+    Let $k_2 $ % TODO 8
+    \end{proof}
+\end{theorem}
+% subsection GCD (end)
+
+\subsection{Modular arithmetic}\label{sub:modular_arithmetic} % (fold)
+Let $a, b, N \in \Z$ such that $N > 1$. 
+\begin{definition}[Modular arithmetic]
+    $a = b \mod N$ if $N \mid \left(a - b\right)$. $\left[a \mod N\right]$ is the unique $a' \in \left\{0, \dots, N -
+    1\right\}$ such that $a = a' \mod N$
+\end{definition}
+\begin{example}[]
+    How do we compute $\left[1093028 \cdot 190301 \mod 100\right]$?
+    \begin{proof}[Solution]
+        % TODO 10
+        \begin{align*}
+        \end{align*}
+    \end{proof}
+\end{example}
+
+We cannot always divide modulo $N$: \begin{gather*}
+    3 \cdot 2 = 6 = 15 \cdot 2 \mod 24 \\ 
+    \text{but } 3 \ne 15 \mod 24
+\end{gather*}
+
+\begin{definition}[Invertible modulo]
+    $b$ is \textbf{invertible modulo} $N$ if there exists $b ^ {-1}$ such that $b \cdot b ^ {-1} = 1 \mod N$
+\end{definition}
+\begin{gather}
+    ab = cb \mod N \\ 
+    ab \cdot b ^ {-1} = cb \cdot b ^ {-1} \mod N \\ 
+    a = c \mod N
+\end{gather}
+
+\begin{theorem}[]
+    $b$ is invertible modulo $N$ \textbf{if and only if} $gcd \left(b, N\right) = 1$
+
+    \begin{proof}[Proof ]
+        Forward: If $b$ is invertible modulo $N$, then $bx = 1 \mod N$ for some $x$. This implies $bx - 1 = kN$ for some
+        $k$, or $bx - kN = 1$. By Bézout's identity, $gcd \left(b, N\right) = 1$. \\ 
+        Reverse: If $gcd \left(b, N\right) = 1$, then by Bézout's identity, there exist $x, k \in \Z$ such that $bx + kN
+        = 1$. Rearranging gives $bx = 1 \mod N$, so $b$ is invertible modulo $N$.
+    \end{proof}
+\end{theorem}
+The above theorem implies that there are polynomial time algorithms for addition, subtraction, multiplication, 
+inverse computation, and exponentiation modulo $N$.
+
+So given $b, N$ such that $gcd \left(b, N\right)= 1$, then to find $b ^ {-1}$ we can use the extended Euclidean
+algorithm, and take $X$ % TODO missed what he said 1429
+% subsection Modular arithmetic (end)
+
+\subsection{Groups}\label{sub:groups} % (fold)
+\begin{definition}[Group]
+    A group is a set $\mathbbm{G}$ along with a binary operation $\odot$ such that \begin{itemize}
+        \item Closure: $\forall g, h \in \mathbbm{G}\ g \odot h \in \mathbbm{G}$
+        \item Existence of an identity: There exists $\forall g \in \mathbbm{G}\ 1_\mathbbm{G} \in \mathbbm{G} : g \odot 1_{\mathbbm{G}} =
+            1_{\mathbbm{G}} \odot g = g$ 
+        \item Existence of an inverse: $\forall g \in \mathbbm{G}\ \exists g ^ {-1} \in \mathbbm{G} : g \odot g ^ {-1} =
+            g ^ {-1} \odot g = 1_{\mathbbm{G}}$
+        \item Associativity: $\forall g_1, g_2, g_3 \in \mathbbm{G}\ \left(g_1 \odot g_2\right) \odot g_3 = g_1 \odot \left(g_2 \odot g_3\right)$
+    \end{itemize}
+\end{definition}
+\begin{itemize}
+    \item $\left|\mathbbm{G}\right|$ is the \textbf{order} of $\left(\mathbbm{G}, \odot\right)$
+    \item $\left(\mathbbm{G}, \odot\right)$ is \textbf{finite} if $\left|\mathbbm{G}\right|$ is finite 
+    \item $\left(\mathbbm{G}, \odot\right)$ is \textbf{commutative} (abelian) if $\forall g, h \in \mathbbm{G}\ g \odot h = h \odot g$
+    \item $\left(\mathbbm{H}, \odot\right)$ is a \textbf{subgroup} of $\left(\mathbbm{G}, \odot\right)$ if
+        $\left(\mathbbm{H}, \odot\right)$ is a group, and $\mathbbm{H} \subseteq \mathbbm{G}$
+\end{itemize}
+
+\subsubsection{Examples}\label{sec:examples} % (fold)
+$\left(\Z, +\right)$ is a commutative group, but $\left(\Z, \times\right)$ is \textbf{not} a group (there is no
+inverse). \\ 
+$\left(\R, \times\right)$ is not a group, but $\left(\R \setminus \left\{0\right\}, \times\right)$ is a commutative
+group. \\ 
+$\left(\Z_N, + \mod N\right)$ is a commutative group, where $\Z_N = \left\{0, \dots, N - 1\right\}$
+% subsubsection Examples (end)
+
+% TODO there was a theorem, slide 14?
+\begin{theorem}[]
+    
+\end{theorem}
+
+\subsubsection{Group exponentiation}\label{sec:group_exponentiation} % (fold)
+\begin{definition}[]
+    For $g \in \mathbbm{G}$ and $m \in \N$ we let \begin{itemize}
+        \item $g ^ {m} = g \odot \dots \odot g$
+        \item $g ^ {-m} = \left(g ^ {-1}\right) ^ {m}$
+        \item $g ^ {0} = 1_{\mathbbm{G}}$
+    \end{itemize}
+\end{definition}
+
+\begin{theorem}[]
+    \begin{itemize}
+        \item $g ^ {m_1} \odot g ^ {m_2} = g ^ {m_1 + m_2}$
+        \item If $\mathbbm{G}$ is commutative, then $g ^ {m} \odot h ^ {m} = \left(g \odot h\right) ^ {m}$
+        \item $g ^ {m}$ can be computed using a polynomial number of group operations
+    \end{itemize}
+\end{theorem}
+
+\begin{theorem}[]
+    Let $\mathbbm{G}$ be a group of finite order $m$. Then $\forall g \in \mathbbm{G}\ g ^ {m} = 1$ 
+    \begin{proof}[Proof for commutative groups]
+        \begin{gather}
+            h_1 \odot \dots \odot h_m = \left(g \odot h_1\right) \odot \dots \odot \left(g \odot h_m\right) = g ^ {m}
+            \odot \left(h_1 \odot \dots \odot h_m\right)
+        \end{gather}
+        Note that $h_1, \dots, h_m$ are all the elements of the finite group. If we for example consider $\G =
+        \left(\left\{1, 2, 3, 4\right\}, +\right)$, then take $g = 2$, then we can see that this holds. % TODO complete the example
+    \end{proof}
+\end{theorem}
+
+\begin{theorem}[]
+    Let $\G$ be a group of finite order $m$. Then $g ^ {i} = g ^ {\left[i \mod m\right]}$ for any $g \in \G \land i \in
+    \Z$
+    \begin{proof}[Proof ]
+        Let $i = qm + r$ where $r = i \mod m$. Then \begin{gather}
+            g ^ {i} = \left(g ^ {m}\right) ^ {q} \cdot g ^ {r} = 1 ^ {q} \cdot g ^ {r} = g ^ {r}
+        \end{gather}
+    \end{proof}
+\end{theorem}
+
+\begin{theorem}[]
+    Let $\G$ be a finite group of order $m > 1$, and let $e > 0$ be an integer such that $gcd \left(e, m\right) = 1$.
+    Then, the function $f_e : \G \to \G$ defined as $f_e \left(g\right) = g ^ {e}$ is a permuation. Moreover, its
+    inverse is $f_d$ where $d = e ^ {-1} \mod m$
+
+    \begin{proof}[Proof ]
+        \begin{gather}
+            \forall g \in \G\ f_d \left(f_e \left(g\right)\right) = g ^ {ed} = g ^ {\left[ed \mod m\right]} % TODO 17
+        \end{gather}
+    \end{proof}
+\end{theorem}
+% subsubsection Group exponentiation (end)
+
+\subsubsection{Z star N}\label{sec:z_star_n} % (fold)
+Let us consider the group $\Z_N ^ {*}$: \begin{gather}
+    \Z_N = \left\{0, \dots, N - 1\right\} \\ 
+    \Z_N ^ {*} = \left\{a \in \left\{1, \dots, N - 1\right\} : gcd \left(a, N\right) = 1\right\}
+\end{gather}
+Ie, all the numbers less than $N$ that are invertible mod $N$.
+
+\begin{theorem}[]
+    Let $N > 1$ be an integer, then \begin{itemize}
+        \item $\Z_N ^ {*}$ is a commutative group under multiplication modulo $N$
+        \item If $N = \displaystyle\prod_{i}^{}p_i ^ {e_i}$ where the $p_i$s are distinct primes, and $e_i \geq 1$ then
+            \[
+                \left|Z_N ^ {*}\right| = \displaystyle\prod_{i}^{} p_i ^ {e_i - 1} \left(p_i - 1\right)
+            \]
+            This is Euler's totient function, named $\phi \left(N\right)$
+    \end{itemize}% TODO 17
+    Note: \begin{itemize}
+        \item $\phi \left(p\right) = p - 1$ 
+        \item $\phi \left(pq\right) = \left(p - 1\right) \left(q - 1\right)$
+    \end{itemize}
+\end{theorem}
+% subsubsection Z star N (end)
+% subsection Groups (end)
+
+\subsection{Hard problems}\label{sub:hard_problems} % (fold)
+An easy problem may be solved in polynomial time, with respect to the length of the input. For a hard problem, we do not
+\textbf{know} of a polynomial time solution. There may be one that we know not, but we know not of one. 
+
+So far we discussed \enquote{easy}  number theoretic problems, such as addition, subtraction, multiplication, inverse
+computation, and exponentiation modulo $N$. Some problems are \textbf{conjectured} to be \enquote{hard}. Multiplication
+is \enquote{easy}, given $x, y$ it is easy to compute $x \cdot y$. However, factoring seems \enquote{hard}: Given $x
+\cdot y$, it does not seem trivial to compute $x$ and $y$. \\ 
+It should be note that factoring is not \textit{always} hard: \begin{itemize}
+    \item Half of the time a random number is even
+    \item A third of the time it is divisible by 3 % TODO 18
+\end{itemize}
+% subsection Hard problems (end)
+% section Number theory (end)
+
+\pagebreak
+\section{Factoring and RSA assumptions}\label{sec:factoring_and_rsa_assumptions} % (fold)
+\subsection{Factoring assumption}\label{sub:factoring_assumption} % (fold)
+Let GenModulus be a PPT algorithm that on input $1 ^ {n}$ outputs $\left(N, p, q\right)$ where $N = pq$, and $p$ and $q$
+are $n$ bit primes.
+
+The \textbf{Factoring Assumption} is that for every PPT algorithm $\mathcal{A}$, there exists a negligible function $v
+\left(\cdot\right)$ such that \[
+    \Pr \left[\mathcal{A} \left(N\right) = \left(p, q\right)\right] \leq v \left(n\right)
+\]
+Where $\left(N, p, q\right) \gets GenModulus \left(1 ^ {n}\right)$. \\ 
+
+The factoring assumption implies that the following is a one way function: \[
+    f \left(x\right) = \text{ compute } \left(N, p, q\right) \gets GenModulus \left(1 ^ {n} ; x\right) \text{ and output
+    } N
+\]
+Here, $x$ is used as the random tape. \\
+We will not directly rely on the factoring assumption, and instead the seemingly stronger RSA assumption.
+% subsection Factoring assumption (end)
+
+\subsection{RSA assumption}\label{sub:rsa_assumption} % (fold)
+Let $N = pq$ for primes $p, q$. Let $e > 0$ be an integer such that $gcd \left(e, \phi \left(N\right)\right) = 1$.
+Recall that when we raise to the $e$th power, \begin{itemize}
+    \item $f_e \left(x\right)= x ^ {e} \mod N$ is a permutation over $\Z_N ^ {*} = \left\{a \in \left\{1, \dots, N -
+        1\right\} : gcd \left(a, N\right) = 1\right\}$
+    \item $f_e \left(x\right) = x ^ {e} \mod N$ can be computed in polynomial time given $e$ and $N$
+\end{itemize}
+To compute the $e$th root, \begin{itemize}
+    \item Let $d = e ^ {-1} \mod \phi \left(N\right)$ then $f_d \left(x\right) = x ^ {d} \mod N$ is the inverse of $f_e$
+\end{itemize}
+
+Let GenRSA be a PPT algorithm that on input $1 ^ {n}$ outputs $\left(N, e, d\right)$ where $N = ppq$, and $p$ and $q$
+are $n$ bit primes, $gcd \left(e, \phi \left(N\right) = 1\right)$, and $d = e ^ {01} \mod \phi \left(N\right)$: 
+
+The \textbf{RSA Assumption}: For every PPT algorithm $\mathcal{A}$ there exists a negligible function $c
+\left(\cdot\right)$ such that \[
+    \Pr \left[\mathcal{A} \left(N, e, x ^ {e} \mod N\right) = x\right] \leq v \left(n\right)
+\]
+Where $\left(N, e, d\right) \gets GenRSA \left(1 ^ {n}\right)$ and $x \gets \Z_N^*$. A possible implementation woul dbe
+to generate uniform $n$ bit primes $p$ and $q$, and set $N = pq$. Then we choose an arbitrary $e$ such that $gcd
+\left(e, \phi \left(N\right)\right) = 1$ (eg, $e = 3$, or $2 ^ {16} + 1$ for efficient exponentiation).
+
+
+\begin{definition}[Group isomorphism]
+    Two groups $\G, \mathbbm{H}$ are isomorphic (denoted $\mathbbm{G} \cong \mathbbm{H}$) if there exists a one to
+    one function $f: \G \to \mathbbm{H}$ such that $\forall g_1, g_2 \in \G$ it holds that \[
+        f \left(g_1 \odot g_2\right) = f \left(g_1\right) \odot f \left(g_2\right)
+    \]
+\end{definition}
+$\G \cong \mathbbm{H}$ means that they are essentially the smae group (up to the efficiency of computing $f$, $f ^ {-1}$)
+
+\begin{definition}[Cross product]
+    $\G \times \mathbbm{H}$ is the group of ordered pairs $\left(g, h\right) \in \G \times \mathbbm{H}$ with respect to
+    the group operation $\left(g, h\right) \odot_{\G, \mathbbm{H}} \left(g', h'\right) = \left(g \odot_{G} g', h
+    \odot_{\mathbbm{H}} h'\right)$
+\end{definition}
+
+% TODO 24 - 26
+
+% subsection RSA assumption (end)
+
+\subsection{Cyclic groups}\label{sub:cyclic_groups} % (fold)
+\begin{definition}[Cyclic group]
+    Let $\G$ be a finite group of order $m$, and let $g \in \G$. Then \begin{itemize}
+        \item $\left\langle g \right\rangle = \left\{g ^ {0}, g ^ {1}, g ^ {2}, \dots\right\}$
+        \item The \textbf{order} $ord \left(g\right)$ of $g$ is the smallest positive integer $i$ with $g ^ {i} = 1$
+    \end{itemize}
+\end{definition}
+
+\begin{theorem}[]
+    \begin{itemize}
+        \item $\left\langle g \right\rangle$ is a subgroup of $\G$ (Called the subgroup generated by $g$)
+        \item $\left\langle g \right\rangle = \left\{g ^ {0}, g ^ {1}, \dots, g ^ {ord \left(g\right) - 1}\right\}$
+        \item $g ^ {x} = g ^ {y}$ \textbf{if and only if} $x = y \mod ord \left(g\right)$
+        \item $ord \left(g\right) \mid m$ where $m = \left|\G\right|$
+    \end{itemize}
+\end{theorem}
+
+\begin{theorem}[]
+    If $\G$ is a group of prime order $p$, then $\G$ is cyclic. Moreover, each element $g \in \G \setminus
+    \left\{1\right\}$ is a generator (i.e., $\G = \left\langle g \right\rangle$)
+\end{theorem}
+In particular, $\Z_p$ is sa cyclic group with respect to \textbf{addition} modulo $p$. 
+
+\begin{theorem}[]
+    If $p$ is prime, then $\Z_p ^ {*}$ is a cyclic group
+\end{theorem}
+For example, the theorem implies that $\Z_7^*$ is a cyclic group. \begin{itemize}
+    \item $\left\langle 2 \right\rangle = \left\{1, 2, 4\right\}$, and therefore $2$ is \textbf{not} a generator of
+        $\Z_7^*$
+    \item $\left\langle 3 \right\rangle = \left\{1, 3, 2, 6, 4, 5\right\} = \Z_7^*$ and therefore 3 \textbf{is} a
+        generator of $\Z_7^*$
+\end{itemize}
+% subsection Cyclic groups (end)
+
+
+% section Factoring and RSA assumptions (end). 
+
+\section{Discrete logarithm assumption}\label{sec:discrete_logarithm_assumption} % (fold)
+Let $\G$ be a group of prime order $q$ that is generated by $g \in \G$. In other words, $\G = \left\{g ^ {0}, g ^ {1},
+\dots, g ^ {q - 1}\right\}$. Therefore, for every $h \in \G$ there is a unique $x \in \Z_q$ such that $h = g ^ {x}$. $x
+= \log_g h$ is called the \textbf{discrete logarithm} of $h$, with respect to $g$.
+
+Some simple facts: \begin{itemize}
+    \item $\log_g \left(1\right) = 0$
+    \item $\log_g \left(h_1 \cdot h_2\right)= \left[\left(\log_g h_1 + \log_g h_2\right) \mod q\right]$
+\end{itemize}
+
+Let $\mathcal{G}$ be a PPT algorithm that on input $1 ^ {n}$ outputs $\left(\G, q, g\right)$ where $\G$ is a cyclic
+group of order $q$ that is generated by $g$, and $q$ is an $n$ bit prime. 
+
+The \textbf{Discrete Logarithm (DL) Assumption}: For every PPT algorithm $\mathcal{A}$ there exists a negligible
+function $v \left(\cdot\right)$ such that \[
+    \Pr \left[\mathcal{A}\left(\G, q, g, h\right) = \log_g h\right] \leq v \left(n\right)
+\]
+Where $\left(\G, q, g\right) \gets \mathcal{G} \left(1 ^ {n}\right)$ and $h \gets \G$. This naturally defines a family
+of one way functions, where \[
+    f_{\left(\G, q, g\right): \Z_q \to \G} \text{ defined as } f_{\left(\G, q, g\right)} \left(x\right) = g ^ {x}
+\]
+
+For example, we may use this to build collision resistant hash functions. These compress long inputs into short outputs,
+and given $h$, it is hard to find $x \ne x'$ such that $h \left(x\right) = h \left(x'\right)$. \\ 
+Given $\mathcal{G}$, construct $\\Pi = \left(Gen, H\right)$ as follows: \begin{itemize}
+    \item Key generation: On input $1 ^ {n}$, Gen runs $\mathcal{G} \left(1 ^ {n}\right)$ to obtain $\left(\G, q, g\right)$, and samples
+        $h \gets \G$. Then it outputs $s = \left(\G, q, g, h\right)$
+    \item Evaluation: On input $\left(x_1, x_2\right) \in \Z_q^2$, $H_s$ outputs $g ^ {x_1} h ^ {x_2} \in \G$
+\end{itemize}
+\begin{theorem}[]
+    If the DL assumption holds relative to $\mathcal{G}$, then $\Pi$ is collision resistant. 
+
+    \begin{proof}[Proof Idea]
+        Given a collision finder $\mathcal{C}$ for $\Pi$, construct a DL algorithm $\mathcal{A}$ for $\mathcal{G}$.
+        $\mathcal{A }\left(\G, q, g, h\right)$ runs $\mathcal{C} \left(\G, q, g, h\right)$, and obtains $x = \left(x_1,
+        x_2\right)$, and $x' = \left(x_1', x_2'\right)$. If $x \ne x'$, then $\mathcal{A}$ outputs \[
+            \left[\left(x_1 - x_1'\right) \cdot \left(x_2' - x_2\right)^ {-1} \mod q\right]
+        \]
+        Otherwise $\mathcal{A}$ outputs $\bot$. So: \begin{gather}
+            g ^ {x_1} h ^ {x_2} = g ^ {x_1'} h ^ {x_2'} \text{ \textbf{if and only if} } g ^ {x_1 - x_1'} = h ^ {x_2' -
+            x_2}
+        \end{gather}
+    \end{proof}
+\end{theorem}
+
+\subssubsection{Crypto primitives}\label{sub:crypto_primitives} % (fold)
+So, we have shown that the RSA assumption implies the factoring assumption, which implies everything we learnt so far
+(OWF, PRG, PRF, MAC, CPA/CCA secure symmetric key encryption). Additionally, the DL assumption implies CRHF, which in
+turn applies all these primitives as well. 
+% subsection Crypto primitives (end)
+
+\subsubsection{Commonly used groups}\label{sec:commonly_used_groups} % (fold)
+The prime order subgroup of $\Z_p^*$ where $p$ is prime: \begin{itemize}
+    \item For $p = tq + 1$, where $q$ is prime, consider $\G = \left\{\left[x ^ {t} \mod p\right] : x \in \Z_p^*\right\}$ 
+    \item This is a group 
+    \item It has order $\displaystyle\frac{p - 1}{t} = q$, and therefore is cyclic
+\end{itemize}
+
+We also have the prime order subgroup of an elliptic-curve group. This is not required, but see KL 8.3.4 for further
+details.
+% subsubsection Commonly used groups (end)
+
+\subsubsection{Problem difficulty}\label{sec:problem_difficulty} % (fold)
+So, let us consider how hard are the problems we have so far discussed. Symmetric key cryptography, where we have a
+block cipher with $n$ bit keys requires roughly $2 ^ {n}$ time attacks. A hash function with $n$ bit output provides
+security against approximately $2 ^ {\frac{n}{2}}$ time attacks. 
+
+However, there exist algorithms that factor numbers, that can run in much less that $2 ^ {n}$ time. The best known
+algorithm is the general number field sieve, which runs in $2 ^ {O \left(n ^ {\frac{1}{3}} \cdot \left(\log n\right)^
+{\frac{2}{3}}\right)}$
+
+% TODO 37
+
+As a result of all this, recommended by NIST is \enquote{112 bit security}. For factoring, we want
+$\left|\left|N\right|\right| = 2048$ bits, and DLog in order $q$ subgroups of $\Z_p^*$  where
+$\left|\left|q\right|\right| = 224$ bits, and $\left|\left|p\right|\right| = 2048$ bits. Finally, DLog in elliptic-curve
+groups of order $q: \left|\left|q\right|\right| = 224$ bits. 
+
+This is much longer than for private-key cryptography. This explains in part why public-key cryptography is less
+efficient than private-key cryptography. 
+
+We did not cover Generating random primes \& primality testing, elliptic curve groups, and factoring \& discrete log
+algorithms.
+
+For further reading:
+J. Katz and Y. Lindell. Introduction to Modern Cryptography.
+Chapter 7 (Number Theory and Cryptographic Hardness Assumptions): 8.0-8.1.5, 8.2.0, 8.2.3-8.2.4, 8.3.0-8.3.2, 8.4
+Appendix B (Supplementary Algorithmic Number Theory): B.0-B.2
+% subsubsection Problem difficulty (end)
+% section Discrete logarithm assumption (end)
+
+\end{document}
