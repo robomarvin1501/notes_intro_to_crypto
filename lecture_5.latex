@@ -276,7 +276,6 @@ It should be note that factoring is not \textit{always} hard: \begin{itemize}
 % subsection Hard problems (end)
 % section Number theory (end)
 
-\pagebreak
 \section{Factoring and RSA assumptions}\label{sec:factoring_and_rsa_assumptions} % (fold)
 \subsection{Factoring assumption}\label{sub:factoring_assumption} % (fold)
 Let GenModulus be a PPT algorithm that on input $1 ^ {n}$ outputs $\left(N, p, q\right)$ where $N = pq$, and $p$ and $q$
