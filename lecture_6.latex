@@ -1,0 +1,168 @@
+\documentclass[a4paper]{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{blindtext}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[bookmarks=true]{hyperref}
+\usepackage{bookmark}
+\usepackage{bbm}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage[autostyle=true]{csquotes}
+\graphicspath{ {./images/} }
+\usepackage[bottom=0.5cm, right=1.5cm, left=1.5cm, top=1.5cm]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{exercise}{Exercise}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}[section]
+
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\p}{\ensuremath{\mathbb{P}}}
+\newcommand{\E}{\ensuremath{\mathbb{E}}}
+\newcommand{\F}{\ensuremath{\mathcal{F}}}
+\newcommand{\1}{\ensuremath{\mathbbm{1}}}
+\newcommand{\G}{\ensuremath{\mathbbm{G}}}
+
+\title{Lecture 6 - Public Key Cryptography}
+\author{Gidon Rosalki}
+\date{2025-12-17}
+
+
+\begin{document}
+\maketitle
+\noindent\textbf{Notice:} If you find any mistakes, please open an issue at \href{https://github.com/robomarvin1501/notes\_intro\_to\_crypto}{\texttt{https://github.com/robomarvin1501/notes\_intro\_to\_crypto}}
+
+We will begin with the concept of key exchange, and move on to real cryptography systems.
+
+\section{Private key cryptography}\label{sec:private_key_cryptography} % (fold)
+Recall in the previous section of the course, covering symmetric cryptography, given shared \textbf{secret} keys, it is
+possible to securely communicate over an insecure channel. \\
+This means that we need to obtain these shared secret keys, but we cannot send them over this insecure channel. This
+results in two problems: \begin{enumerate}
+    \item Key distribution. We can do this by physically meeting, or having trusted messengers, and the like, but then
+        you are left with the problem of sharing a key with a company like Amazon. 
+    \item Key storage: $n$ users need $\binom{n}{2} \approx n ^ {2}$ keys, so each user needs to store $n - 1$ keys.
+        Since keys need to be stored securely, this becomes a lot of (increasingly expensive) space
+\end{enumerate}
+
+\subsection{Diffie - Hellman}\label{sub:diffie_hellman} % (fold)
+In a seminal paper by Diffie and Hellman in 1976, called \enquote{New Direction in Cryptography}, they presented this
+apparently impossible problem of securely sharing keys over an insecure channel, and how to solve it. This resulted in a
+radical change, introducing the idea of public key cryptography. It was one of the first steps of moving cryptography
+out of the private domain (intelligence, militaries, and the like), and into the public one, which all people could use.
+
+The idea of public key encryption is as follows: 
+Both Alice and Bob have a secret key $sk$, and public key $pk$. Bob publicises his public key on his homepage,
+such that everyone can access it. Alice may now communicate with Bob by encrypting with his public key, and he may
+decrypt with his private key, or mathematically: \[
+    Dec_{sk} \left(Enc_{pk} \left(m\right)\right) = m
+\]
+This resolves the problem of everyone needing to store everyone else's keys, since they can just check the shared
+database of size $n$, that stores all of the public keys. 
+
+Diffie and Hellman envisioned three public key primitives: \begin{itemize}
+    \item Key agreement protocols 
+    \item Public key encryption 
+    \item Digital signatures
+\end{itemize}
+They invented the first key agreement protocol, known as Diffie Hellman key agreement protocol, and the first public-key
+encryption and digital signature schemes were invented a year later by Rivest, Shamir and Adleman.
+
+\subsubsection{Key-Agreement protocols}\label{sec:_key_agreement_protocols_} % (fold)
+Alice and Bob run a protocol $\Pi$ for generating a random key. Note that they are communicating over a potentially
+unsecured channel, \textbf{not} in person. Alice generates $r_A$, and Bob $r_B$. $Transcript_\Pi \left(1 ^ {n}, r_A,
+r_B\right)$ is the transcript of the protocol. 
+\begin{definition}[Correctness]
+    $\Pi$ is a \textbf{key agreement protocol} if there exists a negligible function $v \left(n\right)$ such that for
+    all $n \in \N$ \[
+        \Pr_{r_A, r_B} \left[K_A \left(1 ^ {n}, r_A, r_B\right) \ne K_B \left(1 ^ {n}, r_A, r_B\right)\right] \leq v
+        \left(n\right)
+    \]
+\end{definition}
+This is to say, that $K_i$ generates a different key given the same inputs with an exceedingly low probability. Alice
+has the inputs $1 ^ {n}, r_A$, and outputs $K_A \left(1 ^ {n}, r_A, r_B\right) \in \mathcal{K}_n$. Bob has the same, but
+with $r_B, K_B$. \\ 
+The important thing to note here is that Eve is eavesdropping the communication channel, and should not learn
+\textbf{any} information on the resulting key. Specifically, from Eve's point of view, the key should be \enquote{as
+good as}  an independently chosen key.
+\begin{definition}[Security]
+    A key agreement protocol $\Pi$ is \textbf{secure} if \[
+        \left(Transcript_\Pi \left(1 ^ {n}, r_A, r_B\right), K_A \left(1 ^ {n}, r_A, r_B\right)\right) \approx^c
+        \left(Transcript_\Pi \left(1 ^ {n}, r_A, r_B\right), K\right)
+    \]
+    Where $r_A, r_B \gets \left\{0, 1\right\}^ {*},\ K \gets \mathcal{text}_n$ are sampled independently and uniformly.
+\end{definition}
+
+So, how do we create such a protocol? % TODO 12
+% subsubsection {Key-Agreement protocols} (end)
+
+\subsubsection{Diffie-Hellman Key Agreement}\label{sec:diffie_hellman_key_agreement} % (fold)
+Let $\mathcal{G}$ be a PPT algorithm that on input $1 ^ {n}$, outputs $\left(\G, q, g\right)$, where $\G$ is a cyclic
+group of order $q$, that is generated by $g$, and $q$ is an $n$bit prime. Let us assume that $\left(\G, q, g\right)
+\gets \mathcal{G} \left(1 ^ {n}\right)$ is generated, and known to both parties (a publicly published one in the world).
+
+So, Alice samples $x \gets \Z_q$, and then computes $h_A = g ^ {x}$, which she sends to Bob. Similarly, Bob samples $y
+\gets \Z_q$, computes $h_B = g ^ {y}$, which he sends to Alice. Alice then outputs $K_A = \left(h_B\right) ^ {x}$, and
+Bob outputs $K_B = \left(h_A\right) ^ {y}$. Here, remember from the earlier definition that $\Pr \left[K_A \ne
+K_B\right] \leq v \left(n\right)$ for a negligible $v$, since as we can see \begin{gather}
+    h_A = g ^ {x} \\
+    h_B = g ^ {y} \\
+    K_A = \left(h_B\right) ^ {x} = \left(g ^ {y}\right) ^ {x} = \left(g ^ {x}\right) ^ {y} = \left(h_A \right) ^ {y} =
+    K_B
+\end{gather}
+
+So, above shows correctness, but we need to show security: \[
+    \left(Transcript_\Pi \left(1 ^ {n}, r_A, r_B\right), K_A \left(1 ^ {n}, r_A, r_B\right)\right) \approx^c
+    \left(Transcript_\Pi \left(1 ^ {n}, r_A, r_B\right), K\right)
+\]
+\begin{definition}[The Decisional Diffie Hellman (DDH) Assumption]
+    For every PPT algoirithm $\mathcal{A}$ there exists a negligible function $v \left(\cdot\right)$ such that \[
+        \left|\Pr \left[\mathcal{A} \left(\G, q, g, g ^ {x}, g ^ {y}, g to xz\right) = 1\right] - \Pr \left[\mathcal{A}
+        \left(\G, q, g, g ^ {x}, g ^ {y}, g ^ {z}\right) = 1\right]\right| \leq v \left(n\right)
+    \]
+    Where $\left(\G, q, g\right) \gets \mathcal{G} \left(1 ^ {n}\right)$, and $x, y, z \gets \Z_q$
+\end{definition}
+Effectively, they made an assumption that it is secure, and it has still not been broken. If you break it, you will get
+the Turing prize. Sadly, unlike Computability and Complexity, no guarantees of 100\% in the course. 
+
+\begin{definition}[Computational Diffie-Hellman Assumption]
+    For every PPT algorithm $\mathcal{A}$, there exists a negligible function $v \left(\cdot\right)$ such that \[
+        \left|\Pr \left[\mathcal{A} \left(\G, q, g, g ^ {x}, g ^ {y}\right) = g ^ {xy}\right]\right| \leq v \left(n\right)
+    \]
+    Where $\left(\G, q, g\right) \gets \mathcal{G} \left(1 ^ {n}\right)$, and $x, y \gets \Z_q$
+\end{definition}
+If you can solve CDH, then you can also solve DDH, so therefore DDH is a more secure assumption.
+
+Some notes: Random elements vs random strings: Alice and Bob agree on a random group element $g ^ {xy} \in \G$. They
+typically need a random $n$ bit key $K \in \left\{0, 1\right\} ^ {n}$. There are generic tools to extract such a key
+(called randomness extractors). \\ 
+There is also insecurity against active adversaries. Consider if Eve can change what is happening across the channel,
+then Eve may perform individual key exchange with both Alice, and Bob, and they will be none the wiser, but all their
+messages will pass through Eve.
+% subsubsection Diffie-Hellman Key Agreement (end)
+
+% subsection Diffie - Hellman (end)
+
+Our picture of cryptographic primitives has grown! Behold: 
+\begin{figure}[H]
+    \center
+    \includegraphics[scale=0.2]{lecture_6_grown_primitives.png}
+    \caption{Cryptographic primitives}
+\end{figure}
+
+
+% section Private key cryptography (end)
+
+
+\end{document}
