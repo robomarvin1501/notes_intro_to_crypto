@@ -104,7 +104,21 @@ good as}  an independently chosen key.
     Where $r_A, r_B \gets \left\{0, 1\right\}^ {*},\ K \gets \mathcal{text}_n$ are sampled independently and uniformly.
 \end{definition}
 
-So, how do we create such a protocol? % TODO 12
+In order to create such a protocol, it is important to first remember the definition of \textit{computational
+indistinguishability}. Two probability distributions are computationally indistinguishable if no efficient algorithm can
+tell them apart: 
+\begin{definition}[Computationally indistinguishable]
+    Two probability ensembles $X = \left\{X_n\right\}_{n \in \N}, Y = \left\{Y_n\right\}_{n \in \N}$ are
+    \textbf{computationally indistinguishable} if for all PPT distinguishers $\mathcal{D}$ there exists a negligible
+    function $v \left(\cdot\right)$ such that \[
+        \left|\Pr \left[\mathcal{D} \left(1 ^ {n}, x\right)= 1\right] - \Pr \left[\mathcal{D} \left(1 ^ {n}, y\right) -
+        1\right]\right| \leq v \left(n\right)
+    \]
+    Where $x \gets X_n,\ y \gets Y_n$
+\end{definition}
+This is denoted $X \approx^c Y$. We typically consider an efficiently sampleable $X$ and $Y$. Additionally, from this
+definition, we can say that pseudorandom means that it is computationally indistinguishable from the uniform
+distribution.
 % subsubsection {Key-Agreement protocols} (end)
 
 \subsubsection{Diffie-Hellman Key Agreement}\label{sec:diffie_hellman_key_agreement} % (fold)
