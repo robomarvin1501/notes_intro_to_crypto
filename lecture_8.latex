@@ -65,9 +65,9 @@ To compare against MACs: \begin{table}[H]
          \hline
          Signatures & MACs \\ \hline
          $n$ users require only $n$ secret keys & $n$ users require $n ^ {2}$ secret \\ \hline
-         Same signature can be verified by all users \\ \hline
+         Same signature can be verified by all users & \\ \hline
          Publicly verifiable and transferable & Privately verifiable and non transferable \\ \hline
-         Provide non repudiation & More efficient (2 - 3 orders of magnitude faster) \\ \hline 
+         Provides non repudiation & More efficient (2 - 3 orders of magnitude faster) \\ \hline 
      \end{tabular}
      \caption{}
 \end{table} 
@@ -126,27 +126,193 @@ for 1 bit messages as follows: \begin{itemize}
         \left(x_{b^*}\right)$. Inverting $f \left(x_{b^*}\right)$ is clearly hard, even when given $x_{1 - b^*}$ and $f
         \left(x_{1 - b^*}\right)$. An inverter can guess the forged bit $b^*$ ahead of time with probability
         $\displaystyle\frac{1}{2}$.
+
+        We can construct an inverter $\mathcal{B}$ as follows, which takes as input $y = f \left(x\right)$ for some $x \gets
+        \left\{0, 1\right\} ^ {n}$. \begin{enumerate}
+            \item Choose $b^* \gets \left\{0, 1\right\}$ and set $y_{b^*} = y$
+            \item Sample $x_{1 - b^*} \gets \left\{0, 1\right\} ^ {n}$, and set $y_{1 - b^*} = f \left(x_{1 - b^*}\right)$
+            \item Run $\mathcal{A}$ on input $vk = \left(y_0, y_1\right)$
+            \item When $\mathcal{A}$ requests a signature on $b$: \begin{itemize}
+                \item If $b = b^*$ abort
+                \item If $b = 1 - b^*$ output $x_{1 - b^*}$
+            \end{itemize}
+            \item If $\mathcal{A}$ output a forgery $\sigma^*$ on $b^*$, output $\sigma^*$
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+So \begin{align*}
+    \Pr \left[\mathcal{B} \left(f \left(x\right)\right) \in f ^ {-1} \left(f \left(x\right)\right)\right] &\geq \Pr
+    \left[\text{SigForge}_{\Pi, \mathcal{A}} \left(n\right) = 1 \land \mathcal{B} \text{ does not abort}\right] \\ 
+      &= \Pr \left[\text{SigForge}_{\Pi, \mathcal{A}} \left(n\right) = 1\right] \cdot \Pr \left[\mathcal{B} \text{ does
+      not abort}\right] \\ 
+      & \Pr \left[\text{SigForge}_{\Pi, \mathcal{A}} \left(n\right) = 1\right] \cdot \displaystyle\frac{1}{2}
+\end{align*}
+We may note that this scheme only works one time, for a single bit. We may extend this to $l$ bit messages by creating
+\begin{gather}
+    sk = \begin{bmatrix}
+        x_0^1 & x_0^2 & \dots & x_0^l \\
+        x_1^1 & x_1^2 & \dots & x_1^l \\
+    \end{bmatrix} \\ 
+    vf = \begin{bmatrix}
+        f \left(x_0^0\right) & \dots & f \left(x_0^l\right) \\
+        f \left(x_1^0\right) & \dots & f \left(x_1^l\right) \\
+    \end{bmatrix}
+\end{gather}
+Or formally: Let $f$ be an OWF. We define the signature scheme $\Pi = \left(Gen, \text{Sign}, \text{Vrfy}\right)$ for
+$l$ bit messages as follows: \begin{itemize}
+    \item Gen $\left(1 ^ {n}\right)$: For each $i \in \left[l\right]$, and $b \in \left\{0, 1\right\}$, sample $x_{i, b}
+        \gets \left\{0, 1\right\} ^ {n}$ and compute $y_{i, b} = f \left(x_{i, b}\right)$. Output $sk =
+        \left\{\left(x_{i, 0}, x_{i, 1}\right)\right\}_{i \in \left[l\right]}$ and $vk = \left\{\left(y_{i, 0}, y_{i,
+        1}\right)\right\}_{i \in \left[l\right]}$
+    \item $\Sign_{sk} \left(m = m_1 \dots m_l\right)$: Outputs $\sigma = \left(x_{1, m_1}, \dots, x_{l, m_l}\right)$
+    \item $\Vrfy_{vk} \left(m = m_1 \dots m_l, \sigma = \left(x_1, \dots, x_l\right)\right)$: If $\forall i \in
+        \left[l\right]\ f \left(x_i\right) = y_{i, m_i}$ output 1, else 0
+\end{itemize}
+
+\begin{theorem}[]
+    If $f$ is an OWF, then $\Pi$ is a secure, one time signature scheme for $l$ bit messages 
+
+    \begin{proof}[Proof Idea]
+        Suppose that $\mathcal{A}$ asks for a signature on $m$, and then forges on $m^* \ne m$. The inverter
+        $\mathcal{B}$ needs to guess $i \in \left[l\right]$ such that $m_i^* \ne m_i$ as well as guess the bit $m_i^*$.
     \end{proof}
 \end{theorem}
 
+\subsubsection{Summary}\label{sec:summary} % (fold)
+Lamport theorised in 1979 that if OWFs exist, then for any polynomial $l = l \left(n\right)$ there is a one time signature
+scheme for signing l bit messages. The following theorem is known as the \textit{Hash and Sign} paradigm: \begin{theorem}[]
+    If CRHFs exist, then there is a one time signature scheme that can sign messages of arbitrary polynomial length.
+\end{theorem}
+% subsubsection Summary (end)
 % subsection One time signatures (end)
 
 \subsection{Stateful signatures}\label{sub:stateful_signatures} % (fold)
+We are now extending the game, such that $\mathcal{A}$ may request the signature of many different messages. \\ 
+The signer updates the signing key after each signature. \begin{itemize}
+    \item The initial state $sk_1$ is produced by $Gen: \left(vk, sk_1\right) \gets Gen \left(1 ^ {n}\right)$
+    \item Signing the $i$th message updates $sk_i$ to $sk_{i + 1}: \left(\sigma, sk_{i+ 1}\right) \gets \Sign_{sk_i}
+        \left(m_i\right)$
+    \item Verification requires only $vk$
+\end{itemize}
+For existential unforgeability against an adaptive chosen message attacks \begin{itemize}
+    \item $\mathcal{A}$ knows $vk$, and can adaptively ask for signatures of its choice 
+    \item The signing oracle maintains the internal state $sk_i$
+    \item $\mathcal{A}$ tries to forge a signature on a new message
+\end{itemize}
 
+Let us create a stateful scheme. Let $\Pi = \left(Gen, \text{Sign}, \text{Vrfy}\right)$ be a one time signature scheme
+for signing \enquote{sufficiently long} messages. for $m = m_1 \dots m_n \in \left\{0, 1\right\} ^ {n}$, we let $m
+\mid_i \stackrel{def}{=} m_1 \dots m_i$ (and $m \mid_0 \stackrel{def}{=} \varepsilon$). \\
+We will define $\Pi' = \left(Gen', \text{Sign}', \text{Vrfy}'\right)$ for signing $n$ bit messages as follows: \begin{itemize}
+    \item The signer's state is a binary tree with $2 ^ {n}$ leaves
+    \item Each node $w \in \left\{0, q\right\} ^ {< n}$ has a left child $w0$, and a right child $w1$
+    \item The tree is of exponential size, but is never fully constructed
+\end{itemize}
+Key generation: Each node $w \in \left\{0, 1\right\} ^ {\leq n}$ is associated with $\left(vk_w, sk_w\right) \gets Gen
+\left(1 ^ {n}\right)$. Keys are generated, and stored only when needed. The state $sk_i'$ consists of all keys and
+signatures that were generated so far. $vk' = vk_{\varepsilon}$ and $sk_1' = sk_{\varepsilon}$. Note that
+$vk_{\varepsilon}$ is the root node, with children $vk_0, vk_1$. 
+
+To sign a message $m \in \left\{0, 1\right\} ^ {n}$: \begin{enumerate}
+    \item Generate a path from the root, to the leaf labelled $m$: For each proper prefix $w$ of $m$ sample \\
+        $\left(vk_{w0}, sk_{w0}\right), \left(vk_{w1}, sk_{w1}\right) \gets Gen \left(1 ^ {n}\right)$
+    \item Certify the path: For each proper prefix $w$ of $m$, compute $\sigma_w = \Sign_{sk_w} \left(vk_{w0}, vk_{w1}\right)$
+    \item Compute $\sigma_m = \Sign_{sk_m} \left(m\right)$
+    \item Store all generated keys as part of the updated state 
+    \item Output the signature $\left(\left\{\sigma_{m \mid_i}, vk_{m \mid_i 0}\right\}_{i = 1} ^ {n - 1}, \sigma_m\right)$
+\end{enumerate}
+
+Simple example: 
+The message $m = 111$ receives the signature $\Sign_{sk111} \left(111\right), \Sign_{sk11}
+\left(vk_{111}\right), \Sign_{sk1} \left(vk_{11}\right), \Sign_{sk\varepsilon} \left(vk_1\right)$. This simple example
+is missing the fact that if we now want to sign $110$, we need to resign $11$, which is a problem from the attack
+scheme. To fix this, each parent provides the signature for \textit{both} its children at once, and we thus avoid this
+issue.
+
+\begin{theorem}[]
+    If $\Pi$ is a one time signature scheme, then $\Pi'$ is existentially unforgeable against chosen message attacks 
+
+    \begin{proof}[Proof Idea]
+        Each $sk_w$ is used to sign exactly one \enquote{message}. If $w$ is an internal node, then $sk_w$ is used to
+        sign $\left(vk_{w0}, vk_{w1}\right)$, and if $w$ is a leaf then $sk_w$ is used to sign $w$.
+    \end{proof}
+
+    \begin{proof}[Proof Idea \#2]
+        Suppose that $\mathcal{A}$ asks to forge a signature $\left(\left\{\sigma_{m^*\mid_i}^*, vk^*_{m^* \mid_i0}, vk^*_{m^*
+        \mid_i1}\right\}_{i = 0} ^ {n - 1}, \sigma_{m^*}^*\right)$ on $m^*$. There are two possible cases: \begin{enumerate}
+            \item The full path to the leaf $m^*$ already existed, and $\mathcal{A}$ used the same path. This implies
+                that $\mathcal{A}$ must have forged a signature that is a relative of $vk_{m^*}$, and did not receive
+                any signature that is a relative of $vk_{m^*}$
+            \item The full path to leaf $m^*$ did not exist, or $\mathcal{A}$ used a different path. This implies that
+                $\mathcal{A}$ must have forged a signature that is a relative of $vk_{m^* \mid_i}$ for $i \in \left\{0,
+                \dots, n - 1\right\}$, and received exactly one signature that is a relative of $vk_{m^* \mid_i}$
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+This has the problem of needing to remember \textbf{all} the $sk$s, since once we have signed a message, we cannot use
+$sk_\varepsilon$ any more, which is necessary to sign another message. We can now move on to stateless signatures, and
+thus remove this need for state.
 % subsection Stateful signatures (end)
 
 \subsection{Stateless signatures}\label{sub:stateless_signatures} % (fold)
+Instead of remembering $sk_i$ at every stage, we use PRFs to create them on the fly. The signer's secret key $sk$ is a
+seed for a PRF $F_{sk} \left(\cdot\right)$. $\left(r_w, r_w'\right) \stackrel{def}{=} F_{sk} \left(w\right)$ is used as
+the randomness needed for each node $w \in \left\{0, 1\right\} ^ {\leq n}$: \begin{itemize}
+    \item If $w \in \left\{0, 1\right\} ^ {< n}$ then $r_w$ is used for sampling $\left(vk_w, sk_w\right)$ and $r_w'$ is
+        used for signing $\left(vk_{w0}, vk_{w1}\right)$ 
+    \item If $w \in \left\{0, 1\right\} ^ {n}$, then $r_w$ is used for sampling $\left(vk_w, sk_w\right)$, and $r_w'$ is
+        used for signing $w$
+\end{itemize}
 
+\begin{theorem}[]
+    If $\Pi$ is a one time signature scheme, and $F$ is a PRF, then $\Pi''$ is existentially unforgeable against 
+    chosen message attacks 
+    \begin{proof}[Proof Idea]
+        Any adversary $\mathcal{A}$ against $\Pi''$ can be used either as an adversary against the stateful scheme
+        $\Pi'$, or as a distinguisher against the PRF $F$
+
+        \begin{align*}
+            \Pr \left[\text{SigForge}_{\Pi'', \mathcal{A}} \left(n\right) = 1\right] &\leq \left|\Pr
+            \left[\text{SigForge}_{\Pi'', \mathcal{A}} \left(n\right) = 1\right] - \Pr \left[\text{SigForge}_{\Pi',
+            \mathcal{A}} \left(n\right) = 1\right]\right| + \Pr \left[\text{SigForge}_{\Pi', \mathcal{A}} \left(n\right)
+        = 1\right] \\ 
+                     &= \left|\Pr \left[\mathcal{D} ^ {F_{sk} \left(\cdot\right)} \left(1 ^ {n}\right) = 1\right] - \Pr
+                     \left[\mathcal{D} ^ {f \left(\cdot\right)} \left(1 ^ {n}\right) = 1\right]\right| + \Pr
+                     \left[\text{SigForge}_{\Pi', \mathcal{A}} \left(n\right) = 1\right]
+        \end{align*}
+    \end{proof}
+\end{theorem}
 % subsection Stateless signatures (end)
 
 % section Constructions (end)
 
 \section{Certificates and public key infrastructure}\label{sec:certificates_and_public_key_infrastructure} % (fold)
+Public key cryptography is great, but we need to distribute the public keys \textit{somehow}. Keys must be authenticated
+in order to avoid man in the middle attacks. This is done by making use of \textbf{Certificate Authorities}: \begin{itemize}
+    \item A \textbf{certificate} is a signature binding an identity to a public key 
+    \item We assume that we already trust the CA's verification key $vk_{CA}$ (by hard wiring it into the browser source
+        code or some such)
+    \item The CA provides Alice with $cert_{CA \to A} \stackrel{def}{=} \Sign_{sk_{CA}} \left(\text{Alice's key is }
+        pk_A\right)$
+    \item Alice then sends to Bob both $pk_A$, and $cert_{CA \to A}$
+\end{itemize}
 
+So for example, we can have a root, that has signed all of HUJI, www.gov.il, and CNN. HUJI then signs on CS, and Chem,
+and CS can sign on Alice, and Bob. This way, everyone only signs a small number of relevant keys, and I can use this
+chain of trust to trust someone else's key, because I trust the root node. \\ 
+Certificates should not be valid indefinitely, since an employee may leave or get fired, and secret keys can get stolen.
+One solution is to add an expiration date, such that the signature is not valid after that date, another approach is to
+add a revocation list that the authority publishes, and when I received a signed key, I check it against the CA's
+revoked list.
 % section Certificates and public key infrastructure (end)
 
 \section{User-server identification}\label{sec:user_server_identification} % (fold)
-
+We need a way to identify users to websites, like when you log in to moodle. A trivial method would be for the user to
+hold a password $p$, the server to know $y = f \left(p\right)$ for some function $f$, and the user identifies themselves
+by sending $p$. This is obviously terrible. It can however be \textit{slightly} improved by using a signature scheme.
+The user has the signing key $sk$, and the server knows the verification key $vk$. The user identifies themselves by
+signing a message that the server has randomly generated for them. 
 % section User-server identification (end)
 
 \end{document}
