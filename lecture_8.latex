@@ -1,0 +1,152 @@
+\documentclass[a4paper]{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{blindtext}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[bookmarks=true]{hyperref}
+\usepackage{bookmark}
+\usepackage{bbm}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage[autostyle=true]{csquotes}
+\graphicspath{ {./images/} }
+\usepackage[bottom=0.5cm, right=1.5cm, left=1.5cm, top=1.5cm]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{exercise}{Exercise}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}[section]
+
+\newcommand{\Vrfy}{\ensuremath{\text{Vrfy}}}
+\newcommand{\Sign}{\ensuremath{\text{Sign}}}
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\p}{\ensuremath{\mathbb{P}}}
+\newcommand{\E}{\ensuremath{\mathbb{E}}}
+\newcommand{\F}{\ensuremath{\mathcal{F}}}
+\newcommand{\1}{\ensuremath{\mathbbm{1}}}
+\newcommand{\B}{\ensuremath{\mathbbm{B}}}
+
+\title{Lecture 8}
+\author{Gidon Rosalki}
+\date{2025-12-31}
+
+
+\begin{document}
+\maketitle
+\noindent\textbf{Notice:} If you find any mistakes, please open an issue at \href{https://github.com/robomarvin1501/notes\_intro\_to\_crypto}{\texttt{https://github.com/robomarvin1501/notes\_intro\_to\_crypto}}
+\section{Digital signatures}\label{sec:digital_signatures} % (fold)
+Alice and Bob wish to communicate, but Eve completely controls the channel. We would like to assure the receiver of a
+message that it has not been modified. We will discuss the public key counterpart of message authentication codes. The
+signer holds a \textit{secret} signing key, and the verifier knows the corresponding public \textit{verification} key.
+This means that anyone can verify the signature, but only one person can create it. This is the inverse of encryption,
+where everyone knows the public encryption key, but only 1 person knows the private decryption key.
+
+This has the syntax $\Pi = \left(Gen, Sign, \text{Vrfy}\right)$: \begin{itemize}
+    \item The key generation algorithm Gen on input $1 ^ {n}$ outputs a signing key $sk$, and a verification key $vk$
+    \item Sign takes a signing key $sk$, and a message $m$, and outputs a signature $\sigma$
+    \item Vrfy takes a verification key $vk$, a message $m$, and a signature $\sigma$, and outputs a bit $b$
+\end{itemize}
+\textbf{Correctness}: For every message $m$ \[
+    \Pr \left[\Vrfy_{vk} \left(m, \Sign_{sk} \left(m\right)\right) = 1\right] = 1
+\]
+To compare against MACs: \begin{table}[H] 
+     \centering
+     \begin{tabular}{|p{0.27\textwidth}|p{0.27\textwidth}|}
+         \hline
+         Signatures & MACs \\ \hline
+         $n$ users require only $n$ secret keys & $n$ users require $n ^ {2}$ secret \\ \hline
+         Same signature can be verified by all users \\ \hline
+         Publicly verifiable and transferable & Privately verifiable and non transferable \\ \hline
+         Provide non repudiation & More efficient (2 - 3 orders of magnitude faster) \\ \hline 
+     \end{tabular}
+     \caption{}
+\end{table} 
+
+\subsection{Security of Signatures}\label{sub:security} % (fold)
+$\mathcal{A}$ knows $vk$, and can adaptively ask for signatures of messages of its choice. It then tries to forge a
+signature on a new message. \begin{figure}[H]
+    \center
+    \includegraphics[scale=0.2]{lecture_8_signature_game.png}
+    \caption{Signature game}
+\end{figure}
+
+
+We finish with $Q$, the set of all queries asked by $\mathcal{A}$, and \[
+    \text{SigForge}_{\Pi, \mathcal{A}} \left(n\right) = \begin{cases}
+        1, &\text{ if }\Vrfy_{vk} \left(m^*, \sigma^*\right) = 1 \land m^* \notin Q \\
+        0, &\text{ else}
+    \end{cases}
+\]
+
+\begin{definition}[]
+    $\Pi$ is \textbf{existentially unforgeable against an adaptive chosen message attack} if for every PPT adversary
+    $\mathcal{A}$, there exists a negligible function $v \left(\cdot\right)$ such taht \[
+        \Pr \left[\text{SigForge}_{\Pi, \mathcal{A}} \left(n\right) = 1\right] \leq v \left(n\right)
+    \]
+\end{definition}
+% subsection Security (end)
+
+% section Digital signatures (end)
+
+\section{Constructions}\label{sec:constructions} % (fold)
+One time signatures are used to construct stateful signatures, which may then be used to construct stateless signatures. 
+\subsection{One time signatures}\label{sub:one_time_signatures} % (fold)
+We will demonstrate \textbf{Lamport's One time scheme}: \begin{itemize}
+    \item $sk = \left(x_0, x_1\right)$
+    \item $vk = \left(f \left(x_0\right), f \left(x_1\right)\right)$, where $f$ is a one way function
+    \item $\Sign_{sk} \left(b\right) = x_b$
+    \item $\Vrfy$ receives the message, and the signature, and checks it against the relevant side of the verification
+        key
+\end{itemize}
+This way $\mathcal{A}$ needs to compute $x_{1 - b}$, which is equivalent to computing the inverse of $f$. 
+
+More formally: Let $f$ be an OWF. we will define a signature scheme $\Pi = \left(Gen, \text{Sign}, \text{Vrfy}\right)$
+for 1 bit messages as follows: \begin{itemize}
+    \item Gen $\left(1 ^ {n}\right)$: Sample $x_0, x_1 \gets \left\{0, 1\right\} ^ {n}$, and compute $y_0 = f
+        \left(x_0\right)$, and $y_1 = f \left(x_1\right)$, output $sk = \left(x_0, x_1\right)$ and $vk = \left(y_0, y_1\right)$
+    \item $\Sign_{sk} \left(b\right)$: Output $\sigma = x_b$
+    \item $\Vrfy_{vk} \left(b, \sigma\right)$: If $f \left(\sigma\right) = y_b$ output 1, otherwise output 0
+\end{itemize}
+
+\begin{theorem}[]
+    If $f$ is an OWF, then $\Pi$ is a secure one time signature scheme for 1 bit messages
+
+    \begin{proof}[Proof ]
+        The concept is that $\mathcal{A}$ forges a signature on $b^* \implies \mathcal{A}$, inverts $y_{b^*} = f
+        \left(x_{b^*}\right)$. Inverting $f \left(x_{b^*}\right)$ is clearly hard, even when given $x_{1 - b^*}$ and $f
+        \left(x_{1 - b^*}\right)$. An inverter can guess the forged bit $b^*$ ahead of time with probability
+        $\displaystyle\frac{1}{2}$.
+    \end{proof}
+\end{theorem}
+
+% subsection One time signatures (end)
+
+\subsection{Stateful signatures}\label{sub:stateful_signatures} % (fold)
+
+% subsection Stateful signatures (end)
+
+\subsection{Stateless signatures}\label{sub:stateless_signatures} % (fold)
+
+% subsection Stateless signatures (end)
+
+% section Constructions (end)
+
+\section{Certificates and public key infrastructure}\label{sec:certificates_and_public_key_infrastructure} % (fold)
+
+% section Certificates and public key infrastructure (end)
+
+\section{User-server identification}\label{sec:user_server_identification} % (fold)
+
+% section User-server identification (end)
+
+\end{document}
