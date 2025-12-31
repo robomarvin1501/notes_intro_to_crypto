@@ -225,11 +225,92 @@ plaintext set is $\G$.
 
 % subsection El-Gamal Encryption (end)
 
+\subsection{RSA encryption}\label{sub:rsa_encryption} % (fold)
+\subsubsection{The RSA assumption}\label{sec:the_rsa_assumption} % (fold)
+Let GenRSA be a PPT algorithm that on input $1 ^ {n}$ outputs $\left(N, e, d\right)$, where $p, q$ are $n$ bit primes,
+$N = pq$, $gcd \left(e, \phi \left(N\right)\right) = 1$, and $d = e ^ {-1} \mod \phi \left(N\right)$. Here
+$\phi \left(N\right)$ is the order of our set $\Z_{N = pq} ^ {*}$, such that $\phi \left(N\right) = \left(p -
+1\right) \left(q - 1\right)$. 
+
+\begin{definition}[RSA Assumption]
+    For every PPT $\mathcal{A}$ there exists a negligible function $v \left(\cdot\right)$ such that \[
+        \Pr \left[\mathcal{A} \left(N, e, x ^ {e} \mod N\right) = x\right] \leq v \left(n\right)
+    \]
+    Where $\left(N, e, d\right) \gets GenRSA \left(1 ^ {n}\right)$ and $x \gets \Z_N ^ {*}$. 
+\end{definition}
+In short, given $x ^ {e} \mod N$, it is very hard to compute $x$. In other words, $f_e \left(x\right) = x ^ {e} \mod N$
+is a one way permutation family. $f_d$ is the inverse of $f_e$, since $ed = 1 \mod \phi \left(N\right)$
+% subsubsection The RSA assumption (end)
+
+\subsubsection{Textbook RSA encryption}\label{sec:textbook_rsa_encryption} % (fold)
+Let GenRSA be a PPT algorithm that on input $1 ^ {n}$ outputs $\left(N, e, d\right)$, where $p, q$ are $n$ bit primes,
+$N = pq$, $gcd \left(e, \phi \left(N\right)\right) = 1$, and $d = e ^ {-1} \mod \phi \left(N\right)$.
+
+From here we create the public key $pk = \left(N, e\right)$, and the private key $sk = d$. Thus: \begin{gather}
+    Enc_{pk} \left(m\right) = m ^ {e} \mod N \\ 
+    Dec_{sk} \left(c\right) = c ^ {d} \mod N
+\end{gather}
+This is... Not a great system to be honest. It was first suggested in 1977, but the security definitions, like
+CPA-security were created in 1982. We may firstly note that Enc is deterministic, which is immediately \textbf{bad}. We
+will note that it is also not CPA-secure, many attacks are known. For example, if $m ^ {e} < N$, then $c = \left[m ^ {e}
+\mod N\right] = m ^ {e}$, and so $c ^ {\frac{1}{e}} = m$. \\ 
+
+We may take this moment to state \textbf{NEVER USE TEXTBOOK RSA!!!} \\ 
+To emphasise this point I have used atrocious grammar. I hope this helps you remember this. \\ 
+(There is in fact an argument, which I will link
+\href{https://blog.trailofbits.com/2019/07/08/fuck-rsa/}{\texttt{here}}, that RSA should never be used. It is not a part
+of the course, and I have added it purely for your own interest.)
+% subsubsection Textbook RSA encryption (end)
+
+\subsubsection{PKCS}\label{sec:pkcs} % (fold)
+Version 1.5 was standard issued by RSA labs in 1993. The idea is random padding: \begin{gather}
+    pk = \left(N, e\right) \\ 
+    sk = d
+\end{gather}
+So, $Enc_{pk} \left(m\right) = \left(r \| m\right) ^ {e} \mod N$, for a freshly chosen random $r$. This has the
+drawbacks that no proof of CPA security exists (aside from if $m$ is very short). Chosen plaintext attacks are known if
+$r$ is too short, and chosen ciphertext attacks are also known. In short, we do not know if it is secure, nor do we even
+have a neat little assumption (like DDH) that \textit{if} it holds, we know it to be secure.
+
+Next is version 2.0, which uses a more structured padding: Optimal Asymmetric Encryption Padding (OAEP). OAEP introduces
+redundancy, so that not every $c \in \Z_n^*$ is a valid ciphertext. This means that $Dec_{sk} \left(\cdot\right)$ must
+check for proper formatting upon decryption, and reject if it does not exist. This can be proved to be CCA-secure under
+the RSA assumption, if $G$ and $H$ are modelled as \enquote{random} hash functions. It is widely used in practice. 
+\begin{figure}[H]
+    \center
+    \includegraphics[scale=0.2]{lecture_7_pkcs2.png}
+    \caption{}
+\end{figure}
+
+Note that the RSA permutation family is \textbf{not} a CPA-secure PKE scheme. It is however a family of \textit{trapdoor
+permutations}, which are one way permutations that may be efficiently inverted using a trapdoor. We will show a generic
+construction of a CPA secure scheme from any TDP (trapdoor permutation) family: 
+\begin{definition}[Trapdoor permutation family]
+    A tuple $\left(\text{Gen}, \text{Samp}, f, f ^ {-1}\right)$ of PPT algorithms is a \textbf{trapdoor permutation
+    family} if: \begin{itemize}
+        \item Gen $\left(1 ^ {n}\right)$ outputs pairs $\left(I, td\right)$ defining a domain $\mathcal{D}_I$
+        \item $\left(\text{Gen}_1, \text{Samp}, f\right)$ is a one way permutation family, where $\text{Gen}_1$ is
+            obtained from Gen by outputting only $I$
+        \item $f ^ {-1}$ is deterministic, and for all $\left(I, td\right)$ and $x \in \mathcal{D}_I$ it holds that
+            $f_{td} ^ {-1} \left(f_I \left(x\right)\right) = x$
+    \end{itemize}
+\end{definition}
+For simplicity, we will typically write $x \gets \mathcal{D}_I$ instead of $x \gets \text{Samp}_I$, and $\left(Gen, f, f
+^ {-1}\right)$ instead of $\left(\text{Gen}, \text{Samp}, f, f ^ {-1}\right)$.
+% subsubsection PKCS (end)
+% subsection RSA encryption (end)
 
 % section Hybrid encryption (end)
 
-\section{Constructions}\label{sec:constructions} % (fold)
+To summarise our cryptographic primitives once more: \begin{figure}[H]
+    \center
+    \includegraphics[scale=0.2]{lecture_7_crypto_primitives_end.png}
+    \caption{Cryptographic primitives}
+\end{figure}
 
+
+\section{Constructions}\label{sec:constructions} % (fold)
+% TODO From el gamal to the end should be in constructions
 % section Constructions (end)
 
 \end{document}
