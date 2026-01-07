@@ -1,0 +1,196 @@
+\documentclass[a4paper]{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{blindtext}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[bookmarks=true]{hyperref}
+\usepackage{bookmark}
+\usepackage{bbm}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage[autostyle=true]{csquotes}
+\graphicspath{ {./images/} }
+\usepackage[bottom=0.5cm, right=1.5cm, left=1.5cm, top=1.5cm]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{exercise}{Exercise}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}[section]
+
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\p}{\ensuremath{\mathbb{P}}}
+\newcommand{\E}{\ensuremath{\mathbb{E}}}
+\newcommand{\F}{\ensuremath{\mathcal{F}}}
+\newcommand{\1}{\ensuremath{\mathbbm{1}}}
+\newcommand{\B}{\ensuremath{\mathbbm{B}}}
+
+\title{Exam 2025A}
+\author{Gidon Rosalki}
+\date{2026-01-07}
+
+
+\begin{document}
+\maketitle
+\noindent\textbf{Notice:} If you find any mistakes, please open an issue at \href{https://github.com/robomarvin1501/notes\_intro\_to\_crypto}{\texttt{https://github.com/robomarvin1501/notes\_intro\_to\_crypto}}
+
+\section{Question 1}\label{sec:question_} % (fold)
+Let there be a family of collision resistant functions $H_s \left\{0, 1\right\} ^ {2n} \to \left\{0, 1\right\} ^ {n}$.
+Let there also be a PRG $G: \left\{0, 1\right\} ^ {n + 1} \to \left\{0, 1\right\} ^ {2n}$. 
+
+\subsection{Part A}\label{sub:part_a} % (fold)
+Consider \[
+    F_s \left(x_1 \| x_2\right) = H_s \left(H_s \left(x_1\right) \| H_s \left(x_2\right)\right)
+\]
+Where $\left|x_1\right|, \left|x_2\right| = 2n$, and $F_s : \left\{0, 1\right\} ^ {4n} \to \left\{0, 1\right\} ^ {n}$.
+Is the family $F_s$ collision resistant?
+
+\textit{ Sol. }Yes. Let us assume towards contradiction that $F_s$ is not collision resistant, so there exists
+an adversary $\mathcal{A}$ that finds collisions in $F_s$. Let us create $\mathcal{B} \left(s\right)$, which runs
+$\mathcal{A} \left(s\right)$, which returns $\left(x_1, x_2\right), \left(x_1', x_2'\right)$. Since $\left(x_1,
+x_2\right) \ne \left(x_1', x_2'\right)$ then at least one of the pair of variables $x_i, x_i' : i \in \left\{1,
+2\right\}$ are different, so let us assume wlog that $x_1 \ne x_1'$. If so, then there are 2 cases: \begin{enumerate}
+    \item $H_s \left(x_1\right) = H_s \left(x_1'\right)$ in which case we are done, and return $\left(x_1, x_1'\right)$
+    \item $H_s \left(x_1\right) \ne H_s \left(x_1'\right)$ in which case we return $\left(H_s \left(x_1\right) \| H_s
+        \left(x_2\right) \| H_s \left(x_1'\right) \| H_s \left(x_2'\right)\right)$
+\end{enumerate}
+% subsection Part A (end)
+
+\subsection{Part B}\label{sub:part_b} % (fold)
+Consider \[
+    L_s \left(x\right) = H_s \left(G \left(x\right)\right)
+\]
+Where \[
+    L_s : \left\{0, 1\right\} ^ {n + 1} \to \left\{0, 1\right\} ^ {n}
+\]
+Is the family $L_s$ collision resistant?
+
+\textit{ Sol. }No. We will bring a counterexample of $\left(H_s', G'\right)$ such that $L_s$ is not collision resistant.
+\begin{gather}
+    H_s' = H_s \\ 
+    G'\left(x\right) = \begin{cases}
+        G \left(x\right), &\text{ if }x \notin \left\{0 ^ {n}, 1 ^ {n}\right\}\\
+        0, &\text{ if }x \in \left\{0 ^ {n}, 1 ^ {n}\right\}\\
+    \end{cases}
+\end{gather}
+
+\begin{theorem}[Claim 1]
+    $G'$ is a PRG
+
+    \begin{proof}[Proof ]
+        We will assume towards contradiction that there exists an adversary $\mathcal{A}$ that can differentiate between the output of $G'$
+        and random, and from that build the adversary $\mathcal{B}$ that can differentiate between the output of $G$ and
+        random. It will be exactly the same adversary, and will have the same probability as $G$ for differentiating
+        between $G$ and random, with the addition of $\displaystyle\frac{2}{2 ^ {n}}$. Since finding this collision in
+        $G$ is in fact negligible, and the addition of $\displaystyle\frac{2}{2 ^ {n}}$ is also negligible, then the
+        finding of this collision is also in fact negligible. 
+        % TODO this... isn't great. complete it with his notes when they are uploaded
+    \end{proof}
+\end{theorem}
+
+\begin{theorem}[Claim 2]
+    $L_s \left(x\right) = H_s \left(G' \left(x\right)\right)$ is not a CRH
+    \begin{proof}[Proof ]
+        Pretty trivial, since we know the definition of $G'$, and may simply give $L_s$ the two inputs such that $G$
+        returns the same output, and we have found a non trivial collision in $L_s$
+    \end{proof}
+\end{theorem}
+% subsection Part B (end)
+% section Question 1 (end)
+
+\section{Question 2}\label{sec:question_} % (fold)
+Let $f : \left\{0, 1\right\} ^ {n} \to \left\{90, 1\right\} ^ {n}$ be a one way function. We will use this to create a
+new signature scheme $\Pi = \left(Gen, \text{Sign}, \text{Vrfy}\right)$: \begin{itemize}
+    \item Gen $\left(1 ^ {n}\right) = x_1, \dots, x_n \gets \left\{0, 1\right\} ^ {n}$, $sk = \left(x_1, \dots,
+        x_n\right)$, $vk = \left(y_1, \dots, y_n\right) = \left(f \left(x_1\right), \dots, f \left(x_n\right)\right)$
+    \item Sign $\left(sk, m\right)$: $\sigma = \bot$ (as in, empty string). For $1 \leq i \leq n$, if $m \left[j\right]
+        = 1$, then $\sigma \| x_i$, then return $\sigma$
+    \item Vrfy $\left(vk, m\right)$: Passes over every bit in the message, and knows that the corresponding part of the message must be the
+        preimage of a part of the $vk$, so it computes the function of it, and checks if it appears in the verification
+        key
+\end{itemize}
+
+\subsection{Part A}\label{sub:part_a} % (fold)
+Show that the system is not secure as a one time signature.
+
+\textit{ Sol. }It's trivial. The empty message $0 ^ {n}$ will have the signature $\bot$, without even calling the
+oracle.
+% subsection Part A (end)
+
+\subsection{Part B}\label{sub:part_b} % (fold)
+Correct the signature scheme such that it is now secure, and that the size of $vk$ is $n ^ {2} + n \left(\log \left(n\right) +
+1\right)$ bits. 
+
+\textit{ Sol. }We will note that in the unaltered scheme, an adversary can change an arbitrary 1 in the message to a 0, by
+simply removing the relevant part of the signature. We can resolve this by signing the number of 0s in the message,
+which requires $\log \left(n\right) + 1$ bits, and thus the adversary cannot change the numbers of 0s, since he would
+also have to change the signature of the number of 0s: \begin{itemize}
+    \item KeyGen $\left(1 ^ {n}\right)$: $sk = \left(x_1, \dots, x_n, x_{n + 1} ^ {0}, \dots, x_{n + \log n + 1} ^ {0},
+        x_{n + 1} ^ {1}, \dots, x_{n + \log n + 1} ^ {1}\right)$ \\ 
+        $vk = \left(f \left(x_1\right), \dots, f \left(x_n\right), f \left(x_{n + 1}^ {0}\right) , \dots, f \left(x_{n +
+        \log n + 1}^ {0}\right) , f \left(x_{n + 1} ^ {1}\right), \dots, f \left(x_{n + \log n + 1} ^ {1}\right)\right)$
+    \item Sign $\left(sk, m\right)$: Sign $ \left(m \right) \| \text{Lamport} \left(\text{zeroes} \left(m\right)\right) $
+\end{itemize}
+This solves it in $n ^ {2} + 2n \left(\log \left(n\right) + 1\right)$. \\ 
+To prove it, let us assume towards contradiction that there exists adversary $\mathcal{A}$ that can win the game against
+this scheme. So, $\mathcal{A}$ outputs $m$, and receives in return from the oracle $\text{Sign} \left(m\right),
+\text{Lamport} \left(\text{zeroes} \left(m\right)\right)$, and then at the end outputs $m^*, \text{sign}
+\left(m^*\right), \text{Lamport} \left(\text{zeroes} \left(m^*\right)\right)$. There are now two cases: \begin{enumerate}
+    \item Zeroes $\left(m ^ {*}\right) = \text{Zeroes} \left(m\right)$: Then this message must be a permutation of
+        another, since there are the same number of 0s. In this case, then we may break it similarly to how we did
+        Lamport.
+    \item Zeroes $\left(m ^ {*}\right) \ne \text{Zeroes} \left(m\right)$: In this case, then we have succeeded, since we
+        have created a new message with the same signature.
+\end{enumerate}
+
+In order to remove the 2, then we may simply change KeyGen to remove the doubling of the bits from $x_{n + 1}, \dots,
+x_{n + \log n + 1}$, and Sign to be $\text{Sign} \left(m \| \text{zeroes} \left(m\right)\right)$. This may be proven
+with the exact same proof.
+% subsection Part B (end)
+% section Question 2 (end)
+
+\section{Question 3}\label{sec:question_} % (fold)
+\subsection{Part A}\label{sub:part_a} % (fold)
+Given a cyclic group $\left(G, g, q\right)$ such that DDH holds $\left(\left(g ^ {x}, g ^ {y}, g ^ {xy}\right) \approx
+\left(g ^ {x}, g ^ {y}, g ^ {z}\right)\right)$, let there be two distributions: \begin{gather}
+    \left(g ^ {a_1}, g ^ {a_2}, g ^ {a_1 b}, g ^ {a_2 b}\right) \\ 
+    \left(g ^ {a_1}, g ^ {a_2}, g ^ {r_1}, g ^ {r_2}\right)
+\end{gather}
+Such that $a_1, a_2, r_1, r_2, b \gets \Z_q$. Show that these distributions are indistinguishable.
+
+\textit{ Sol. }Let us assume towards contradiction that they are distinguishable. So, we are building $\mathcal{A}
+\left(g ^ {x}, g ^ {y}, T\right)$ where $g \gets \left\{g ^ {xy}, g ^ {z}\right\}$ that succeeds against DDH. We will do
+this by building $\mathcal{B} \left(g ^ {x}, g ^ {a_2}, T, \left(g ^ {y}\right) ^ {a_2}\right)$. When $T$ is random,
+then $\mathcal{B}$ has received lower option, and when $T$ is $g ^ {xy}$, then $\mathcal{B}$ has received the top
+option. We have thus built an adversary that may win DDH.
+% subsection Part A (end)
+
+\subsection{Part B}\label{sub:part_b} % (fold)
+We will define a key exchange protocol. In order for Alice and Bob to swap keys, Alice chooses $k, r \gets \left\{0,
+1\right\} ^ {n}$, and sends Bob $s = k \oplus r$. Bob chooses $t \gets \left\{0, 1\right\} ^ {n}$, and sends $u = s
+\oplus t$. Alice sends Bob $w = u \oplus r$. Alice outputs $k$, and Bob outputs $w \oplus t$. Show that the protocol is
+correct, and whether or not it is secure.
+
+\textit{ Sol. }Correctness: \begin{align*}
+    w \oplus t &= u \oplus r \oplus t \\ 
+               &= s \oplus t \oplus r \oplus t \\ 
+               &= k \oplus r \oplus t \oplus r \oplus t \\ 
+               &= k
+\end{align*}
+
+Security: Not secure, in the slightest. The adversary observes $s = k \oplus r$, and $u = s \oplus t$. From this, they
+may compute $s \oplus u = k \oplus r \oplus k \oplus r \oplus t = t$. From there, like B, they have $t$, and when $w$ is
+transmitted, they may compute $w \oplus t = k$, and find the secret key.
+% subsection Part B (end)
+% section Question 3 (end)
+
+\end{document}
