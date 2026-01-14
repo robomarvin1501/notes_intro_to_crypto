@@ -100,7 +100,9 @@ with the random tape $r_{\mathcal{V}}$. We will define the notation: \begin{item
             \]
     \end{itemize}
 \end{definition}
-% TODO complete 10
+We will state that \textbf{IP} is the class of all languages with an interactive proof system. IP contains NP, and in
+fact, $IP = PSPACE$. We can reduce teh soundness error from $\displaystyle\frac{1}{2}$ to $\varepsilon$ with $\log
+\left(\displaystyle\frac{1}{\varepsilon}\right)$ independent repetitions.
 
 \begin{definition}[Isomorphic]
     Two graphs $G_0 = \left(V_0, E_0\right)$, and $G_1 = \left(V_1, E_1\right)$ are \textbf{isomorphic} if there exists
@@ -148,15 +150,118 @@ interacting with a malicious verifier.
 
 Let us return to the isomorphic classes. Can we prove that $G_0$ and $G_1$ are isomorphic without revealing the
 isomorphism? A solution needs to enable completeness, soundness, and zero knowledge (ZK). Hear me and rejoice, for we
-are able so to do. Gird thy loins, and behold the following solution: 
+are able so to do. Gird thy loins, and behold the following solution: \\ 
+\textbf{Intuition}: Two graphs are isomorphic if there exists a permutation that transforms from one to the other
+($\pi$). There therefore also exists $\pi ^ {-1}$, which transforms in the opposite direction. Let us consider another
+permutation $\sigma$, which transforms $G_0$ to $H$. Should $G_0$ and $G_1$ be isomorphic, then there also exists
+$\sigma'$ which transforms from $G_1$ to $H$. We can send the transformed graph $H = \sigma \left(G_0\right)$ to the
+prover, and it will respond with the permutation that transforms $G_1$ to $H$. This is ZK, since it teaches us nothing
+on the permutations $\pi, \pi ^ {-1}$, but demonstrates that the prover can find these permutations. \\ 
+\textbf{Formal}: The prover will sample a random permutation $\sigma$, and send $H = \sigma \left(G_0\right)$ to the
+verifier. The verifier then responds with a request that the prover show that $H$ is isomorphic to $G_b$, for $b \gets
+\left\{0, 1\right\}$. The prover will then respond with \[
+    \gamma = \begin{cases}
+        \sigma, &\text{ if }b = 0\\
+        \sigma \circ \pi ^ {-1}, &\text{ if }b = 1\\
+    \end{cases}
+\]
+Which provides the required transformation to $H$ for $G_b$. The verifier then accepts \textbf{if and only if} $\gamma
+\left(G_b\right) = H$. \\ 
+\textbf{Correctness}: If the two graphs are isomorphic, then the verifier will trivially receive what it requested. \\
+\textbf{ZK}: We need to show that the prover did not leak information. Since the only leak that can happen is $\sigma
+\circ \pi ^ {-1}$, but since we have further transformed $\pi ^ {-1}$ with $\sigma$, it acts sort of like a one time
+pad, and so it does not leak $\pi$. \\ 
+\textbf{Soundness}: The two graphs are not isomorphic, so the prover sends some graph, it can be a transformation of
+$G_0$, or $G_1$, or perhaps some other graph $G_5$, and in every case, the prover will make a mistake with probability of
+$\displaystyle\frac{1}{2}$, as required. 
 
 % section Zero knowledge proofs (end)
 
 \section{Zero knowledge proofs for NP}\label{sec:zero_knowledge_proofs_for_np} % (fold)
+\begin{theorem}[]
+    Assuming that OWFs exist, then any $L \in NP$ has a zero knowledge interactive proof. Furthermore, the prover's
+    strategy can be implemented in probabilistic polynomial time, provided an NP witness for membership of the ocmmon
+    input. 
 
+    \begin{proof}[Steps]
+        \begin{enumerate}
+            \item Construct a ZK proof for some NP complete language. Use G3C (graph 3 colouring), and the tool
+                commitments schemes (which are based on OWFs)
+            \item Given any NP language $L$, a common input $x$, and a witness $w$, we reduce them to G3C, and then use
+                the above ZK proof.
+        \end{enumerate}
+        Since we showed reductions in computability, and complexity, we will focus on step one, and commitments schemes
+    \end{proof}
+\end{theorem}
 \subsection{Tool: Commitment schemes}\label{sub:tool_commitment_schemes} % (fold)
+These are the basic ingredient in many cryptographic protocols. They are a digital analogue of locked boxes. The sender
+$S$ has a value $v$, and a random tape $r_S$. The sender sends the commit phase to the receiver, and receives a protocol
+$\left\langle S, R \right\rangle$ in response. It sends $\left(v, r_S\right)$ in the reveal phase, and the receiver $R$
+accepts $v$ \textbf{if and only if} $\left(v, r_S\right)$ are consistent with the commit phase. Commitment schemes have
+the following security requirements: \begin{itemize}
+    \item \textbf{Hiding}: At the end of the commit stage, the receiver has no knowledge of $v$
+    \item \textbf{Binding}: The sender cannot find two valid openings $\left(v, r_S\right)$ and $\left(v', r_S'\right)$
+        for $v \ne v'$
+\end{itemize}
 
+\begin{definition}[Hiding]
+    A commitment scheme $\left\langle S, R \right\rangle$ is \textbf{computationally hiding} if for every PPT receiver
+    $R^*$ and for every two values $v \ne v'$ it holds that \[
+        \text{view}_{R^*} \left[\left\langle S \left(v\right), R^* \right\rangle \left(1 ^ {n}\right)\right] \approx^c
+        \text{view}_{R^*} \left[\left\langle S \left(v'\right), R^* \right\rangle \left(1 ^ {n}\right)\right]
+    \]
+    Perfect (statistical) hiding is when $\text{view}_{R^*} \left[\left\langle S \left(v\right), R^* \right\rangle
+    \left(1 ^ {n}\right)\right]$ and $\text{view}_{R^*} \left[\left\langle S \left(v'\right), R^* \right\rangle \left(1
+^ {n}\right)\right]$ are identical (statistically indistinguishable) for any \textbf{unbounded} $R^*$
+\end{definition}
+
+\begin{definition}[Binding]
+    A commitment scheme $\left\langle S, R \right\rangle$ is \textbf{computationally binding} if for every PPT sender
+    $S^*$ there exists a negligible function $v \left(n\right)$ such that \[
+        \Pr \left[\left(\left(v, r, v', r'\right), \text{com}\right) \gets \left\langle S^*, R \right\rangle \left(1
+        ^ {n}\right) : v \ne v' \land \left(v, r\right) \text{ is consistent with com } \land \left(v', r'\right) \text{
+is consistent with com}\right]
+    \]
+    where \[
+        \text{com} \stackrel{def}{=} \text{view}_R \left[\left\langle S^*, R \right\rangle \left(1 ^ {n}\right)\right]
+    \]
+\end{definition}
+
+\subsubsection{Some applications of commitments}\label{sec:some_applications_of_commitments} % (fold)
+Consider if you are playing some board game over the phone, which involves throwing dice. Your opponent tells you that
+they threw 6. Commitments can be used to to ensure that this is the truth. Let us simplify this somewhat into coin
+flipping, neither party wants to speak first. Alice may send a commitment of what she tossed, Bob then responds with his
+toss. Alice then sends the reveal for her toss, which Bob can then verify, so this way, Alice could not change her
+result, and Bob can believe it. 
+% subsubsection Some applications of commitments (end)
 % subsection Tool: Commitment schemes (end)
+
+Let us return to ZK proofs for NP. 
+\begin{definition}[]
+    A graph $G = \left(V, E\right)$ is 3 colourable if there exists a mapping $\varphi : V \to \left\{1, 2, 3\right\}$
+    such that $\varphi \left(u\right) \ne \varphi \left(v\right)$ for every $\left(u, v\right) \in E$. 
+\end{definition}
+We want to prove that $G$ is 3 colourable, without revealing a 3 colouring. The high level idea is to break that $G$ is
+3-colourable into polynomially many pieces. Each piece does not reveal any information, but combining all the pieces
+yields a proof that $G$ is 3-colourable. We can implement this using commitments. 
+
+\textbf{Solution}: Given the common input $G = \left(V, E\right)$, and an auxiliary input to the prover, which is a 3
+colouring $\psi: V \to \left\{1, 2, 3\right\}$. The protocol is as follows: \begin{itemize}
+    \item $\mathcal{P}$ uniformly chooses a permutation $\pi$ over $\left\{1, 2, 3\right\}$, and lets $\varphi
+        \stackrel{def}{=} \pi \circ \psi$
+    \item $\mathcal{P}$ commits to the value $\varphi \left(w\right)$ for every $w \in V$ using a statistically binding
+        commitment 
+    \item $\mathcal{V}$ uniformly chooses an edge $\left(u, v\right) \in E$, and sends it to $\mathcal{P}$ 
+    \item $\mathcal{P}$ revelas the openings of $\varphi \left(u\right)$, and $\varphi \left(v\right)$
+    \item $\mathcal{V}$ accepts \textbf{if and only if} the openings are valid, i.e. $\varphi \left(u\right), \varphi
+        \left(v\right) \in \left\{1, 2, 3\right\} \land \varphi \left(u\right) \ne \varphi \left(v\right)$
+\end{itemize}
+This protocol is repeated $t \cdot \left|E\right|$ times for soundness $e ^ {-t}$.
+% TODO proofs 40 - 42
+
+Since we have shown ZK proofs for G3C, and there exist reductions for every language in NP, we can thus show a ZK proof
+for every language in NP.
+
 % section Zero knowledge proofs for NP (end)
 
 \end{document}
