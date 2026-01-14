@@ -1,0 +1,162 @@
+\documentclass[a4paper]{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{blindtext}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[bookmarks=true]{hyperref}
+\usepackage{bookmark}
+\usepackage{bbm}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage[autostyle=true]{csquotes}
+\graphicspath{ {./images/} }
+\usepackage[bottom=0.5cm, right=1.5cm, left=1.5cm, top=1.5cm]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{exercise}{Exercise}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}[section]
+
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\p}{\ensuremath{\mathbb{P}}}
+\newcommand{\E}{\ensuremath{\mathbb{E}}}
+\newcommand{\F}{\ensuremath{\mathcal{F}}}
+\newcommand{\1}{\ensuremath{\mathbbm{1}}}
+\newcommand{\B}{\ensuremath{\mathbbm{B}}}
+
+\title{Lecture 9}
+\author{Gidon Rosalki}
+\date{2026-01-14}
+
+
+\begin{document}
+\maketitle
+\noindent\textbf{Notice:} If you find any mistakes, please open an issue at \href{https://github.com/robomarvin1501/notes\_intro\_to\_crypto}{\texttt{https://github.com/robomarvin1501/notes\_intro\_to\_crypto}}
+\section{Introduction}\label{sec:introduction} % (fold)
+Zero knowledge proofs are proofs that reveal nothing beyond the validity of the assertion being proved. This seems to
+be a contradicting definition, but we will see that it is not. They were introduced by Goldwasser, Micali, and Rackoff
+in 1985, and are a central tool in cryptographic protocols. We are not going to pass over the entire powerpoint
+presentation, this is simply going to be an introductory lecture. \\ 
+Consider for example proving that I have 1000NIS in my pocket. I could prove by taking it out and counting it, but I
+could potentially want to prove it without showing you what types of notes I have. \\ 
+A less contrived example would be finding a mathematical proof, which also has monetary value. I do not want to publish
+this proof, since then I no longer have the monetary value of the secret (suppose it is an algorithm, which you do not
+want everyone else to be able to implement). So, zero knowledge proofs can be helpful here, to show that I have proven
+the theorem, but not distribute the solution to everybody.
+
+This is often thought of as an interactive process (it does not have to be, but it can be easier to think of it as such,
+and so we will begin by doing so). \\ 
+A classic example is proving that you have solved a sudoku, without demonstrating the result. This is classic, and there
+are papers that demonstrate it, that are supposedly very readable, and easy to understand. 
+
+Sudoku is a slightly contrived example, since it is very clearly in $P$, consider instead the 3 colour problem. Can
+Alice prove that the graph is 3 colourable without revealing the 3 colouring? Well, hopefully we will discuss that
+later. Furthermore, given $n = pq$, we can show that Alice knows how to factor $n$, without revealing $p$ or $q$.
+% section Introduction (end)
+
+\section{Interactive proofs}\label{sec:interactive_proofs} % (fold)
+We will begin by defining classic NP problems. NP is the class of 
+
+\begin{definition}[NP]
+    All languages $L$, equipped with an efficiently computable relation $R_L$ such that \[
+        x \in L \Leftrightarrow \exists w : \left(x, w\right) \in R_L \land \left|w\right| = \text{poly} \left(\left|x\right|\right)
+    \] 
+\end{definition}
+So, given a statement $x \in L$, and proof $w$, NP proofs are inherently non-ZK, since Bob gains the ability to prove
+$x \in L$ to others. 
+
+Let us extend this with two new ideas: \begin{itemize}
+    \item Interaction: Replace a static proof with an interactive protocol 
+    \item Randomisation: Allow the verifier to toss coins, and err with a small probability
+\end{itemize}
+We will create the prover $\mathcal{P}$, which has the random tape $r_{\mathcal{P}}$, and the verifier $\mathcal{V}$,
+with the random tape $r_{\mathcal{V}}$. We will define the notation: \begin{itemize}
+    \item $\left\langle \mathcal{P}, \mathcal{V} \right\rangle \left(x\right)$ is the distribution of the transcript of
+        the protocol 
+    \item $\text{out}_{\mathcal{V}} \left[\left\langle \mathcal{P}, \mathcal{V} \right\rangle \left(x\right)\right]$ is
+        the distribution of $\mathcal{V}$'s output
+\end{itemize}
+
+\begin{definition}[Interactive proof system]
+    An \textbf{interactive proof system} for a language $L$ is a protocol $\left\langle \mathcal{P}, \mathcal{V}
+    \right\rangle$ where $\mathcal{V}$ is computable in probabilistic polynomial time, and the following holds: \begin{itemize}
+        \item Completeness: For every $x \in L$: \[
+                \Pr_{r_{\mathcal{P}}, r_{\mathcal{V}}} \left[\text{out}_{\mathcal{V}} \left[\left\langle \mathcal{P},
+                \mathcal{V} \right\rangle \left(x\right)\right] = \text{Accept}\right] = 1
+            \]
+        \item Soundness: For every $x \notin L$, and for every computationally unbounded $\mathcal{P}^*$: \[
+                \Pr_{r_{\mathcal{P}}, r_{\mathcal{V}}} \left[\text{out}_{\mathcal{V}} \left[\left\langle \mathcal{P}^*,
+                \mathcal{V} \right\rangle \left(x\right)\right] = \text{Accept}\right] \leq \displaystyle\frac{1}{2}
+            \]
+    \end{itemize}
+\end{definition}
+% TODO complete 10
+
+\begin{definition}[Isomorphic]
+    Two graphs $G_0 = \left(V_0, E_0\right)$, and $G_1 = \left(V_1, E_1\right)$ are \textbf{isomorphic} if there exists
+    a one to one mapping $\pi: V_0 \to V_1$ such that $\left(u, v\right) \in E_0 \Leftrightarrow \left(\pi
+    \left(u\right), \pi \left(v\right)\right) \in E_1$ for every $e, v \in V_0$
+\end{definition}
+That is to say, two graphs are isomorphic if we can rename the nodes in order to transform one into the other. We will
+note that this problem is in NP, since we can trivially build a verifier, but beyond this, we know nothing. We know not
+if it is NP-hard, NP-complete, or in P. \\ 
+We can define the set of isomorphic graphs $GI = \left\{\left(G_0, G_1\right) : G_0 \text{ is isomorphic to }
+G_1\right\} \in NP$. Similarly, we can define the other class of graphs that are \textbf{not} isomorphic: $GI =
+\left\{\left(G_0, G_1\right) : G_0 \text{ is \textbf{not} isomorphic to } G_1\right\} \in NP$. This class is not known
+to be in NP. \\ 
+We can now ask the question as to how to prove to an efficient verifier that $G_0, G_1$ are not isomorphic. we will
+posit that $\text{GNI} \in IP$: Given the common input $\left(G_0, G_1\right)$, the prover, and the verifier, the verifier will
+try and find the points where (if) the prover is guessing. \\ 
+\textbf{Intuitive solution}: The verifier will create two new graphs, which are permutations on the originals, $\pi
+\left(G_0\right), \pi \left(G_1\right)$. The verifier will also create $\pi \left(G_b\right) : b \gets \left\{0,
+1\right\}$. If the graphs are isomorphic, then all the graphs, including the new ones, are also isomorphic. If they are
+not, then $\pi \left(G_0\right)$ is not isomorphic to $\pi \left(G_1\right)$, and $\pi \left(G_b\right)$ will be
+isomorphic to \textbf{one} of them.  \\ 
+\textbf{Formal}: The verifier will create $H = \pi \left(G_b\right)$ for a random permutation $\pi$, and $b \gets
+\left\{0, 1\right\}$. $H$ is then sent to the prover. The prover will then find $z \in \left\{0, 1\right\}$, such that
+$H$ is isomorphic to $G_z$, and will then respond with $z$. The verifier will accept \textbf{if and only if} $z = b$. 
+
+\begin{theorem}[]
+    This protocol is an interactive proof for GNI
+
+    \begin{proof}[Proof ]
+        Firstly, we will claim completeness. If $\left(G_0, G_1\right) \in \text{GNI}$, then the verifier always accepts, since
+        no graph can be isomorphic to both $G_0$, and $G_1$. \\ 
+        Next, soundness, if $\left(G_0, G_1\right) \notin \text{GNI}$, then for every $\mathcal{P}^*$ the verifier accepts with
+        probability $\displaystyle\frac{1}{2}$. This is true since $\mathcal{P}^*$'s view is independent of $b$, so
+        therefore for any $z \in \left\{0, 1\right\}$ that $\mathcal{P}^*$ will output, we have $\Pr_{b \gets \left\{0,
+        1\right\}} \left[z = b\right] = \displaystyle\frac{1}{2}$.
+    \end{proof}
+\end{theorem}
+
+% section Interactive proofs (end)
+
+\section{Zero knowledge proofs}\label{sec:zero_knowledge_proofs} % (fold)
+An interactive proof system is zero-knowledge if whatever can be efficiently computed after interacting with
+$\mathcal{P}$ on input $x \in L$ can also be computed given only $x$. This should be true even when $\mathcal{P}$ is
+interacting with a malicious verifier. 
+
+Let us return to the isomorphic classes. Can we prove that $G_0$ and $G_1$ are isomorphic without revealing the
+isomorphism? A solution needs to enable completeness, soundness, and zero knowledge (ZK). Hear me and rejoice, for we
+are able so to do. Gird thy loins, and behold the following solution: 
+
+% section Zero knowledge proofs (end)
+
+\section{Zero knowledge proofs for NP}\label{sec:zero_knowledge_proofs_for_np} % (fold)
+
+\subsection{Tool: Commitment schemes}\label{sub:tool_commitment_schemes} % (fold)
+
+% subsection Tool: Commitment schemes (end)
+% section Zero knowledge proofs for NP (end)
+
+\end{document}
