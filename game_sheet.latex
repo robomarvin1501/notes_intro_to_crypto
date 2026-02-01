@@ -211,5 +211,42 @@ This is a complicated technique, so we shall present an example. \\
 \end{theorem}
 % section Hybrid argument (end)
 
+\section{Chosen Plaintext Attack (CPA)}\label{sec:chosen_plaintext_attack_cpa_} % (fold)
+We can modify Indistinguishable Encryption such that $\mathcal{A}$ may request any number of encryptions (From an
+oracle), before it hands over the two messages between which it must distinguish: 
+
+\begin{definition}[IND-CPA]
+    $\Pi$ has indistinguishable encryptions under a chosen-plaintext attack if for every PPT adversary $\mathcal{A}$
+    there exists a negligible function $v \left(\cdot\right)$ such that \[
+        \Pr \left[\text{IND}_{\Pi, \mathcal{A}}^{\text{CPA}} \left(n\right) = 1\right] \leq \displaystyle\frac{1}{2} + v \left(n\right)
+    \]
+\end{definition}
+This is to say, that the probability of winning the CPA game (described below) is 50\%, plus negligible.
+
+\begin{center}
+    \begin{tikzpicture}[thick]
+        \draw (0, 0) rectangle (4, 8) node[pos=0.5] {\huge $\mathcal{A} \left(1 ^ {n}\right)$};
+
+        \draw (9, 7.8) node {$k \gets \text{KeyGen} \left(1 ^ {n}\right)$};
+
+        \draw[->, very thick] (3.7, 7.3) -- (5.7, 7.3) node [above,align=center,midway,text width=3cm] {$m$};
+        \draw[<-, very thick] (3.7, 6.3) -- (5.7, 6.3) node [above,align=center,midway,text width=3cm] {$\text{Enc}_k \left(m\right)$};
+        \draw[->, very thick] (5.7, 7.3) to [bend left] (5.7, 6.3); 
+        \draw[->, very thick] (3.7, 6.3) to [bend left] (3.7, 7.3); 
+
+        \draw (9, 5.2) node {$b \gets \left\{0, 1\right\}$};
+        \draw (9, 4.7) node {$c^* \gets \text{Enc}_k \left(m_b\right)$};
+        \draw[->,very thick] (4.2, 5.2) -- (7.2, 5.2) node [above,align=center,midway,text width=3cm] {$m_0, m_1$};
+        \draw[<-,very thick] (4.2, 4.7) -- (7.2, 4.7) node [above,align=center,midway,text width=3cm] {$c^*$};
+
+        \draw[->, very thick] (3.7, 3.3) -- (5.7, 3.3) node [above,align=center,midway,text width=3cm] {$m$};
+        \draw[<-, very thick] (3.7, 2.3) -- (5.7, 2.3) node [above,align=center,midway,text width=3cm] {$\text{Enc}_k \left(m\right)$};
+        \draw[->, very thick] (5.7, 3.3) to [bend left] (5.7, 2.3); 
+        \draw[->, very thick] (3.7, 2.3) to [bend left] (3.7, 3.3); 
+
+        \draw[->,very thick] (4.2, 1.1) -- (7.2, 1.1) node [above,align=center,midway,text width=3cm] {$b'$};
+    \end{tikzpicture}
+\end{center}
+% section Chosen Plaintext Attack (CPA) (end)
 
 \end{document}
