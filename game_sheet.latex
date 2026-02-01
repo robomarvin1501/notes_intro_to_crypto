@@ -108,5 +108,108 @@ So, the probability that the distinguisher may tell the difference between the o
 noise, is less than the output of the negligible function for that length of input.
 % section PRGs (end)
 
+\section{Semantic security}\label{sub:semantic_security} % (fold)
+\begin{definition}[Semantically secure]
+    $\Pi$ is \textbf{semantically secure} if for every adversary $\mathcal{A}$ there exists a PPT \enquote{simulator}
+    $\mathcal{S}$ such that for every efficiently sampleable plaintext distribution $M = \left\{M_n\right\}_{n \in \N}$,
+    and all polynomial-time computable functions $f$ and $h$, there exists a negligible function $v \left(\cdot\right)$
+    such that \[
+        \left|\Pr \left[\mathcal{A} \left(1^n, \text{Enc}_k \left(m\right), h \left(m\right)\right) = f
+        \left(m\right)\right] - \Pr \left[\mathcal{S} \left(1^n, h \left(m\right)\right) = f
+        \left(m\right)\right]\right| \leq v \left(n\right)
+    \]
+    where $k \gets KeyGen \left(1^n\right)$ and $m \gets M_n$
+\end{definition}
+Or in other words, whatever you can learn from the encryption, can also be efficiently learnt \textit{without} the
+encryption, or most simply, the ciphertext teaches us \textbf{nothing}. $\Pi$ is \textit{semantically secure} \textbf{if
+and only if} it has \textit{indistinguishable encryption}.
+% section Semantic security (end)
+
+\section{One way functions}\label{sec:one_way_functions} % (fold)
+\begin{definition}[]
+    A polynomial-time computable function $f: \left\{0, 1\right\}^* \to \left\{0, 1\right\}^*$ is \textbf{one
+    way} if for any PPT $\mathcal{A}$, and negligible function $v \left(\cdot\right)$ \[
+        \Pr_{y \gets f \left(U_n\right)} \left[\mathcal{A} \left(1^n, y\right) \in f^{-1} \left(y\right)\right] \leq v
+        \left(y\right)
+    \]
+\end{definition}
+Easy to compute, hard to invert.
+% section One way functions (end)
+
+\section{Computational Indistinguishability}\label{sec:computational_indistinguishability} % (fold)
+\begin{definition}[Computationally indistinguishable]
+    Two probability distributions $X = \left\{X_n\right\}_{n \in \N}$ and $Y = \left\{Y_n\right\}_{n \in \N}$ are
+    \textbf{computationally indistinguishable} if for every PPT distinguisher $D$ there exists a negligible function $v
+    \left(\cdot\right)$ such that \[
+        \left|\Pr_{x \gets X_n} \left[D \left(1^n, x\right) = 1\right] - \Pr_{y \gets Y_n} \left[D \left(1^n, y\right) =
+        1\right]\right| \leq v \left(n\right)
+    \]
+\end{definition}
+This is denoted $X \approx ^ {c} Y$
+% section Computational Indistinguishability (end)
+
+\section{Hybrid argument}\label{sec:hybrid_argument} % (fold)
+This is a complicated technique, so we shall present an example. \\ 
+\begin{theorem}[]
+    Let $G: \left\{0, 1\right\}^n \to \left\{0, 1\right\}^{4n}$ be a PRG, then $H \left(s_1, s_2\right) = G
+    \left(s_1\right) || G \left(s_2\right)$ is a PRG. 
+
+    \begin{proof}[Proof ]
+        Our paradigm for this kind of proof is \textit{reduction} via a \textit{hybrid argument}. \\ 
+        \textbf{Reduction}: Given a distinguisher $D$, for $H$, construct a distinguisher $A$ for $G$. \\ 
+        \textbf{Hybrid argument}: Let us suppose that between $G \left(s_1\right), G \left(s_2\right)$ $D$ has
+        advantage $\varepsilon$. Let us create a new PRG, that given $s_1, s_2$, ignores $s_2$, and returns $G
+        \left(s_1\right), r_2$. So, between $G \left(s_1\right), G \left(s_2\right)$ and $G \left(s_1\right), r_2$, it
+        holds that $D$ has at least the advantage $\displaystyle\frac{\varepsilon}{2}$, or between $G \left(s_1\right),
+        r_2$ and $r_1, r_2$ it holds that $D$ has the advantage of at least $\displaystyle\frac{\varepsilon}{2}$. 
+
+        \begin{center}
+            \begin{tikzpicture}
+                \draw (0, 0) rectangle (2, 1) node[pos=0.5] {$r_1$};
+                \draw (2, 0) rectangle (4, 1) node[pos=0.5] {$r_2$};
+
+                \draw[->,very thick] (-1, 1.865) node [left,align=center,text width=3cm] {Suppose that $\mathcal{D}$ has an advantage of $\varepsilon$}
+                    -- (0, 0.565) ;
+                \draw[->,very thick] (-1, 1.865) -- (0, 3.165) ;
+
+                \draw (0, 1.3) rectangle (2, 2.3) node[pos=0.5] {$G \left(s_1\right)$};
+                \draw (2, 1.3) rectangle (4, 2.3) node[pos=0.5] {$r_2$};
+
+                \draw (0, 2.6) rectangle (2, 3.6) node[pos=0.5] {$G \left(s_1\right)$};
+                \draw (2, 2.6) rectangle (4, 3.6) node[pos=0.5] {$G \left(s_2\right)$};
+
+                \draw[->,very thick] (5, 1.215)
+                                 --  (4, 0.565) ;
+                \draw[->,very thick] (5, 1.215) node [right,align=center,text width=3cm] {Or here}
+                                 --  (4, 1.765) ;
+
+                \draw[->,very thick] (5, 2.515) 
+                                 --  (4, 1.965) ;
+                \draw[->,very thick] (5, 2.515) node [right,align=center,text width=3cm] {$\mathcal{D}$ must
+                    have an advantage of $\frac{\varepsilon}{2}$ here}
+                                 --  (4, 3.165) ;
+            \end{tikzpicture}
+        \end{center}
+
+        So:
+        \begin{align*}
+            \varepsilon &\leq \left|\p \left[D \left(G \left(s_1\right) || G \left(s_2\right)\right) = 1\right] - \p
+            \left[D \left(r_1 || r_2\right) = 1\right]\right| \\ 
+                        &\leq \left|\p \left[D \left(G \left(s_1\right) || G \left(s_2\right)\right) = 1\right] - \p
+                        \left[D \left(G \left(s_1\right) || r_2\right) = 1\right]\right| + \left|\p \left[D \left(G
+                        \left(s_1\right) || r_2\right) = 1\right] - \p \left[D \left(r_1 || r_2\right) = 1\right]\right|
+        \end{align*}
+
+        Let us define $A$, which on input $z \in \left\{0, 1\right\}^{4n}$ with sample $s_1 \gets \left\{0,
+        1\right\}^{n}$ and output $D \left(G \left(s_1\right) \| z\right)$. In this case, we have created an adversary
+        that distinguishes between the first 2 cases based off the difference of $G \left(s_2\right)$ and $r_2$. We may
+        similarly create a second adversary that performs the same, and outputs $D \left(Z \| r_2\right)$. Since
+        \textit{one} of these transitions must be distinguishable with an advantage of at least
+        $\frac{\varepsilon}{2}$, we have found an adversary $A$ for $G$, which is a contradiction to the
+        given that $G$ is a PRG.
+    \end{proof}
+\end{theorem}
+% section Hybrid argument (end)
+
 
 \end{document}
