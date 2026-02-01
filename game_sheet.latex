@@ -1,0 +1,112 @@
+\documentclass[a4paper]{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{blindtext}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[bookmarks=true]{hyperref}
+\usepackage{bookmark}
+\usepackage{bbm}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows}
+\usepackage[autostyle=true]{csquotes}
+\graphicspath{ {./images/} }
+\usepackage[bottom=0.5cm, right=1.5cm, left=1.5cm, top=1.5cm]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{exercise}{Exercise}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}[section]
+
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\p}{\ensuremath{\mathbb{P}}}
+\newcommand{\E}{\ensuremath{\mathbb{E}}}
+\newcommand{\F}{\ensuremath{\mathcal{F}}}
+\newcommand{\1}{\ensuremath{\mathbbm{1}}}
+\newcommand{\B}{\ensuremath{\mathbbm{B}}}
+
+\title{Game sheet}
+\author{Gidon Rosalki}
+
+
+\begin{document}
+\maketitle
+\noindent\textbf{Notice:} If you find any mistakes, please open an issue at \href{https://github.com/robomarvin1501/notes\_intro\_to\_crypto}{\texttt{https://github.com/robomarvin1501/notes\_intro\_to\_crypto}}
+
+\section{Perfect secrecy}\label{sec:perfect_secrecry} % (fold)
+\begin{definition}[Perfect secrecy]
+    A symmetric key encryption scheme $\Pi = \left(\text{KeyGen}, \text{Enc}, \text{Dec}\right)$ is \textbf{perfectly
+    secret} if for every distribution over $\mathcal{M}$, and for every $m \in \mathcal{M}$, and for every $c \in
+    \mathcal{C}$ it holds that \[
+        Pr \left[M = m | C = c\right] = Pr \left[M = m\right]
+    \]
+\end{definition}
+That is, the probability that some plaintext is the plaintext given the ciphertext, is the same as the probability
+that some plaintext is the plaintext, with no priors whatsoever.
+% section Perfect secrecry (end)
+
+\section{Indistinguishable encryption}\label{sec:indistinguishable_encryption} % (fold)
+\begin{definition}[Indistinguishable encryption]
+    $\Pi$ has \textbf{indistinguishable encryptions} if for every PPT adversary $\mathcal{A}$ there exists a negligible
+    function $v \left(\cdot\right)$ such that \[
+        \p \left[\text{IND}_{\Pi, \mathcal{A}} \left(n\right) = 1\right] \leq \displaystyle\frac{1}{2} + v \left(n\right)
+    \]
+    where the probability is taken over the random coins used by $\mathcal{A}$, and by the experiment.
+\end{definition}
+
+\begin{center}
+    \begin{tikzpicture}[thick]
+        \draw (0, 0) rectangle (4,5) node[pos=0.5] {\huge $\mathcal{A} \left(1 ^ {n}\right)$};
+
+        \draw (9, 4.8) node {$k \gets \text{KeyGen} \left(1 ^ {n}\right)$};
+        \draw[->,very thick] (4.2, 3.8) -- (7.2, 3.8) node [above,align=center,midway,text width=3cm] {$m_0, m_1$};
+
+        \draw (9, 3.3) node {$b \gets \left\{0, 1\right\}$};
+        \draw (9, 2.6) node {$c^* \gets \text{Enc}_k \left(m_b\right)$};
+
+        \draw[<-,very thick] (4.2, 2.0) -- (7.2, 2.0) node [above,align=center,midway,text width=3cm] {$c^*$};
+
+        \draw[->,very thick] (4.2, 0.8) -- (7.2, 0.8) node [above,align=center,midway,text width=3cm] {$b'$};
+    \end{tikzpicture}
+    \[
+        \text{IND}_{\Pi, \mathcal{A}} \left(n\right) = \begin{cases}
+            1, &\text{ if }b' = b\\
+            0, &\text{ otherwise}\\
+        \end{cases}
+    \]
+\end{center}
+
+% section Indistinguishable encryption (end)
+
+\section{PRGs}\label{sec:prgs} % (fold)
+\begin{definition}[PRG]
+    Let $G: \left\{0, 1\right\}^n \to \left\{0, 1\right\}^{l \left(n\right)}$ be a polynomial-time computable function,
+    and let $l \left(\cdot\right)$ be a polynomial such that for any input $s \in \left\{0, 1\right\}^n$, we have $G
+    \left(s\right) \in \left\{0, 1\right\}^{l \left(n\right)}$. Then, $G$ is a \textbf{pseudorandom generator} if the
+    following two conditions hold: \begin{itemize}
+        \item Expansion: $l \left(n\right) > n$
+        \item Pseudorandomness: For every PPT \enquote{distinguisher} $\mathcal{D}$, there exists a negligible function
+            $v \left(\cdot\right)$ such that \[
+                \left|\Pr_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right)\right) = 1\right] -
+                \Pr_{r \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[\mathcal{D} \left(r\right) = 1\right]\right|
+                \leq v \left(n\right)
+            \]
+    \end{itemize}
+\end{definition}
+So, the probability that the distinguisher may tell the difference between the output of the PRG, and truly random
+noise, is less than the output of the negligible function for that length of input.
+% section PRGs (end)
+
+
+\end{document}
