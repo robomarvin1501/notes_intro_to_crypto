@@ -306,4 +306,120 @@ This is to say, that the probability of winning the CPA game (described below) i
 \end{center}
 % section Chosen Plaintext Attack (CPA) (end)
 
+\section{Pseudorandom Functions}\label{sec:pseudorandom_function} % (fold)
+\begin{definition}[PRF]
+    An efficiently computable keyed function \[
+        F: \left\{0, 1\right\}^n \times \left\{0, 1\right\}^n \to \left\{0, 1\right\}^{l \left(n\right)}
+    \]
+    is \textbf{pseudorandom} if for every PPT distinguisher $\mathcal{D}$ there exists a negligible function $v
+    \left(\cdot\right)$ such that \[
+        \left|\Pr \left[\mathcal{D}^{F_k \left(\cdot\right)} \left(1^n\right) = 1\right] - \Pr \left[\mathcal{D}^{h
+        \left(\cdot\right)} \left(1^n\right) = 1\right]\right| \leq v \left(n\right)
+    \]
+    where $k \gets \left\{0, 1\right\}^n$ and $h \gets Func_{n \to l}$
+\end{definition}
+
+The methodology for using PRFs is as follows: \begin{enumerate}
+    \item Prove security assuming a truly random function is used 
+    \item Prove that if an adversary can break the scheme when PRF is used, then it can be used to distinguish the PRF
+        from a truly random function
+\end{enumerate}
+
+We may consider Enc to be, for example something that returns $\left(r, \mathcal{O} \left(r\right) \oplus m_b\right)$,
+and thus try and show if this is a CPA secure scheme or not. For example, for the theorem \textit{If $F$ is a PRF, then
+$\Pi_F$ is CPA-Secure}. For the truly random function $h$, $\Pi_h$ is secure, so we may show that $\Pi_h$ is
+indistinguishable from $\Pi_F$, by contradiction that finds that $\Pi_F$ is not a PRF. 
+
+\begin{center}
+    \begin{tikzpicture}[
+        thick,
+        >=stealth,
+        every node/.style={align=center},
+        msg/.style={text width=3cm, above},
+        block arrow/.style={->, very thick},
+        loop/.style={out=30, in=-30, distance=1.2cm}
+    ]
+        % Define vertical spacing
+        \def\dy{1.0} % Vertical step between message pairs
+
+        % Distinguisher box
+        \draw (0, 0) rectangle (15, 12);
+        \node at (0, 12) [anchor=north west, inner sep=1cm] {\huge $\mathcal{D} ^ {\mathcal{O}}$};
+        
+        % Adversary box
+        \draw (4,2) rectangle (8,10) node[pos=0.5] {\huge $\mathcal{A} \left(1 ^ {n}\right)$};
+        
+        \begin{scope}[xshift=4cm,yshift=2cm]
+            % Right column x-position
+            \def\xright{9}
+            % Middle column (between box and right)
+            \def\xmid{5.7}
+            \def\xmidtwo{7.2}
+            \def\gameedge{4.2}
+            
+            % === First phase: Key generation ===
+            \node at (\xright - 1, 7.8) {$k \gets \text{KeyGen}(1^n)$};
+
+            % Query/Response loop above challenge (first instance)
+            \begin{scope}[xshift=0.2cm,yshift=6.8cm]
+                \coordinate (A-out) at (3.7, 0);
+                \coordinate (mid-out) at (\xmid, 0);
+                \coordinate (A-in) at (3.7, -\dy);
+                \coordinate (mid-in) at (\xmid, -\dy);
+
+                \draw[block arrow] (A-out) -- (mid-out) node [msg, midway] {$m$};
+                \draw[block arrow] (mid-in) -- (A-in) node [msg, midway] {$\text{Enc}_k(m)$};
+                \draw[block arrow] (mid-out) to [bend left] (mid-in);
+                \draw[block arrow] (A-in) to [bend left] (A-out);
+            \end{scope}
+
+            % === Challenge phase ===
+            \begin{scope}[yshift=4.9cm] % Adjust this to flow after first oracle loop
+                % Right column node
+                \node at (\xright, -0.2 * \dy) {$b \gets \{0, 1\}$};
+                \node at (\xright, -0.8 * \dy) {$c^* \gets \text{Enc}_k(m_b)$};
+
+                % Left and middle x positions
+                \coordinate (challenge-out) at (\gameedge, 0);
+                \coordinate (challenge-mid-out) at (\xmidtwo, 0);
+                \coordinate (challenge-in) at (\gameedge, -\dy);
+                \coordinate (challenge-mid-in) at (\xmidtwo, -\dy);
+
+                % Arrows
+                \draw[block arrow] (challenge-out) -- (challenge-mid-out) 
+                    node [msg, midway] {$m_0, m_1$};
+                \draw[block arrow] (challenge-mid-in) -- (challenge-in) 
+                    node [msg, midway] {$c^*$};
+            \end{scope}
+
+            % === Second query/response phase (after challenge) ===
+            \begin{scope}[xshift=0.2cm,yshift=2.8cm] % Adjusted to sit below challenge
+                \coordinate (A-out) at (3.7, 0);
+                \coordinate (mid-out) at (\xmid, 0);
+                \coordinate (A-in) at (3.7, -\dy);
+                \coordinate (mid-in) at (\xmid, -\dy);
+
+                \draw[block arrow] (A-out) -- (mid-out) node [msg, midway] {$m$};
+                \draw[block arrow] (mid-in) -- (A-in) node [msg, midway] {$\text{Enc}_k(m)$};
+                \draw[block arrow] (mid-out) to [bend left] (mid-in);
+                \draw[block arrow] (A-in) to [bend left] (A-out);
+            \end{scope}
+
+            % === Final guess ===
+            \def\outputheight{0.8}
+            \draw[block arrow] (\gameedge, \outputheight) -- (\xmidtwo, \outputheight) node [msg, midway] {$b'$};
+                
+        \end{scope}
+
+        \draw[block arrow] (15.5, 6) -- (19, 6) node [msg, midway] {0 or 1};
+    \end{tikzpicture}
+    \begin{gather}
+        \text{IND}_{\Pi, \mathcal{A}} ^ {\text{CPA}} \left(n\right) = \begin{cases}
+            1, &\text{ if }b' = b\\
+            0, &\text{ otherwise}\\
+        \end{cases} 
+    \end{gather}
+\end{center}
+% section Pseudorandom Function (end)
+
 \end{document}
