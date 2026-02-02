@@ -803,5 +803,133 @@ We will note that this is CPA, despite not having the oracle access, because $\m
 oracle, since access to the public key means that $\mathcal{A}$ may encrypt any message that it wants.
 % section Public Key Encryption (end)
 
+\section{Digital Signatures}\label{sec:digital_signatures} % (fold)
+\begin{definition}[]
+    $\Pi$ is \textbf{existentially unforgeable against an adaptive chosen message attack} if for every PPT adversary
+    $\mathcal{A}$, there exists a negligible function $v \left(\cdot\right)$ such taht \[
+        \Pr \left[\text{SigForge}_{\Pi, \mathcal{A}} \left(n\right) = 1\right] \leq v \left(n\right)
+    \]
+\end{definition}
+Where the SigForge game is: 
+\begin{center}
+    \begin{tikzpicture}[
+        thick,
+        >=stealth,
+        every node/.style={align=center},
+        msg/.style={text width=3cm, above},
+        block arrow/.style={->, very thick},
+        loop/.style={out=30, in=-30, distance=1.2cm}
+    ]
+        % Define vertical spacing
+        \def\dy{1.0} % Vertical step between message pairs
+        
+        % Adversary box
+        \draw (0,0) rectangle (4,4) node[pos=0.5] {\huge $\mathcal{A} ^ {\text{Sign}_{sk} \left(\cdot\right)}$};
+        
+        % Right column x-position
+        \def\xright{9}
+        % Middle column (between box and right)
+        \def\xmid{5.7}
+        \def\xmidtwo{7.2}
+        \def\gameedge{4.2}
+        
+        % === First phase: Key generation ===
+        \node at (\xright - 2, 3.8) {$\left(sk, vk\right) \gets \text{Gen}(1^n)$};
+        \def\vkheight{3.0}
+        \draw[block arrow] (\xmidtwo, \vkheight) -- (\gameedge, \vkheight) node [msg, midway] {$vk$};
+
+        % Query/Response loop above challenge (first instance)
+        \begin{scope}[xshift=0.2cm,yshift=2.2cm]
+            \coordinate (A-out) at (3.7, 0);
+            \coordinate (mid-out) at (\xmid, 0);
+            \coordinate (A-in) at (3.7, -\dy);
+            \coordinate (mid-in) at (\xmid, -\dy);
+
+            \draw[block arrow] (A-out) -- (mid-out) node [msg, midway] {$m$};
+            \draw[block arrow] (mid-in) -- (A-in) node [msg, midway] {$\text{Sign}_{sk} \left(m\right)$};
+            \draw[block arrow] (mid-out) to [bend left] (mid-in);
+            \draw[block arrow] (A-in) to [bend left] (A-out);
+        \end{scope}
+
+        % === Final output ===
+        \def\outputheight{0.3}
+        \draw[block arrow] (\gameedge, \outputheight) -- (\xmidtwo, \outputheight) node [msg, midway] {$\left(m^*, t^*\right)$};
+    \end{tikzpicture}
+    \begin{gather}
+        \text{Let }\mathcal{Q} = \text{ the set of all queries asked by } \mathcal{A} \\
+        \text{SigForge}_{\Pi, \mathcal{A}} \left(n\right)= \begin{cases}
+            1, &\text{ if }\text{Vrfy}_{vk} \left(m^*, \sigma^*\right) = 1 \land m^* \notin \mathcal{Q}\\
+            0, &\text{ otherwise}
+        \end{cases}
+    \end{gather}
+\end{center}
+% section Digital Signatures (end)
+
+\pagebreak
+\section{Cryptography Primitives}\label{sec:cryptography_primitives} % (fold)
+\begin{center}
+    \begin{tikzpicture}[
+        node distance=2cm,
+        every node/.style={align=center},
+        arrow/.style={->, thick}
+    ]
+
+        % --- Left column: assumptions ---
+        \node (rsa) {RSA\\Assumption};
+        \node (tdp) [below=1.5cm of rsa] {TDP};
+        \node (ddh) [below=1.5cm of tdp] {DDH\\Assumption};
+        \node (cdh) [below=1.5cm of ddh] {CDH\\Assumption};
+
+        % --- Middle column ---
+        \node (fact) [right=2.5cm of rsa] {Factoring\\Assumption};
+        \node (dl)   [right=2.5cm of cdh] {DL\\Assumption};
+        \node (cpa)  [above=2.5cm of dl] {CPA-Secure\\PKE};
+
+        % --- Right-middle ---
+        \node (keyagree) [right=2.5cm of cpa] {Key\\Agreement};
+        \node (crhf)     [right=2.5cm of dl] {CRHF};
+
+        % --- Right box of primitives ---
+        \node (prims) [right=2.5cm of keyagree, draw, inner sep=8pt] {
+            OWF\\[4pt]
+            PRG\\[4pt]
+            PRF / PRP\\[4pt]
+            MAC\\[6pt]
+            Signatures\\[6pt]
+            Commitments\\[6pt]
+            CPA / CCA-Secure\\
+            Symmetric-Key\\
+            Encryption
+        };
+
+        \node (zkp)     [below=1cm of prims] {Zero Knowledge Proofs for NP};
+
+        % --- Arrows ---
+        \draw[arrow] (rsa) -- (fact);
+        \draw[arrow] (fact) -- (prims);
+
+        \draw[arrow] (rsa) -- (tdp);
+        \draw[arrow] (tdp) -- (cpa);
+
+        \draw[arrow] (ddh) -- (cpa);
+        \draw[arrow] (ddh) -- (cdh);
+
+        \draw[arrow] (cdh) -- (dl);
+        \draw[arrow] (dl) -- (crhf);
+        \draw[arrow] (crhf) -- (prims);
+
+        \draw[arrow] (cpa) -- (keyagree);
+        \draw[arrow] (keyagree) -- (prims);
+
+        \draw[arrow] (prims) -- (zkp);
+
+    \end{tikzpicture}
+\end{center}
+% section Cryptography Primitives (end)
+
+\section{Zero Knowledge Proofs}\label{sec:zero_knowledge_proofs} % (fold)
+
+% section Zero Knowledge Proofs (end)
+
 
 \end{document}
