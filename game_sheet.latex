@@ -224,28 +224,85 @@ oracle), before it hands over the two messages between which it must distinguish
 This is to say, that the probability of winning the CPA game (described below) is 50\%, plus negligible.
 
 \begin{center}
-    \begin{tikzpicture}[thick]
-        \draw (0, 0) rectangle (4, 8) node[pos=0.5] {\huge $\mathcal{A} \left(1 ^ {n}\right)$};
+    \begin{tikzpicture}[
+        thick,
+        >=stealth,
+        every node/.style={align=center},
+        msg/.style={text width=3cm, above},
+        block arrow/.style={->, very thick},
+        loop/.style={out=30, in=-30, distance=1.2cm}
+    ]
+        % Define vertical spacing
+        \def\dy{1.0} % Vertical step between message pairs
+        
+        % Adversary box
+        \draw (0,0) rectangle (4,8) node[pos=0.5] {\huge $\mathcal{A} \left(1 ^ {n}\right)$};
+        
+        % Right column x-position
+        \def\xright{9}
+        % Middle column (between box and right)
+        \def\xmid{5.7}
+        \def\xmidtwo{7.2}
+        \def\gameedge{4.2}
+        
+        % === First phase: Key generation ===
+        \node at (\xright - 1, 7.8) {$k \gets \text{KeyGen}(1^n)$};
 
-        \draw (9, 7.8) node {$k \gets \text{KeyGen} \left(1 ^ {n}\right)$};
+        % Query/Response loop above challenge (first instance)
+        \begin{scope}[xshift=0.2cm,yshift=6.8cm]
+            \coordinate (A-out) at (3.7, 0);
+            \coordinate (mid-out) at (\xmid, 0);
+            \coordinate (A-in) at (3.7, -\dy);
+            \coordinate (mid-in) at (\xmid, -\dy);
 
-        \draw[->, very thick] (3.7, 7.3) -- (5.7, 7.3) node [above,align=center,midway,text width=3cm] {$m$};
-        \draw[<-, very thick] (3.7, 6.3) -- (5.7, 6.3) node [above,align=center,midway,text width=3cm] {$\text{Enc}_k \left(m\right)$};
-        \draw[->, very thick] (5.7, 7.3) to [bend left] (5.7, 6.3); 
-        \draw[->, very thick] (3.7, 6.3) to [bend left] (3.7, 7.3); 
+            \draw[block arrow] (A-out) -- (mid-out) node [msg, midway] {$m$};
+            \draw[block arrow] (mid-in) -- (A-in) node [msg, midway] {$\text{Enc}_k(m)$};
+            \draw[block arrow] (mid-out) to [bend left] (mid-in);
+            \draw[block arrow] (A-in) to [bend left] (A-out);
+        \end{scope}
 
-        \draw (9, 5.2) node {$b \gets \left\{0, 1\right\}$};
-        \draw (9, 4.7) node {$c^* \gets \text{Enc}_k \left(m_b\right)$};
-        \draw[->,very thick] (4.2, 5.2) -- (7.2, 5.2) node [above,align=center,midway,text width=3cm] {$m_0, m_1$};
-        \draw[<-,very thick] (4.2, 4.7) -- (7.2, 4.7) node [above,align=center,midway,text width=3cm] {$c^*$};
+        % === Challenge phase ===
+        \begin{scope}[yshift=4.9cm] % Adjust this to flow after first oracle loop
+            % Right column node
+            \node at (\xright, -0.2 * \dy) {$b \gets \{0, 1\}$};
+            \node at (\xright, -0.8 * \dy) {$c^* \gets \text{Enc}_k(m_b)$};
 
-        \draw[->, very thick] (3.7, 3.3) -- (5.7, 3.3) node [above,align=center,midway,text width=3cm] {$m$};
-        \draw[<-, very thick] (3.7, 2.3) -- (5.7, 2.3) node [above,align=center,midway,text width=3cm] {$\text{Enc}_k \left(m\right)$};
-        \draw[->, very thick] (5.7, 3.3) to [bend left] (5.7, 2.3); 
-        \draw[->, very thick] (3.7, 2.3) to [bend left] (3.7, 3.3); 
+            % Left and middle x positions
+            \coordinate (challenge-out) at (\gameedge, 0);
+            \coordinate (challenge-mid-out) at (\xmidtwo, 0);
+            \coordinate (challenge-in) at (\gameedge, -\dy);
+            \coordinate (challenge-mid-in) at (\xmidtwo, -\dy);
 
-        \draw[->,very thick] (4.2, 1.1) -- (7.2, 1.1) node [above,align=center,midway,text width=3cm] {$b'$};
+            % Arrows
+            \draw[block arrow] (challenge-out) -- (challenge-mid-out) 
+                node [msg, midway] {$m_0, m_1$};
+            \draw[block arrow] (challenge-mid-in) -- (challenge-in) 
+                node [msg, midway] {$c^*$};
+        \end{scope}
+
+        % === Second query/response phase (after challenge) ===
+        \begin{scope}[xshift=0.2cm,yshift=2.8cm] % Adjusted to sit below challenge
+            \coordinate (A-out) at (3.7, 0);
+            \coordinate (mid-out) at (\xmid, 0);
+            \coordinate (A-in) at (3.7, -\dy);
+            \coordinate (mid-in) at (\xmid, -\dy);
+
+            \draw[block arrow] (A-out) -- (mid-out) node [msg, midway] {$m$};
+            \draw[block arrow] (mid-in) -- (A-in) node [msg, midway] {$\text{Enc}_k(m)$};
+            \draw[block arrow] (mid-out) to [bend left] (mid-in);
+            \draw[block arrow] (A-in) to [bend left] (A-out);
+        \end{scope}
+
+        % === Final guess ===
+        \def\outputheight{0.8}
+        \draw[block arrow] (\gameedge, \outputheight) -- (\xmidtwo, \outputheight) node [msg, midway] {$b'$};
     \end{tikzpicture}
+    \begin{gather}
+        \text{IND}_{\Pi, \mathcal{A}} ^ {\text{CPA}} \left(n\right) = \begin{cases}
+            1, &\text{ if }b' = b\\
+            0, &\text{ otherwise}\\
+        \end{cases} 
+    \end{gather}
 \end{center}
 % section Chosen Plaintext Attack (CPA) (end)
 
