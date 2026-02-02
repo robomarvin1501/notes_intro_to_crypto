@@ -535,5 +535,126 @@ We may describe HashColl as follows:
 \end{center}
 % section CRHF (end)
 
+\section{CCA}\label{sec:cca} % (fold)
+\begin{definition}[CCA-IND]
+    $\Pi$ has indistinguishable encryptions under a chosen-ciphertext attack if for every PPT adversary $\mathcal{A}$
+    there exists a negligible function $v \left(\cdot\right)$ such that \[
+        \Pr \left[IND_{\Pi, \mathcal{A}}^{CCA} \left(n\right) = 1\right] \leq \displaystyle\frac{1}{2} + v \left(n\right)
+    \]
+    In this case, we may also say that $\Pi$ is CCA-secure.
+\end{definition}
+
+Note that CCA implies authenticity, since given $\text{Enc}_k \left(m\right)$, it is hard to generate $\text{Enc}_k
+\left(m'\right)$ for a \enquote{related} $m'$ (such as $m' = m + 1$).
+
+\begin{center}
+    \begin{tikzpicture}[
+        thick,
+        >=stealth,
+        every node/.style={align=center},
+        msg/.style={text width=3cm, above},
+        block arrow/.style={->, very thick},
+        loop/.style={out=30, in=-30, distance=1.2cm}
+    ]
+        % Define vertical spacing
+        \def\dy{1.0} % Vertical step between message pairs
+        
+        % Adversary box
+        \draw (0,0) rectangle (4,12) node[pos=0.5] {\huge $\mathcal{A} ^ {\text{Enc}_k \left(\cdot\right), \text{Dec}_k \left(\cdot\right)}$};
+        
+        % Right column x-position
+        \def\xright{9}
+        % Middle column (between box and right)
+        \def\xmid{5.7}
+        \def\xmidtwo{7.2}
+        \def\gameedge{4.2}
+        
+        % === First phase: Key generation ===
+        \node at (\xright - 1, 11.8) {$k \gets \text{KeyGen}(1^n)$};
+
+        % Encryption loop
+        \begin{scope}[xshift=0.2cm,yshift=10.8cm]
+            \coordinate (A-out) at (3.7, 0);
+            \coordinate (mid-out) at (\xmid, 0);
+            \coordinate (A-in) at (3.7, -\dy);
+            \coordinate (mid-in) at (\xmid, -\dy);
+
+            \draw[block arrow] (A-out) -- (mid-out) node [msg, midway] {$m$};
+            \draw[block arrow] (mid-in) -- (A-in) node [msg, midway] {$\text{Enc}_k(m)$};
+            \draw[block arrow] (mid-out) to [bend left] (mid-in);
+            \draw[block arrow] (A-in) to [bend left] (A-out);
+        \end{scope}
+
+        % Decryption loop
+        \begin{scope}[xshift=0.2cm,yshift=8.3cm]
+            \coordinate (A-out) at (3.7, 0);
+            \coordinate (mid-out) at (\xmid, 0);
+            \coordinate (A-in) at (3.7, -\dy);
+            \coordinate (mid-in) at (\xmid, -\dy);
+
+            \draw[block arrow] (A-out) -- (mid-out) node [msg, midway] {$c$};
+            \draw[block arrow] (mid-in) -- (A-in) node [msg, midway] {$\text{Dec}_k \left(c\right)$};
+            \draw[block arrow] (mid-out) to [bend left] (mid-in);
+            \draw[block arrow] (A-in) to [bend left] (A-out);
+        \end{scope}
+
+        % === Challenge phase ===
+        \begin{scope}[yshift=5.9cm] 
+            % Right column node
+            \node at (\xright, -0.2 * \dy) {$b \gets \{0, 1\}$};
+            \node at (\xright, -0.8 * \dy) {$c^* \gets \text{Enc}_k(m_b)$};
+
+            % Left and middle x positions
+            \coordinate (challenge-out) at (\gameedge, 0);
+            \coordinate (challenge-mid-out) at (\xmidtwo, 0);
+            \coordinate (challenge-in) at (\gameedge, -\dy);
+            \coordinate (challenge-mid-in) at (\xmidtwo, -\dy);
+
+            % Arrows
+            \draw[block arrow] (challenge-out) -- (challenge-mid-out) 
+                node [msg, midway] {$m_0, m_1$};
+            \draw[block arrow] (challenge-mid-in) -- (challenge-in) 
+                node [msg, midway] {$c^*$};
+        \end{scope}
+
+        % Second Ecnryption / Decryption loops
+        \begin{scope}[xshift=0.2cm,yshift=4.2cm] % Adjusted to sit below challenge
+            \coordinate (A-out) at (3.7, 0);
+            \coordinate (mid-out) at (\xmid, 0);
+            \coordinate (A-in) at (3.7, -\dy);
+            \coordinate (mid-in) at (\xmid, -\dy);
+
+            \draw[block arrow] (A-out) -- (mid-out) node [msg, midway] {$m$};
+            \draw[block arrow] (mid-in) -- (A-in) node [msg, midway] {$\text{Enc}_k(m)$};
+            \draw[block arrow] (mid-out) to [bend left] (mid-in);
+            \draw[block arrow] (A-in) to [bend left] (A-out);
+        \end{scope}
+
+        \begin{scope}[xshift=0.2cm,yshift=2.6cm] % Adjusted to sit below challenge
+            \coordinate (A-out) at (3.7, 0);
+            \coordinate (mid-out) at (\xmid, 0);
+            \coordinate (A-in) at (3.7, -\dy);
+            \coordinate (mid-in) at (\xmid, -\dy);
+
+            \draw[block arrow] (A-out) -- (mid-out) node [msg, midway] {$c$};
+            \draw[block arrow] (mid-in) -- (A-in) node [msg, midway] {$\text{Dec}_k(c)$};
+            \draw[block arrow] (mid-out) to [bend left] (mid-in);
+            \draw[block arrow] (A-in) to [bend left] (A-out);
+        \end{scope}
+
+        % === Final guess ===
+        \def\outputheight{0.6}
+        \draw[block arrow] (\gameedge, \outputheight) -- (\xmidtwo, \outputheight) node [msg, midway] {$b'$};
+    \end{tikzpicture}
+    \begin{gather}
+        \mathcal{Q} = \text{ set of all decryption queries asked by }\mathcal{A} \\
+        \text{IND}_{\Pi, \mathcal{A}} ^ {\text{CCA}} \left(n\right) = \begin{cases}
+            1, &\text{ if }b' = b \land c^* \notin \mathcal{Q}\\
+            0, &\text{ otherwise}\\
+        \end{cases} 
+    \end{gather}
+\end{center}
+% section CCA (end)
+
 
 \end{document}
