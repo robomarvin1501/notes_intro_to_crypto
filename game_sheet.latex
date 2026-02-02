@@ -484,6 +484,56 @@ This is to say, it is very hard for a PPT adversary to create a new message, wit
 \end{center}
 % section MACs (end)
 
+\pagebreak
+\section{CRHF}\label{sec:crhf} % (fold)
+\begin{definition}[Collision Resistant]
+    $\Phi$ is \textbf{collision resistant} if for every PPT adversary $\mathcal{A}$ there exists a negligible function
+    $v \left(\cdot\right)$ such that \[
+        \Pr \left[HashColl_{\Phi, \mathcal{A}} \left(n\right) = 1\right] \leq v \left(n\right)
+    \]
+\end{definition}
+We may describe HashColl as follows: 
+
+\begin{center}
+    \begin{tikzpicture}[
+        thick,
+        >=stealth,
+        every node/.style={align=center},
+        msg/.style={text width=3cm, above},
+        block arrow/.style={->, very thick},
+        loop/.style={out=30, in=-30, distance=1.2cm}
+    ]
+        % Define vertical spacing
+        \def\dy{1.0} % Vertical step between message pairs
+        
+        % Adversary box
+        \draw (0,0) rectangle (4,4) node[pos=0.5] {\huge $\mathcal{A}$};
+        
+        % Right column x-position
+        \def\xright{9}
+        % Middle column (between box and right)
+        \def\xmid{5.7}
+        \def\xmidtwo{7.2}
+        \def\gameedge{4.2}
+        
+        % === First phase: Key generation ===
+        \node at (\xright - 1, 3.8) {$s \gets \text{Gen} \left(1 ^ {n}\right)$};
+
+        \node at (\xright - 1, 3.8) {$s \gets \text{Gen} \left(1 ^ {n}\right)$};
+        \draw[block arrow] (\xmidtwo, 3) -- (\gameedge, 3) node [msg, midway] {$s$};
+
+        % === Final output ===
+        \def\outputheight{0.8}
+        \draw[block arrow] (\gameedge, \outputheight) -- (\xmidtwo, \outputheight) node [msg, midway] {$x, x'$};
+    \end{tikzpicture}
+    \begin{gather}
+        \text{HashColl}_{\Phi, \mathcal{A}} \left(n\right)= \begin{cases}
+            1, &\text{ if } H_s \left(x\right) = H_s \left(x'\right) \land x \ne x' \\
+            0, &\text{ otherwise}
+        \end{cases}
+    \end{gather}
+\end{center}
+% section CRHF (end)
 
 
 \end{document}
