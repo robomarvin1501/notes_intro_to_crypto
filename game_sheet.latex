@@ -343,8 +343,8 @@ indistinguishable from $\Pi_F$, by contradiction that finds that $\Pi_F$ is not 
         \def\dy{1.0} % Vertical step between message pairs
 
         % Distinguisher box
-        \draw (0, 0) rectangle (15, 12);
-        \node at (0, 12) [anchor=north west, inner sep=1cm] {\huge $\mathcal{D} ^ {\mathcal{O}}$};
+        \draw (0, 0) rectangle (15, 11);
+        \node at (0, 11) [anchor=north west, inner sep=1cm] {\huge $\mathcal{D} ^ {\mathcal{O}}$};
         
         % Adversary box
         \draw (4,2) rectangle (8,10) node[pos=0.5] {\huge $\mathcal{A} \left(1 ^ {n}\right)$};
@@ -421,5 +421,69 @@ indistinguishable from $\Pi_F$, by contradiction that finds that $\Pi_F$ is not 
     \end{gather}
 \end{center}
 % section Pseudorandom Function (end)
+
+\section{MACs}\label{sec:macs} % (fold)
+\begin{definition}[MAC scheme]
+    A MAC (Message Authentication Code) scheme $\Pi = \left(Gen, Mac, \text{Vrfy}\right)$ is secure if for every PPT
+    adversary $\mathcal{A}$, there exists a negligible function $v \left(\cdot\right)$ such that \[
+        \Pr \left[MacForge_{\Pi, \mathcal{A}} \left(n\right) = 1\right] \leq v \left(n\right)
+    \]
+\end{definition}
+This is to say, it is very hard for a PPT adversary to create a new message, with a correct MAC.
+
+\begin{center}
+    \begin{tikzpicture}[
+        thick,
+        >=stealth,
+        every node/.style={align=center},
+        msg/.style={text width=3cm, above},
+        block arrow/.style={->, very thick},
+        loop/.style={out=30, in=-30, distance=1.2cm}
+    ]
+        % Define vertical spacing
+        \def\dy{1.0} % Vertical step between message pairs
+        
+        % Adversary box
+        \draw (0,0) rectangle (4,4) node[pos=0.5] {\huge $\mathcal{A}$};
+        
+        % Right column x-position
+        \def\xright{9}
+        % Middle column (between box and right)
+        \def\xmid{5.7}
+        \def\xmidtwo{7.2}
+        \def\gameedge{4.2}
+        
+        % === First phase: Key generation ===
+        \node at (\xright - 1, 3.8) {$k \gets \text{KeyGen}(1^n)$};
+
+        % Query/Response loop above challenge (first instance)
+        \begin{scope}[xshift=0.2cm,yshift=3.2cm]
+            \coordinate (A-out) at (3.7, 0);
+            \coordinate (mid-out) at (\xmid, 0);
+            \coordinate (A-in) at (3.7, -\dy);
+            \coordinate (mid-in) at (\xmid, -\dy);
+
+            \draw[block arrow] (A-out) -- (mid-out) node [msg, midway] {$m$};
+            \draw[block arrow] (mid-in) -- (A-in) node [msg, midway] {$\text{Mac}_k \left(m\right)$};
+            \draw[block arrow] (mid-out) to [bend left] (mid-in);
+            \draw[block arrow] (A-in) to [bend left] (A-out);
+        \end{scope}
+
+        % === Final output ===
+        \def\outputheight{0.8}
+        \draw[block arrow] (\gameedge, \outputheight) -- (\xmidtwo, \outputheight) node [msg, midway] {$\left(m^*, t^*\right)$};
+    \end{tikzpicture}
+    \begin{gather}
+        \text{Let }\mathcal{Q} = \text{ the set of all queries asked by } \mathcal{A} \\
+        \text{MacForge}_{\Pi, \mathcal{A}} \left(n\right)= \begin{cases}
+            1, &\text{ if }\text{Vrfy}_k \left(m^*, t^*\right) = 1 \land m^* \notin \mathcal{Q}\\
+            0, &\text{ otherwise}
+        \end{cases}
+    \end{gather}
+    Note that this does \textbf{not} prevent replay attacks!
+\end{center}
+% section MACs (end)
+
+
 
 \end{document}
