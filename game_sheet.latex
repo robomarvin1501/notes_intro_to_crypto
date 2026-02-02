@@ -767,5 +767,41 @@ If you can solve CDH, then you can also solve DDH, so therefore DDH is a more se
 % subsection Diffie-Hellman (end)
 % section Key Agreement (end)
 
+\pagebreak
+\section{Public Key Encryption}\label{sec:public_key_encryption} % (fold)
+\begin{definition}[IND-CPA]
+    $\Pi$ has indistinguishable encryptions under a chosen-plaintext attack if for every PPT adversary $\mathcal{A}$
+    there exists a negligible function $v \left(\cdot\right)$ such that \[
+        \Pr \left[IND_{\Pi, \mathcal{A}}^{CPA} \left(n\right) = 1\right] \leq \displaystyle\frac{1}{2} + v \left(n\right)
+    \]
+\end{definition}
+
+\begin{center}
+    \begin{tikzpicture}[thick]
+        \draw (0, 0) rectangle (4,5) node[pos=0.5] {\huge $\mathcal{A} $};
+
+        \draw (9, 4.8) node {$\left(sk, pk\right) \gets \text{KeyGen} \left(1 ^ {n}\right)$};
+        \draw[->, very thick] (7.2, 4.5) -- (4.2, 4.5) node [above,align=center,midway,text width=3cm] {$pk$};
+
+        \draw[->,very thick] (4.2, 3.8) -- (7.2, 3.8) node [above,align=center,midway,text width=3cm] {$m_0, m_1$};
+
+        \draw (9, 3.3) node {$b \gets \left\{0, 1\right\}$};
+        \draw (9, 2.6) node {$c^* \gets \text{Enc}_k \left(m_b\right)$};
+
+        \draw[<-,very thick] (4.2, 2.0) -- (7.2, 2.0) node [above,align=center,midway,text width=3cm] {$c^*$};
+
+        \draw[->,very thick] (4.2, 0.8) -- (7.2, 0.8) node [above,align=center,midway,text width=3cm] {$b'$};
+    \end{tikzpicture}
+    \[
+        \text{IND}_{\Pi, \mathcal{A}} ^ {\text{CPA}} \left(n\right) = \begin{cases}
+            1, &\text{ if }b' = b\\
+            0, &\text{ otherwise}\\
+        \end{cases}
+    \]
+\end{center}
+We will note that this is CPA, despite not having the oracle access, because $\mathcal{A}$ may function as its own
+oracle, since access to the public key means that $\mathcal{A}$ may encrypt any message that it wants.
+% section Public Key Encryption (end)
+
 
 \end{document}
