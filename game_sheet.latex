@@ -1035,7 +1035,7 @@ the input graphs $G_0, G_1$ are isomorphic without revealing the isomorphism.
         };
         \node at (verifier.north west) [anchor=north west, font=\huge, inner sep=8pt] {Verifier};
 
-        \node at ($(prover.north)!0.5!(verifier.north) + (0,1.0)$) (input) {
+        \node at ($(prover.north)!0.5!(verifier.north) + (0,0.6)$) (input) {
             Common input $\left(G_0, G_1\right)$
         };
 
@@ -1090,5 +1090,156 @@ $G_0$ and $G_1$, without ever revealing it:
 \end{center}
 % section Zero Knowledge Proofs (end)
 
+\section{Commitments}\label{sec:commitments} % (fold)
+An example bit commitment scheme: \\
+Given a PRG $G : \left|G \left(s\right)\right| = 3 \cdot \left|s\right|$, and a hard-core predicate $h:  \left\{0,
+1\right\} ^ {*} \to \left\{0, 1\right\}$, the sender is given $v \in \left\{0, 1\right\}$ as input. 
+\begin{center}
+    \begin{tikzpicture}[
+        thick,
+        > = stealth,
+        node distance = 2.5cm and 6cm,
+        every node/.style = {align=center},
+        actor/.style = {text width=5cm, minimum height=5.5cm, draw, thick, font=\large},
+        msg/.style = {->, very thick, above, text width=5cm, align=center},
+    ]
+        % =============== Sender (Left) ===============
+        \node[actor] (sender) {
+            Input: $v \in \{0,1\}$ \\[0.5em]
+            Sample $x \gets \{0,1\}^n$
+        };
+        \node at (sender.north west) [anchor=north west, font=\huge, inner sep=8pt] {$\mathcal S$};
+
+        % =============== Receiver (Right) ===============
+        \node[actor, right=of sender] (receiver) {
+            Store commitment \\[2em]
+            On reveal, accept $v$ iff: \\[0.5em]
+            $f(x)$ matches \\ 
+            and $h(x)\oplus v$ matches
+        };
+        \node at (receiver.north west) [anchor=north west, font=\huge, inner sep=8pt] {$\mathcal R$};
+
+        % =============== Common input ===============
+        \node at ($(sender.north)!0.5!(receiver.north) + (0,0.8)$) (input) {
+            Public parameters: OWF $f$, hard-core predicate $h$
+        };
+
+        \draw[->, thick] (input) -- (sender);
+        \draw[->, thick] (input) -- (receiver);
+
+        % =============== Vertical spacing for messages ===============
+        \def\msgsep{0.7}
+
+        % =============== Commit phase label ===============
+        \node at ($(sender.north)!0.5!(receiver.north) + (0,-0.9)$)
+            {\textbf{Commit phase}};
+
+        % Commit: sender -> receiver
+        \draw[->, very thick]
+            ([yshift=1.5*\msgsep cm]sender.east) --
+            ([yshift=1.5*\msgsep cm]receiver.west)
+            node[midway, above]
+            {$\text{commit} = \bigl(f(x),\, h(x)\oplus v\bigr)$};
+
+        % =============== Reveal phase label ===============
+        \node at ($(sender.west)!0.5!(receiver.east) - (0,0.2)$)
+            {\textbf{Reveal phase}};
+
+        % Reveal: sender -> receiver
+        \draw[->, very thick]
+            ([yshift=-1.5*\msgsep cm]sender.east) --
+            ([yshift=-1.5*\msgsep cm]receiver.west)
+            node[midway, above]
+            {Reveal: $(v, x)$};
+
+    \end{tikzpicture}
+    Bit-commitment scheme (OWF-based) \\
+    As we can see, in the commitment (very \textit{very} informal), $f \left(x\right)$ is functioning as a signature to
+    verify the value of $x$, and $h \left(x\right) \oplus v$ is function as a signature to verify the value of $v$. 
+\end{center}
+This can be extended to coin flips over the telephone (for example), by having Alice commit to her result, Bob respond
+with his result, and Alice then reveal her result. This way, neither Alice, nor Bob can change their results according
+to what the other said.
+% section Commitments (end)
+
+\section{ZKP for G3C with Commitments}\label{sec:zkp_for_g_c_with_commitments} % (fold)
+\begin{center}
+    \begin{tikzpicture}[
+        thick,
+        > = stealth,
+        node distance = 2.5cm and 6cm,
+        every node/.style = {align=center},
+        actor/.style = {text width=5.5cm, minimum height=6.5cm, draw, thick, font=\large},
+        msg/.style = {->, very thick, above, text width=6cm, align=center},
+    ]
+
+        % =============== Prover (Left) ===============
+        \node[actor] (prover) {
+            Private input: coloring $\psi$ \\[0.4em]
+            Choose random permutation $\pi \in S_3$ \\[0.4em]
+            Define $\phi = \pi \circ \psi$ \\[0.6em]
+            Commit to $\phi(v)$ for all $v \in V$
+        };
+        \node at (prover.north west) [anchor=north west, font=\huge, inner sep=8pt] {Prover};
+
+        % =============== Verifier (Right) ===============
+        \node[actor, right=of prover] (verifier) {
+            Choose random edge $(u,v) \in E$ \\[1.5em]
+            Accept iff: \\[0.4em]
+            openings are valid \\ 
+            $\phi(u),\phi(v)\in\{1,2,3\}$ \\
+            $\phi(u)\neq\phi(v)$
+        };
+        \node at (verifier.north west) [anchor=north west, font=\huge, inner sep=8pt] {Verifier};
+
+        % =============== Common input ===============
+        \node at ($(prover.north)!0.5!(verifier.north) + (0,1.2)$) (input) {
+            Common input: graph $G=(V,E)$
+        };
+
+        \draw[->, thick] (input) -- (prover);
+        \draw[->, thick] (input) -- (verifier);
+
+        % =============== Vertical spacing for messages ===============
+        \def\msgsep{0.7}
+
+        % =============== Commit phase label ===============
+        \node at ($(prover.north)!0.5!(verifier.north) - (0,1.5 * \msgsep)$)
+            {\textbf{Commit phase}};
+
+        % Prover -> Verifier: commitments
+        \draw[->, very thick]
+            ([yshift=1.5*\msgsep cm]prover.east) --
+            ([yshift=1.5*\msgsep cm]verifier.west)
+            node[midway, above]
+            {Commitments $\{\text{com}_v\}_{v\in V}$ \\ for $\phi(v)$};
+
+        % =============== Challenge phase label ===============
+        \node at ($(prover.center)!0.5!(verifier.center) - (0, 0.2 * \msgsep)$)
+            {\textbf{Challenge phase}};
+
+        % Verifier -> Prover: choose edge
+        \draw[->, very thick]
+            ([yshift=-1.2*\msgsep cm]verifier.west) -- 
+            ([yshift=-1.2*\msgsep cm]prover.east)
+            node[midway, above]
+            {Challenge edge $(u,v)\in E$};
+
+        % =============== Reveal phase label ===============
+        \node at ($(prover.east)!0.5!(verifier.west) - (0,3*\msgsep)$)
+            {\textbf{Reveal phase}};
+
+        % Prover -> Verifier: open two commitments
+        \draw[->, very thick]
+            ([yshift=-4*\msgsep cm]prover.east) --
+            ([yshift=-4*\msgsep cm]verifier.west)
+            node[midway, above]
+            {Open $(\phi(u), r_u)$ and $(\phi(v), r_v)$};
+
+    \end{tikzpicture}
+
+One round of the G3C zero-knowledge protocol
+\end{center}
+% section ZKP for G3C with Commitments (end)
 
 \end{document}
