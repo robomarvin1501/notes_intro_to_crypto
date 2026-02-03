@@ -17,7 +17,7 @@
 \usepackage{wrapfig}
 \usepackage{tabularx}
 \usepackage{tikz}
-\usetikzlibrary{positioning, arrows, arrows.meta, calc}
+\usetikzlibrary{automata, positioning, arrows, arrows.meta, calc}
 \usepackage[autostyle=true]{csquotes}
 \graphicspath{ {./images/} }
 \usepackage[bottom=0.5cm, right=1.5cm, left=1.5cm, top=1.5cm]{geometry}
@@ -1002,6 +1002,93 @@ to be in NP. \\
     Proof method
 \end{center}
 % section Interactive Proofs (end)
+
+\section{Zero Knowledge Proofs}\label{sec:zero_knowledge_proofs} % (fold)
+An interactive proof system is zero-knowledge if whatever can be efficiently computed after interacting with
+$\mathcal{P}$ on input $x \in L$ can also be computed given only $x$. This should be true even when $\mathcal{P}$ is
+interacting with a malicious verifier. 
+
+Again, this is most easily demonstrated with an example. Let us return to Graph Isomorphism, and show that we can prove
+the input graphs $G_0, G_1$ are isomorphic without revealing the isomorphism.
+
+\begin{center}
+    \begin{tikzpicture}[
+        thick,
+        > = stealth,
+        node distance = 2.5cm and 6cm,
+        every node/.style = {align=center},
+        actor/.style = {text width=5cm, minimum height=5cm, draw, thick, font=\large},
+        msg/.style = {->, very thick, above, text width=4cm, align=center},
+        label/.style = {font=\footnotesize\sffamily\itshape}
+    ]
+        % =============== Prover (Left) ===============
+        \node[actor] (prover) {
+                Given: $\pi$ such that $\pi \left(G_0\right) = G_1$ \\
+                Sample a random permutation $\sigma$ \\
+        };
+        \node at (prover.north west) [anchor=north west, font=\huge, inner sep=8pt] {Prover};
+
+        % =============== Verifier (Right) ===============
+        \node[actor, right=of prover] (verifier) {
+                $b \gets \left\{0, 1\right\}$ \\[3em]
+                Accept \textbf{if and only if} $\gamma \left(G_b\right) = H$
+        };
+        \node at (verifier.north west) [anchor=north west, font=\huge, inner sep=8pt] {Verifier};
+
+        \node at ($(prover.north)!0.5!(verifier.north) + (0,1.0)$) (input) {
+            Common input $\left(G_0, G_1\right)$
+        };
+
+        \draw[->, thick] (input) -- (prover);
+        \draw[->, thick] (input) -- (verifier);
+
+        % =============== Vertical offsets for messages ===============
+        \def\msgsep{0.5} % Vertical separation between arrows
+
+        % Prover -> Verifier: Send the random permutation of $G_0$
+        \draw[->, very thick] 
+            ([yshift=2 * \msgsep cm]prover.east) -- ([yshift=2 * \msgsep cm]verifier.west)
+            node[midway, above] {$H = \sigma \left(G_0\right)$};
+
+        % Verifier -> Prover: Request demonstration of isomorphism from H to G_b
+        \draw[->, very thick]
+            (verifier.west) -- (prover.east)
+            node[midway, above] {Show me that $H$ is isomorphic to $G_b$};
+
+        % Prover to Verifier: Return isomorphism
+        \draw[->, very thick]
+            ([yshift=-3 * \msgsep cm]prover.east) -- ([yshift=-3 * \msgsep cm]verifier.west)
+            node[midway, above] {$\gamma = \begin{cases}
+                \sigma, &\text{ if }b = 0\\
+                \sigma \circ \pi ^ {-1}, &\text{ if }b = 1\\
+            \end{cases}$};
+    \end{tikzpicture}
+
+    Proof method
+\end{center}
+
+Consider at the same time that we have the following graphs, allowing us to demonstrate the isomorphism $\pi$ between
+$G_0$ and $G_1$, without ever revealing it:
+\begin{center}
+    \begin{tikzpicture}[node distance=3cm]
+        \node[state]              (g0) {$G_0$};
+        \node[state, right of=g0] (g1) {$G_1$};
+        %\node[state] at ($(g0.north)!0.5!(g1.north) + (0,2.0)$) (h) {$H$};
+        \node[state, above of=g0] (h0) {$H$};
+        \node[state, above of=g1] (h1) {$H_t$};
+
+        \draw   (g0) edge[->, above, bend left] node{$\pi$} (g1)
+                (g1) edge[->, below, bend left] node{$\pi ^ {-1}$} (g0)
+                (g0) edge[->, left, bend left] node{$\sigma$} (h0)
+                (h0) edge[->, right, bend left] node{$\sigma ^ {-1}$} (g0)
+                (g1) edge[->, left, bend left] node{$\sigma$} (h1)
+                (h1) edge[->, right, bend left] node{$\sigma ^ {-1}$} (g1)
+                (h0) edge[->, above, bend left] node{$\pi$} (h1)
+                (h1) edge[->, below, bend left] node{$\pi ^ {-1}$} (h0)
+                ;
+    \end{tikzpicture} \\
+\end{center}
+% section Zero Knowledge Proofs (end)
 
 
 \end{document}
