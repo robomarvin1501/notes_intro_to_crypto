@@ -306,6 +306,7 @@ This is to say, that the probability of winning the CPA game (described below) i
 \end{center}
 % section Chosen Plaintext Attack (CPA) (end)
 
+\pagebreak
 \section{Pseudorandom Functions}\label{sec:pseudorandom_function} % (fold)
 \begin{definition}[PRF]
     An efficiently computable keyed function \[
@@ -422,6 +423,7 @@ indistinguishable from $\Pi_F$, by contradiction that finds that $\Pi_F$ is not 
 \end{center}
 % section Pseudorandom Function (end)
 
+\pagebreak
 \section{MACs}\label{sec:macs} % (fold)
 \begin{definition}[MAC scheme]
     A MAC (Message Authentication Code) scheme $\Pi = \left(Gen, Mac, \text{Vrfy}\right)$ is secure if for every PPT
@@ -484,7 +486,6 @@ This is to say, it is very hard for a PPT adversary to create a new message, wit
 \end{center}
 % section MACs (end)
 
-\pagebreak
 \section{CRHF}\label{sec:crhf} % (fold)
 \begin{definition}[Collision Resistant]
     $\Phi$ is \textbf{collision resistant} if for every PPT adversary $\mathcal{A}$ there exists a negligible function
@@ -535,6 +536,7 @@ We may describe HashColl as follows:
 \end{center}
 % section CRHF (end)
 
+\pagebreak
 \section{CCA}\label{sec:cca} % (fold)
 \begin{definition}[CCA-IND]
     $\Pi$ has indistinguishable encryptions under a chosen-ciphertext attack if for every PPT adversary $\mathcal{A}$
@@ -767,7 +769,6 @@ If you can solve CDH, then you can also solve DDH, so therefore DDH is a more se
 % subsection Diffie-Hellman (end)
 % section Key Agreement (end)
 
-\pagebreak
 \section{Public Key Encryption}\label{sec:public_key_encryption} % (fold)
 \begin{definition}[IND-CPA]
     $\Pi$ has indistinguishable encryptions under a chosen-plaintext attack if for every PPT adversary $\mathcal{A}$
@@ -864,68 +865,6 @@ Where the SigForge game is:
     \end{gather}
 \end{center}
 % section Digital Signatures (end)
-
-\pagebreak
-\section{Cryptography Primitives}\label{sec:cryptography_primitives} % (fold)
-\begin{center}
-    \begin{tikzpicture}[
-        node distance=2cm,
-        every node/.style={align=center},
-        arrow/.style={->, thick}
-    ]
-
-        % --- Left column: assumptions ---
-        \node (rsa) {RSA\\Assumption};
-        \node (tdp) [below=1.5cm of rsa] {TDP};
-        \node (ddh) [below=1.5cm of tdp] {DDH\\Assumption};
-        \node (cdh) [below=1.5cm of ddh] {CDH\\Assumption};
-
-        % --- Middle column ---
-        \node (fact) [right=2.5cm of rsa] {Factoring\\Assumption};
-        \node (dl)   [right=2.5cm of cdh] {DL\\Assumption};
-        \node (cpa)  [above=2.5cm of dl] {CPA-Secure\\PKE};
-
-        % --- Right-middle ---
-        \node (keyagree) [right=2.5cm of cpa] {Key\\Agreement};
-        \node (crhf)     [right=2.5cm of dl] {CRHF};
-
-        % --- Right box of primitives ---
-        \node (prims) [right=2.5cm of keyagree, draw, inner sep=8pt] {
-            OWF\\[4pt]
-            PRG\\[4pt]
-            PRF / PRP\\[4pt]
-            MAC\\[6pt]
-            Signatures\\[6pt]
-            Commitments\\[6pt]
-            CPA / CCA-Secure\\
-            Symmetric-Key\\
-            Encryption
-        };
-
-        \node (zkp)     [below=1cm of prims] {Zero Knowledge Proofs for NP};
-
-        % --- Arrows ---
-        \draw[arrow] (rsa) -- (fact);
-        \draw[arrow] (fact) -- (prims);
-
-        \draw[arrow] (rsa) -- (tdp);
-        \draw[arrow] (tdp) -- (cpa);
-
-        \draw[arrow] (ddh) -- (cpa);
-        \draw[arrow] (ddh) -- (cdh);
-
-        \draw[arrow] (cdh) -- (dl);
-        \draw[arrow] (dl) -- (crhf);
-        \draw[arrow] (crhf) -- (prims);
-
-        \draw[arrow] (cpa) -- (keyagree);
-        \draw[arrow] (keyagree) -- (prims);
-
-        \draw[arrow] (prims) -- (zkp);
-
-    \end{tikzpicture}
-\end{center}
-% section Cryptography Primitives (end)
 
 \section{Interactive Proofs}\label{sec:interactive_proofs} % (fold)
 \begin{definition}[Interactive proof system]
@@ -1241,5 +1180,66 @@ to what the other said.
 One round of the G3C zero-knowledge protocol
 \end{center}
 % section ZKP for G3C with Commitments (end)
+
+\section{Cryptography Primitives}\label{sec:cryptography_primitives} % (fold)
+\begin{center}
+    \begin{tikzpicture}[
+        node distance=2cm,
+        every node/.style={align=center},
+        arrow/.style={->, thick}
+    ]
+
+        % --- Left column: assumptions ---
+        \node (rsa) {RSA\\Assumption};
+        \node (tdp) [below=1.5cm of rsa] {TDP};
+        \node (ddh) [below=1.5cm of tdp] {DDH\\Assumption};
+        \node (cdh) [below=1.5cm of ddh] {CDH\\Assumption};
+
+        % --- Middle column ---
+        \node (fact) [right=2.5cm of rsa] {Factoring\\Assumption};
+        \node (dl)   [right=2.5cm of cdh] {DL\\Assumption};
+        \node (cpa)  [above=2.5cm of dl] {CPA-Secure\\PKE};
+
+        % --- Right-middle ---
+        \node (keyagree) [right=2.5cm of cpa] {Key\\Agreement};
+        \node (crhf)     [right=2.5cm of dl] {CRHF};
+
+        % --- Right box of primitives ---
+        \node (prims) [right=2.5cm of keyagree, draw, inner sep=8pt] {
+            OWF\\[4pt]
+            PRG\\[4pt]
+            PRF / PRP\\[4pt]
+            MAC\\[6pt]
+            Signatures\\[6pt]
+            Commitments\\[6pt]
+            CPA / CCA-Secure\\
+            Symmetric-Key\\
+            Encryption
+        };
+
+        \node (zkp)     [below=1cm of prims] {Zero Knowledge Proofs for NP};
+
+        % --- Arrows ---
+        \draw[arrow] (rsa) -- (fact);
+        \draw[arrow] (fact) -- (prims);
+
+        \draw[arrow] (rsa) -- (tdp);
+        \draw[arrow] (tdp) -- (cpa);
+
+        \draw[arrow] (ddh) -- (cpa);
+        \draw[arrow] (ddh) -- (cdh);
+
+        \draw[arrow] (cdh) -- (dl);
+        \draw[arrow] (dl) -- (crhf);
+        \draw[arrow] (crhf) -- (prims);
+
+        \draw[arrow] (cpa) -- (keyagree);
+        \draw[arrow] (keyagree) -- (prims);
+
+        \draw[arrow] (prims) -- (zkp);
+
+    \end{tikzpicture}
+\end{center}
+% section Cryptography Primitives (end)
 
 \end{document}
