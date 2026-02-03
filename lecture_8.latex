@@ -90,7 +90,7 @@ We finish with $Q$, the set of all queries asked by $\mathcal{A}$, and \[
 
 \begin{definition}[]
     $\Pi$ is \textbf{existentially unforgeable against an adaptive chosen message attack} if for every PPT adversary
-    $\mathcal{A}$, there exists a negligible function $v \left(\cdot\right)$ such taht \[
+    $\mathcal{A}$, there exists a negligible function $v \left(\cdot\right)$ such that \[
         \Pr \left[\text{SigForge}_{\Pi, \mathcal{A}} \left(n\right) = 1\right] \leq v \left(n\right)
     \]
 \end{definition}

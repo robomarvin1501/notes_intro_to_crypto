@@ -101,7 +101,7 @@ with the random tape $r_{\mathcal{V}}$. We will define the notation: \begin{item
     \end{itemize}
 \end{definition}
 We will state that \textbf{IP} is the class of all languages with an interactive proof system. IP contains NP, and in
-fact, $IP = PSPACE$. We can reduce teh soundness error from $\displaystyle\frac{1}{2}$ to $\varepsilon$ with $\log
+fact, $IP = PSPACE$. We can reduce the soundness error from $\displaystyle\frac{1}{2}$ to $\varepsilon$ with $\log
 \left(\displaystyle\frac{1}{\varepsilon}\right)$ independent repetitions.
 
 \begin{definition}[Isomorphic]
@@ -113,7 +113,7 @@ That is to say, two graphs are isomorphic if we can rename the nodes in order to
 note that this problem is in NP, since we can trivially build a verifier, but beyond this, we know nothing. We know not
 if it is NP-hard, NP-complete, or in P. \\ 
 We can define the set of isomorphic graphs $GI = \left\{\left(G_0, G_1\right) : G_0 \text{ is isomorphic to }
-G_1\right\} \in NP$. Similarly, we can define the other class of graphs that are \textbf{not} isomorphic: $GI =
+G_1\right\} \in NP$. Similarly, we can define the other class of graphs that are \textbf{not} isomorphic: $GNI =
 \left\{\left(G_0, G_1\right) : G_0 \text{ is \textbf{not} isomorphic to } G_1\right\} \in NP$. This class is not known
 to be in NP. \\ 
 We can now ask the question as to how to prove to an efficient verifier that $G_0, G_1$ are not isomorphic. we will

@@ -101,7 +101,7 @@ good as}  an independently chosen key.
         \left(Transcript_\Pi \left(1 ^ {n}, r_A, r_B\right), K_A \left(1 ^ {n}, r_A, r_B\right)\right) \approx^c
         \left(Transcript_\Pi \left(1 ^ {n}, r_A, r_B\right), K\right)
     \]
-    Where $r_A, r_B \gets \left\{0, 1\right\}^ {*},\ K \gets \mathcal{text}_n$ are sampled independently and uniformly.
+    Where $r_A, r_B \gets \left\{0, 1\right\}^ {*},\ K \gets \mathcal{K}_n$ are sampled independently and uniformly.
 \end{definition}
 
 In order to create such a protocol, it is important to first remember the definition of \textit{computational
@@ -142,7 +142,7 @@ So, above shows correctness, but we need to show security: \[
 \]
 \begin{definition}[The Decisional Diffie Hellman (DDH) Assumption]
     For every PPT algoirithm $\mathcal{A}$ there exists a negligible function $v \left(\cdot\right)$ such that \[
-        \left|\Pr \left[\mathcal{A} \left(\G, q, g, g ^ {x}, g ^ {y}, g to xz\right) = 1\right] - \Pr \left[\mathcal{A}
+        \left|\Pr \left[\mathcal{A} \left(\G, q, g, g ^ {x}, g ^ {y}, g ^ {xz}\right) = 1\right] - \Pr \left[\mathcal{A}
         \left(\G, q, g, g ^ {x}, g ^ {y}, g ^ {z}\right) = 1\right]\right| \leq v \left(n\right)
     \]
     Where $\left(\G, q, g\right) \gets \mathcal{G} \left(1 ^ {n}\right)$, and $x, y, z \gets \Z_q$
