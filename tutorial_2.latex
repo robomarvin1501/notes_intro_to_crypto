@@ -58,7 +58,7 @@ end of the semester.
 
 \section{Pseudorandom Generators (PRGs)}\label{pseudorandom_generators_prngs_} % (fold)
 \begin{definition}[PRG]
-    A PRG is a polytime computable function $G : \left\{0, 1\right\}^n \to \left\{0, 1\right\}^{l \left(n\right)}$ for
+    A PRG is a polynomial time computable function $G : \left\{0, 1\right\}^n \to \left\{0, 1\right\}^{l \left(n\right)}$ for
     $l \left(n\right) > n$.
 \end{definition}
 PRGs enable that for every PPT $D$, there exists $\mathcal{V}$, a negligible function $\forall n$ such that \[
@@ -160,7 +160,7 @@ an indistinguishable encryption system if for every PPT function $A$, there exis
 for every $n \in \N$. 
 
 \begin{exercise}
-    Let there be $l \left(n\right) : \forall n \in \N\ l \left(n\right) > n$. Let there be a determinstic PT $G$, such
+    Let there be $l \left(n\right) : \forall n \in \N\ l \left(n\right) > n$. Let there be a deterministic PT $G$, such
     that for all $n \in \N$, and for all $s \in \left\{0, 1\right\}^n$, it holds that $G \left(s\right) \in \left\{0,
     1\right\}^{l \left(n\right)}$. We will consider the system $\Pi = \left(KeyGen, Enc, Dec\right)$, defined as
     follows: \begin{enumerate}
@@ -182,7 +182,7 @@ for every $n \in \N$.
         \]
         Let us consider the algorithm $A$ that partakes in the experiment $IND_{\Pi, A} \left(n\right)$, defined as
         follows: \begin{enumerate}
-            \item A generates $m_0 \gets \left\{0, 1\right\}^{l \left(n\right)}$, and $m_1 \gets 0^{l \left(n\right)}$. 
+            \item $A$ generates $m_0 \gets \left\{0, 1\right\}^{l \left(n\right)}$, and $m_1 \gets 0^{l \left(n\right)}$. 
             \item $A$ receives $c^*$, for $m_b$, and runs $D \left(c^*\right)$, and returns 1 \textbf{if and only if}
                 $D$ returns 1 
         \end{enumerate}
