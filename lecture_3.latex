@@ -88,11 +88,11 @@ This is denoted as $X \approx^c Y$.
         holds that $D$ has at least the advantage $\displaystyle\frac{\varepsilon}{2}$, or between $G \left(s_1\right),
         r_2$ and $r_1, r_2$ it holds that $D$ has the advantage of at least $\displaystyle\frac{\varepsilon}{2}$. So:
         \begin{align*}
-            \varepsilon &\leq \left|\p \left[D \left(G \left(s_1\right) || G \left(s_2\right)\right) = 1\right] - \p
+            \varepsilon &\leq \left|\Pr \left[D \left(G \left(s_1\right) || G \left(s_2\right)\right) = 1\right] - \Pr
             \left[D \left(r_1 || r_2\right) = 1\right]\right| \\ 
-                        &\leq \left|\p \left[D \left(G \left(s_1\right) || G \left(s_2\right)\right) = 1\right] - \p
-                        \left[D \left(G \left(s_1\right) || r_2\right) = 1\right]\right| + \left|\p \left[D \left(G
-                        \left(s_1\right) || r_2\right) = 1\right] - \p \left[D \left(r_1 || r_2\right) = 1\right]\right|
+                        &\leq \left|\Pr \left[D \left(G \left(s_1\right) || G \left(s_2\right)\right) = 1\right] - \Pr
+                        \left[D \left(G \left(s_1\right) || r_2\right) = 1\right]\right| + \left|\Pr \left[D \left(G
+                        \left(s_1\right) || r_2\right) = 1\right] - \Pr \left[D \left(r_1 || r_2\right) = 1\right]\right|
         \end{align*}
 
         Let us define $A$, which on input $z \in \left\{0, 1\right\}^{4n}$ with sample $s_1 \gets \left\{0,
@@ -195,7 +195,7 @@ Let $F: \left\{0, 1\right\}^n \times \left\{0, 1\right\}^n \to \left\{0, 1\right
     If $F$ is a PRF, then the scheme $\Pi_F$ above is CPA secure
 
     \begin{proof}[Proof ]
-        We will ebgin by showing that this is a correct encryption scheme: \begin{align*}
+        We will begin by showing that this is a correct encryption scheme: \begin{align*}
             r &\gets \left\{0, 1\right\}^n \\
             Enc \left(k, m\right) &= \left(r, F_k \left(r\right) \oplus m\right) \\
             Dec \left(k, \left(r, s\right)\right) &= F_k \left(r\right) \oplus s \\ 
@@ -223,7 +223,7 @@ Let $F: \left\{0, 1\right\}^n \times \left\{0, 1\right\}^n \to \left\{0, 1\right
             \Pr \left[IND_{\Pi_F, \mathcal{A}}^{CPA} \left(n\right) = 1\right] &\leq \left|\Pr \left[IND_{\Pi_F,
             \mathcal{A}}^{CPA} \left(n\right) = 1\right] - \Pr \left[IND_{\Pi_h, \mathcal{A}}^{CPA} \left(n\right) =
         1\right]\right| \\ 
-                                                                               &+ \p \left[IND_{\Pi_h,
+                                                                               &+ \Pr \left[IND_{\Pi_h,
                                                                                \mathcal{A}}^{CPA} \left(n\right) =
                                                                            1\right] \\ 
         \end{align*}
@@ -241,7 +241,7 @@ Let $F: \left\{0, 1\right\}^n \times \left\{0, 1\right\}^n \to \left\{0, 1\right
             \Pr \left[IND_{\Pi_F, \mathcal{A}}^{CPA} \left(n\right) = 1\right] &\leq \left|\Pr \left[IND_{\Pi_F,
             \mathcal{A}}^{CPA} \left(n\right) = 1\right] - \Pr \left[IND_{\Pi_h, \mathcal{A}}^{CPA} \left(n\right) =
                 1\right]\right| \\ 
-                                                                               &+ \p \left[IND_{\Pi_h,
+                                                                               &+ \Pr \left[IND_{\Pi_h,
                                                                                \mathcal{A}}^{CPA} \left(n\right) =
                                                                            1\right] \\ 
                                                                                &\leq \displaystyle\frac{1}{2} +
@@ -285,7 +285,7 @@ Let $F: \left\{0, 1\right\}^n \times \left\{0, 1\right\}^n \to \left\{0, 1\right
         \]
         Each encryption query $m_i$ is answered with $\left(r_i, h \left(r_i\right) \oplus m_i\right)$ for a uniform,
         and independently chosen $r_i \gets \left\{0, 1\right\}^n$. The \textit{repeat} is the event in which $r^*$ is
-        used at least once by the encryption oracle (ie $r^* = r_i$). If \textit{repeat} does not occur, then $h
+        used at least once by the encryption oracle (i.e. $r^* = r_i$). If \textit{repeat} does not occur, then $h
         \left(r^*\right)$ is completely uniform and independent of $\mathcal{A}$'s view, and therefore $\mathcal{A}$'s
         view is independent of $b$: \[
             \Pr \left[IND_{\Pi_h, \mathcal{A}}^{CPA} \left(n\right) = 1 | \overline{\text{\textit{Repeat}}}\right] =
@@ -342,11 +342,11 @@ considered secure. It remains widely used in the strengthened form 3DES: \[
 So there are $3 \cdot 56$ bit keys, but can be broken in $2^{2 \cdot 56}$. It is also (unsurprisingly) slower than DES. 
 
 These days, we have moved on from DES to AES. In 1997 NIST published a call fro candidate block ciphers to replace DES.
-15 candidates were proposed, each being extensibely analysed by the public and other teams. The winner (originall called
-Rijndael) was announced in late 2000, and was chosen based on security, efficiency, ability to implement in hardware,
-and so on. It uses key lengths of 128/192/256, with a block length of 128 bits. To date, there are no known practical
-attacks better than brute-force key search. It is massively widely used, with all modern hardware having built in
-optimisations. Recall the definition of CPA secure encryption from any PRF: \[
+15 candidates were proposed, each being extensively analysed by the public and other teams. The winner (originally
+called Rijndael) was announced in late 2000, and was chosen based on security, efficiency, ability to implement in
+hardware, and so on. It uses key lengths of 128/192/256, with a block length of 128 bits. To date, there are no known
+practical attacks better than brute-force key search. It is massively widely used, with all modern hardware having built
+in optimisations. Recall the definition of CPA secure encryption from any PRF: \[
     Enc_k \left(m; r\right) = \left(r, F_k \left(r\right) \oplus m\right)
 \]
 In practice, AES as a PRF enables one to encrypt 128 bit blocks: \[
@@ -360,7 +360,7 @@ In order to encrypt long messages, we break them up into 128 bit blocks: \[
 This has the drawback of the ciphertext length being twice the plaintext. This can be improved by changing the structure
 slightly: \[
     Enc_k \left(m_1 \dots m_l; r_1\right) = \left(r, AES_k \left(r + 1\right) \oplus m_1\right) \left(AES_k \left(r +
-    2\right) \oplus m_l\right) \dots \left(AES_k \left(r + l\right) \oplus m_l\right)
+    2\right) \oplus m_2\right) \dots \left(AES_k \left(r + l\right) \oplus m_l\right)
 \]
 This is called \textit{counter mode}
 \begin{theorem}[]
