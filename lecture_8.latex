@@ -110,7 +110,7 @@ We will demonstrate \textbf{Lamport's One time scheme}: \begin{itemize}
 \end{itemize}
 This way $\mathcal{A}$ needs to compute $x_{1 - b}$, which is equivalent to computing the inverse of $f$. 
 
-More formally: Let $f$ be an OWF. we will define a signature scheme $\Pi = \left(Gen, \text{Sign}, \text{Vrfy}\right)$
+More formally: Let $f$ be an OWF. We will define a signature scheme $\Pi = \left(Gen, \text{Sign}, \text{Vrfy}\right)$
 for 1 bit messages as follows: \begin{itemize}
     \item Gen $\left(1 ^ {n}\right)$: Sample $x_0, x_1 \gets \left\{0, 1\right\} ^ {n}$, and compute $y_0 = f
         \left(x_0\right)$, and $y_1 = f \left(x_1\right)$, output $sk = \left(x_0, x_1\right)$ and $vk = \left(y_0, y_1\right)$
@@ -201,7 +201,7 @@ For existential unforgeability against an adaptive chosen message attacks \begin
 \end{itemize}
 
 Let us create a stateful scheme. Let $\Pi = \left(Gen, \text{Sign}, \text{Vrfy}\right)$ be a one time signature scheme
-for signing \enquote{sufficiently long} messages. for $m = m_1 \dots m_n \in \left\{0, 1\right\} ^ {n}$, we let $m
+for signing \enquote{sufficiently long} messages. For $m = m_1 \dots m_n \in \left\{0, 1\right\} ^ {n}$, we let $m
 \mid_i \stackrel{def}{=} m_1 \dots m_i$ (and $m \mid_0 \stackrel{def}{=} \varepsilon$). \\
 We will define $\Pi' = \left(Gen', \text{Sign}', \text{Vrfy}'\right)$ for signing $n$ bit messages as follows: \begin{itemize}
     \item The signer's state is a binary tree with $2 ^ {n}$ leaves
