@@ -27,7 +27,7 @@
 \newcommand{\R}{\ensuremath{\mathbb{R}}}
 \newcommand{\N}{\ensuremath{\mathbb{N}}}
 \newcommand{\Z}{\ensuremath{\mathbb{Z}}}
-\newcommand{\p}{\ensuremath{\mathbb{P}}}
+\newcommand{\Pr}{\ensuremath{\mathbb{P}}}
 \newcommand{\E}{\ensuremath{\mathbb{E}}}
 \newcommand{\M}{\ensuremath{\mathcal{M}}}
 \newcommand{\C}{\ensuremath{\mathcal{C}}}
@@ -46,7 +46,7 @@
 
 \section{Reminder}\label{sec:reminder} % (fold)
 Last week we discussed symmetric encryption, and perfect secrecy: \[
-    \p \left[M = m | C = c\right] = \p \left[M = m\right]
+    \Pr \left[M = m | C = c\right] = \Pr \left[M = m\right]
 \]
 which has the limitations of only considering security for a single message, and that the key must be as long as the
 message.
@@ -147,9 +147,9 @@ Given $\Pi = \left(KeyGen, Enc, dec\right)$, and an adversary $\mathcal{A}$, con
 and then $\mathcal{A}$ needs to figure out which plaintext it was from the returned ciphertext $c$. The system is
 indistinguishable if $\mathcal{A}$ cannot do better than a coin flip.
 \begin{definition}[Indistinguishable encryption]
-    $\Pi$ has indistinguishable encryption if for every PPT adversary $\mathcal{A}$ there eixsts a negligible function
+    $\Pi$ has indistinguishable encryption if for every PPT adversary $\mathcal{A}$ there exists a negligible function
     $v \left(\cdot\right)$ such that \[
-        \p \left[IND_{\Pi, \mathcal{A}} \left(n\right) = 1\right] \leq \displaystyle\frac{1}{2} + v \left(n\right)
+        \Pr \left[IND_{\Pi, \mathcal{A}} \left(n\right) = 1\right] \leq \displaystyle\frac{1}{2} + v \left(n\right)
     \]
     where the probability is taken over the random coins used by $\mathcal{A}$, and by the experiment.
 \end{definition}
@@ -159,7 +159,7 @@ Recall the one time pad: \begin{itemize}
     \item KeyGen uniformly samples $k \gets \left\{0, 1\right\}^l$
     \item $Enc_k \left(m\right) = m \oplus k$, and $Dec_k \left(c\right) = c \oplus k$
 \end{itemize}
-Perfectly secure since $\p \left[M = m | C = c\right] = \p \left[M = m\right]$, but requires the key $k$ to be as long
+Perfectly secure since $\Pr \left[M = m | C = c\right] = \Pr \left[M = m\right]$, but requires the key $k$ to be as long
 as the message $m$. Way too long. Can we guarantee computational security with shorter keys?
 % section Indistinguishable encryptions (end)
 
@@ -177,8 +177,8 @@ Our goal is to expand a short, random seed into a long \enquote{random looking} 
         \item Expansion: $l \left(n\right) > n$
         \item Pseudorandomness: For every PPT \enquote{distinguisher} $\mathcal{D}$, there exists a negligible function
             $v \left(\cdot\right)$ such that \[
-                \left|\p_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right)\right) = 1\right] -
-                \p_{r \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[\mathcal{D} \left(r\right) = 1\right]\right|
+                \left|\Pr_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right)\right) = 1\right] -
+                \Pr_{r \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[\mathcal{D} \left(r\right) = 1\right]\right|
                 \leq v \left(n\right)
             \]
     \end{itemize}
@@ -190,8 +190,8 @@ $\left\{0, 1\right\}^m$ (so each value is obtained with the probability $\displa
 If so, then how difficult is it to construct a PRG? Recall two properties: \begin{itemize}
     \item Expansion: $\left|G \left(s\right)\right| > \left|s\right|$
     \item Pseudorandomness: For every PPT $\mathcal{D}$, there exists a negligible $v \left(\cdot\right)$ such that: \[
-                \left|\p_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right)\right) = 1\right] -
-                \p_{r \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[\mathcal{D} \left(r\right) = 1\right]\right|
+                \left|\Pr_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right)\right) = 1\right] -
+                \Pr_{r \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[\mathcal{D} \left(r\right) = 1\right]\right|
                 \leq v \left(n\right)
         \]
 \end{itemize}
@@ -218,7 +218,7 @@ not created a PRG that may be proven to be such, since that would then prove tha
 \begin{theorem}[]
     Let there be $G: \left\{0, 1\right\}^n \to \left\{0, 1\right\}^{2n}$. There exists $\mathcal{D}$ (not
     computationally efficient) such that \[
-        \p_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right) = 1\right)\right] - \p_{r \gets
+        \Pr_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right) = 1\right)\right] - \Pr_{r \gets
         \left\{0, 1\right\}^{2n}} \left[\mathcal{D} \left(r\right) = 1\right] > \displaystyle\frac{1}{2}
     \]
     \begin{proof}[Proof ]
@@ -228,8 +228,8 @@ not created a PRG that may be proven to be such, since that would then prove tha
         \end{align*}
         We are asking if it is true that $z \in Im \left(G\right)$. If so, we will return $1$, and otherwise $0$. This
         distinguisher works since \begin{gather*}
-            \p \left[D \left(G \left(s\right)\right) = 1\right] = 1 \\
-            \p \left[D \left(r\right) = 1\right] = \displaystyle\frac{\left|Im \left(G\right)\right|}{2^{2n}} \leq
+            \Pr \left[D \left(G \left(s\right)\right) = 1\right] = 1 \\
+            \Pr \left[D \left(r\right) = 1\right] = \displaystyle\frac{\left|Im \left(G\right)\right|}{2^{2n}} \leq
             \displaystyle\frac{1}{2^n}
         \end{gather*}
     \end{proof}
@@ -237,8 +237,8 @@ not created a PRG that may be proven to be such, since that would then prove tha
 
 Useful fact: All efficiently-testable statistical properties of the uniform distribution are preserved by the output of
 any PRG. For example: If $G$ is a PRG, then there exists a negligible function $v \left(\cdot\right)$ such that \[
-    \p_{s \gets \left\{0, 1\right\}^n} \left[\text{Fraction of 1s in } G \left(s <
-    \displaystyle\frac{1}{4}\right)\right] \leq v \left(n\right)
+    \Pr_{s \gets \left\{0, 1\right\}^n} \left[\text{Fraction of 1s in } G \left(s\right) <
+    \displaystyle\frac{1}{4}\right] \leq v \left(n\right)
 \]
 % subsection Do PRGs even exist? (end)
 % section Pseudo-random generator (end)
@@ -267,16 +267,16 @@ So, given $k$, we generate $G \left(k\right)$, where $\left|G \left(k\right)\rig
         assuming that $\Pi$ is not IE, and therefore $G$ is not a PRG (but we know this to be false, and thus have a
         contradiction).
 
-        Behold, the actual proof: Let us assume that there exists a PPT adversary $\mathcal{A}$ and a polynomial $pp
+        Behold, the actual proof: Let us assume that there exists a PPT adversary $\mathcal{A}$ and a polynomial $p
         \left(n\right)$ such that \[
-            \p \left[IND_{\Pi, \mathcal{A}} \left(n\right) = 1 \right] \geq \displaystyle\frac{1}{2} +
+            \Pr \left[IND_{\Pi, \mathcal{A}} \left(n\right) = 1 \right] \geq \displaystyle\frac{1}{2} +
             \displaystyle\frac{1}{p \left(n\right)}
         \]
         for infinitely many $n$s.
 
         We will show that there exists a PPT distinguisher $\mathcal{D}$ and a polynomial $q \left(n\right)$, such that
         \[
-            \left|\p_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right)\right) = 1\right] - \p_{r
+            \left|\Pr_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right)\right) = 1\right] - \Pr_{r
                 \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[\mathcal{D} \left(r\right) = 1\right]\right| \geq
             \displaystyle\frac{1}{q \left(n\right)}
         \]
@@ -288,21 +288,21 @@ So, given $k$, we generate $G \left(k\right)$, where $\left|G \left(k\right)\rig
         From here we get 2 cases: \begin{itemize}
             \item Case 1: $z \gets \left\{0, 1\right\}^{l \left(n\right)}$. $\mathcal{A}$'s view is independent of $b$,
                 and so \[
-                    \p_{z \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[\mathcal{D} \left(z\right) = 1\right] =
+                    \Pr_{z \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[\mathcal{D} \left(z\right) = 1\right] =
                     \displaystyle\frac{1}{2}
                 \]
             \item Case 2: $z = G \left(k\right)$, where $k \gets \left\{0, 1\right\}^n$. $\mathcal{A}$'s view is
                 identical to the experiment $IND_{\Pi, \mathcal{A}}$ and so it is equivalent to trying to find if they
                 are distinguishable:
                 \[
-                    \p_{k \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(k\right)\right) = 1\right] = \p
+                    \Pr_{k \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(k\right)\right) = 1\right] = \Pr
                     \left[IND_{\Pi, \mathcal{A}} \left(n\right) = 1\right] \geq \displaystyle\frac{1}{2} +
                     \displaystyle\frac{1}{p \left(n\right)}
                 \]
         \end{itemize}
         So overall we constructed a PPT distinguisher
         $\mathcal{D}$ such that \[
-            \left|\p_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right)\right) = 1\right] - \p_{r
+            \left|\Pr_{s \gets \left\{0, 1\right\}^n} \left[\mathcal{D} \left(G \left(s\right)\right) = 1\right] - \Pr_{r
                 \gets \left\{0, 1\right\}^{l \left(n\right)}} \left[\mathcal{D} \left(r\right) = 1\right]\right| \geq
             \displaystyle\frac{1}{p \left(n\right)}
         \]
@@ -320,19 +320,19 @@ So far, this has enabled it to be infeasible to distinguish between $Enc_k \left
 \begin{theorem}[Toy theorem]
     Let $\Pi$ have indistinguishable encryptions. Then, for any PPT adversary $\mathcal{B}$, there exists a negligible
     function $v \left(\cdot\right)$ such that \[
-        \p \left[\mathcal{B} \left(1^n, Enc_k \left(m\right)\right) = LSB \left(m\right)\right] \leq
+        \Pr \left[\mathcal{B} \left(1^n, Enc_k \left(m\right)\right) = LSB \left(m\right)\right] \leq
         \displaystyle\frac{1}{2} + v \left(n\right)
     \]
     where $m \gets \left\{0, 1\right\}^{l \left(n\right)}$ is sampled uniformly
     \begin{proof}[Proof by reduction]
         Assume a contradiction that there exists a PPT adversary $\mathcal{B}$ and a polynomial $p \left(n\right)$ such
         that \[
-            \p \left[\mathcal{B} \left(1^n, Enc_k \left(m\right)\right) = LSB \left(m\right)\right] \leq
+            \Pr \left[\mathcal{B} \left(1^n, Enc_k \left(m\right)\right) = LSB \left(m\right)\right] \leq
             \displaystyle\frac{1}{2} + \displaystyle\frac{1}{p \left(n\right)}
         \]
         for infinitely many $n$s. We then show that there exists a PPT adversary $\mathcal{A}$ and a polynomial $q
         \left(n\right)$ such that \[
-            \p \left[IND_{\Pi, \mathcal{A}} \left(n\right) = 1\right] > \displaystyle\frac{1}{2} +
+            \Pr \left[IND_{\Pi, \mathcal{A}} \left(n\right) = 1\right] > \displaystyle\frac{1}{2} +
             \displaystyle\frac{1}{q \left(n\right)}
         \]
         for infinitely many $n$s.
@@ -343,14 +343,14 @@ So far, this has enabled it to be infeasible to distinguish between $Enc_k \left
         sample $m_0 \gets I_0$, and $m_1 \gets I_1$ uniformly and independently. On input $c^*$, it will output $b' = B
         \left(1^n, c^*\right)$. In short, $\mathcal{A}$ creates 2 messages, receives the encrypted form of one of them,
         and gives it to $\mathcal{B}$. If $\mathcal{B}$ correctly assumes the LSB, then we win, if not, we fail. \begin{align*}
-            \p \left[IND_{\Pi, \mathcal{A}} \left(n\right) = 1\right] &= \p \left[\mathcal{B} \left(1^n, Enc_k
+            \Pr \left[IND_{\Pi, \mathcal{A}} \left(n\right) = 1\right] &= \Pr \left[\mathcal{B} \left(1^n, Enc_k
             \left(m_b\right)\right) = b\right] \\ 
-                                                                      &= \displaystyle\frac{1}{2} \p_{m_0 \gets I_0}
+                                                                      &= \displaystyle\frac{1}{2} \Pr_{m_0 \gets I_0}
                                                                       \left[\mathcal{B} \left(1^n, Enc_k
-                                                                      \left(m_0\right)\right) = 0\right] + \displaystyle\frac{1}{2} \p_{m_1 \gets I_1}
+                                                                      \left(m_0\right)\right) = 0\right] + \displaystyle\frac{1}{2} \Pr_{m_1 \gets I_1}
                                                                       \left[\mathcal{B} \left(1^n, Enc_k
                                                                       \left(m_1\right)\right) = 1\right] \\ 
-                                                                      &= \p_{m \gets \left\{0, 1\right\}^l}
+                                                                      &= \Pr_{m \gets \left\{0, 1\right\}^l}
                                                                       \left[\mathcal{B} \left(1^n, Enc_k
                                                                       \left(m\right)\right) = LSB(m)\right] \geq
                                                                       \displaystyle\frac{1}{2} + \displaystyle\frac{1}{p
@@ -365,11 +365,11 @@ computed efficiently without the ciphertext.
 
 \begin{definition}[Semantically secure]
     $\Pi$ is \textbf{semantically secure} if for every adversary $\mathcal{A}$ there exists a PPT \enquote{simulator}
-    $\mathcal{S}$ such that for every efficiently sampleable plaintext distribution $M = \left\{M_n\right\}_{n \in \N}$,
+    $\mathcal{S}$ such that for every efficiently sample-able plaintext distribution $M = \left\{M_n\right\}_{n \in \N}$,
     and all polynomial-time computable functions $f$ and $h$, there exists a negligible function $v \left(\cdot\right)$
     such that \[
-        \left|\p \left[\mathcal{A} \left(1^n, Enc_k \left(m\right), h \left(m\right)\right) = f \left(m\right)\right] -
-        \p \left[\mathcal{S} \left(1^n, h \left(m\right)\right) = f \left(m\right)\right]\right| \leq v \left(n\right)
+        \left|\Pr \left[\mathcal{A} \left(1^n, Enc_k \left(m\right), h \left(m\right)\right) = f \left(m\right)\right] -
+        \Pr \left[\mathcal{S} \left(1^n, h \left(m\right)\right) = f \left(m\right)\right]\right| \leq v \left(n\right)
     \]
     where $k \gets KeyGen \left(1^n\right)$ and $m \gets M_n$
 \end{definition}
@@ -389,7 +389,7 @@ security.
 \begin{definition}[]
     A \textit{polynomial-time} computable function $f: \left\{0, 1\right\}^* \to \left\{0, 1\right\}^*$ is \textbf{one
     way} if for any PPT $A$ \[
-        \p_{y \gets f \left(U_n\right)} \left[A \left(1^n, y\right) \in f^{-1} \left(y\right)\right] \leq negligible \left(y\right)
+        \Pr_{y \gets f \left(U_n\right)} \left[A \left(1^n, y\right) \in f^{-1} \left(y\right)\right] \leq negligible \left(y\right)
     \]
 \end{definition}
 In short, easy to compute, but hard to invert on a random image. 
