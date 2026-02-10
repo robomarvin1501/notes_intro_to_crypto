@@ -16,6 +16,8 @@
 \usepackage{bbm}
 \usepackage{wrapfig}
 \usepackage{tabularx}
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows, arrows.meta, calc}
 \usepackage[autostyle=true]{csquotes}
 \graphicspath{ {./images/} }
 \usepackage[bottom=0.5cm, right=1.5cm, left=1.5cm, top=1.5cm]{geometry}
@@ -137,7 +139,7 @@ Let $F: \left\{0, 1\right\}^n \times \left\{0, 1\right\}^n \to \left\{0, 1\right
 
 \subsection{Arbitrary length messages}\label{sub:arbitrary_length_messages} % (fold)
 Given \[
-    \widehat{\Pi} = \left(\hat{\text{Gen}}, \hat{\text{Mac}}, \hat{\text{Vrfy}}\right)
+    \widehat{\Pi} = \left(\widehat{\text{Gen}}, \widehat{\text{Mac}}, \widehat{\text{Vrfy}}\right)
 \]
 for fixed length messages, we want to define $\Pi = \left(Gen, Mac, \text{Vrfy}\right)$ for arbitrary length
 messages. Here is a first (naïve) attempt: 
@@ -149,7 +151,7 @@ Let $Mac_k \left(m\right) = \left(t_1, \dots, t_d\right)$ where $t_i = \widehat{
 This is completely insecure. Consider \[
     t = \left(t_1, t_2\right)
 \]
-If $t$ is  avalid tag for $m = \left(m_1, m_2\right)$, then it also holds that $t^* = t_1$ is a valid tag for $m^* =
+If $t$ is a valid tag for $m = \left(m_1, m_2\right)$, then it also holds that $t^* = t_1$ is a valid tag for $m^* =
 m_1$. 
 % subsubsection Attempt 1 (end)
 
@@ -252,7 +254,7 @@ extend it.
 
 \section{Authenticating Arbitrary-Length Messages}\label{sec:authenticating_arbitrary_length_messages} % (fold)
 Given \[
-    \widehat{\Pi} = \left(\hat{\text{Gen}}, \hat{\text{Mac}}, \hat{\text{Vrfy}}\right)
+    \widehat{\Pi} = \left(\widehat{\text{Gen}}, \widehat{\text{Mac}}, \widehat{\text{Vrfy}}\right)
 \]
 for fixed length messages, and a collision resistant hash function $\Phi = \left(Gen_H, H\right)$, define $\Pi =
 \left(Gen, Mac, \text{Vrfy}\right)$ for arbitrary length messages. 
@@ -265,7 +267,7 @@ Reconsider Solution 3 above: \\
 \end{itemize}
 
 \begin{exercise}
-    Let $Mac_k \left(m\right)$ samples $s \gets Gen_H \left(1^n\right)$, and outputs $\left(s, \widehat{Mac}_k \left(H_s
+    Let $Mac_k \left(m\right)$ sample $s \gets Gen_H \left(1^n\right)$, and outputs $\left(s, \widehat{Mac}_k \left(H_s
     \left(m\right)\right)\right)$. Is this secure? 
 
     \begin{proof}[Solution]
@@ -315,20 +317,75 @@ Reconsider Solution 3 above: \\
         \left(n\right)$ such that \[
             \Pr \left[\text{collision}\right] \geq \displaystyle\frac{1}{p \left(n\right)}
         \]
-        % TODO the collision finder C 27
+\begin{center}
+    \begin{tikzpicture}[
+        thick,
+        >=stealth,
+        every node/.style={align=center},
+        msg/.style={text width=3cm, above},
+        block arrow/.style={->, very thick},
+        loop/.style={out=30, in=-30, distance=1.2cm}
+    ]
+        % Define vertical spacing
+        \def\dy{1.0} % Vertical step between message pairs
+
+        % Distinguisher box
+        \draw (0, 0) rectangle (8, 6);
+        \node at (-0.5, 6.5) [anchor=north west, inner sep=1cm] {\huge $\mathcal{C}$};
+        \node at (-0.9, 6) [anchor=north west, inner sep=1cm] {$k \gets \widehat{Gen} \left(1 ^ {n}\right)$};
+
+        \draw[block arrow] (12.2, 5.5) -- (8.2, 5.5) node [msg, midway] {$s$};
+
+        
+        % Adversary box
+        \draw (2.3, 1) rectangle (4.3, 5) node[pos=0.5] {\huge $\mathcal{A} \left(1 ^ {n}\right)$};
+        
+        \begin{scope}[xshift=0.3cm,yshift=2cm]
+            % Right column x-position
+            \def\xright{4}
+            % Middle column (between box and right)
+            \def\xmid{6.7}
+            \def\xmidtwo{7.2}
+            \def\gameedge{4.2}
+
+            % === Second query/response phase (after challenge) ===
+            \begin{scope}[xshift=0.2cm,yshift=2.8cm] % Adjusted to sit below challenge
+                \coordinate (A-out) at (3.7, 0);
+                \coordinate (mid-out) at (\xmid, 0);
+                \coordinate (A-in) at (3.7, -\dy);
+                \coordinate (mid-in) at (\xmid, -\dy);
+
+                \draw[block arrow] (A-out) -- (mid-out) node [msg, midway] {$m_i$};
+                \draw[block arrow] (mid-in) -- (A-in) node [msg, midway] {$\widehat{MAC}_k \left(H_s \left(m_i\right)\right)$};
+                \draw[block arrow] (mid-out) to [bend left] (mid-in);
+                \draw[block arrow] (A-in) to [bend left] (A-out);
+            \end{scope}
+
+            % === Final guess ===
+            \def\outputheight{0}
+            \draw[block arrow] (\gameedge, \outputheight) -- (\xmidtwo, \outputheight) node [msg, midway] {$\left(m^*,
+                t^*\right)$};
+                
+        \end{scope}
+
+        \draw[block arrow] (8.2, 2) -- (12, 2) node [msg, midway] {$\left(m, m ^ {*}\right)$};
+    \end{tikzpicture}
+\end{center}
         The collision finder $\mathcal{C}$ will \begin{itemize}
             \item On input $s$, sample $k \gets \widehat{Gen} \left(1^n\right)$, and invoke $\mathcal{A}$
             \item Respond to $\mathcal{A}$'s queries, using $\left(k, s\right)$
-                % TODO
+            \item If $\exists m \in \left\{m_1, \dots, m_1\right\}$ such that $m \ne m^*$, and $H_s \left(m\right) = H_s
+                \left(m^*\right)$, then it will output $\left(m, m^*\right)$
+            \item Otherwise it will output $\perp$ 
         \end{itemize}
 
         Proof of Claim II: \\ 
-        Let us assume towradrs contradiction that there exists a PPT adversary $\mathcal{A}$, and a polynomial $p
+        Let us assume towards contradiction that there exists a PPT adversary $\mathcal{A}$, and a polynomial $p
         \left(n\right)$, such that  \[
             \Pr \left[MacForge_{\Phi, \mathcal{A}} \left(n\right)= 1 \land \overline{\text{collision}}\right] \geq
             \displaystyle\frac{1}{p \left(n\right)}
         \]
-        for infinitely many $n$s. The forger $\hat{\mathcal{A}}$ will \begin{itemize}
+        for infinitely many $n$s. The forger $\widehat{\mathcal{A}}$ will \begin{itemize}
             \item Sample $s \gets Gen_H \left(1^n\right)$, and invoke $\mathcal{A}$
             \item Respond to $\mathcal{A}$'s queries $m_i$ by forwarding $H_s \left(m_i\right)$ to the oracle
                 $\widehat{Mac}_k \left(\cdot\right)$, and then forwarding back its response to $\mathcal{A}$ 
@@ -336,7 +393,7 @@ Reconsider Solution 3 above: \\
         \end{itemize}
 
         So \begin{align*}
-            \Pr \left[MacForge_{\hat{\Pi}, \hat{\mathcal{A}}} \left(n\right) = 1\right] &= \Pr
+            \Pr \left[MacForge_{\widehat{\Pi}, \widehat{\mathcal{A}}} \left(n\right) = 1\right] &= \Pr
             \left[MacForge_{\Pi, \mathcal{A}} \left(n\right) = 1 \land \overline{\text{collision}}\right] \\ 
                                                                                         &\geq \displaystyle\frac{1}{p
                                                                                         \left(n\right)}
@@ -403,9 +460,9 @@ $m_i$ was returned encrypted to $c^*$.
 
 We will note that it feels a little unrealistic. Honest parties do not typically decrypt arbitrary adversarially chosen
 ciphertexts. Nevertheless, adversaries may be able to influence what gets encrypted / decrypted, and learn some partial
-information. For example, in WWII, the US cryptanalysts might have tried to send encrypted messages to the Japananese,
-and then monitor their behaviour. An adversary may send certain ciphertexts on behalf of a user to the user's bank, and
-then the bank will decrypt these ciphertexts and its response will leak information to the adversary. Furthermore, an
+information. For example, in WWII, the US cryptanalysts might have tried to send encrypted messages to the Japanese, and
+then monitor their behaviour. An adversary may send certain ciphertexts on behalf of a user to the user's bank, and then
+the bank will decrypt these ciphertexts and its response will leak information to the adversary. Furthermore, an
 encryption scheme might be used as part of an authentication protocol where one party sends a ciphertext to the other,
 who then decrypts it and returns the result. Thus we can see, that CCA is a realistic security requirement in the real
 world. 
@@ -420,7 +477,7 @@ function, and get another valid encryption:
 \subsubsection{CCA-Secure encryption scheme}\label{sec:cca_secure_encryption_scheme} % (fold)
 The main idea here is that adversaries should not be able to generate new \enquote{valid} ciphertexts, and that the
 decryption oracle becomes useless. Our solution is called \textit{Encrypt-then-Authenticate}: \\ 
-Let $\Pi_E = \left(KeyGen_E, Enc, Dec\right)$ be a CPA secure encryption scheeme, and let $\Pi_M = \left(KeyGen_M, Enc,
+Let $\Pi_E = \left(KeyGen_E, Enc, Dec\right)$ be a CPA secure encryption scheme, and let $\Pi_M = \left(KeyGen_M, Enc,
 Dec\right)$ be a secure MAC. Let us define $\Pi' = \left(KeyGen', Enc', Dec'\right)$ as \begin{itemize}
     \item $KeyGen' \left(1^n\right)$ output $k = \left(k_E, k_M\right)$ where $k_E \gets Gen_E \left(1^n\right)$ and
         $k_M \gets KeyGen_M \left(1^n\right)$
@@ -503,7 +560,7 @@ Dec\right)$ be a secure MAC. Let us define $\Pi' = \left(KeyGen', Enc', Dec'\rig
                 previous encryption query $m$, then return $m$, and otherwise $\perp$. For the $i$th decryption query
                 $\left(c, t\right)$, output $\left(c^*, t^*\right)  =\left(c, t\right)$ as the (potential) forgery.
 
-                We will observe that ValidQuery occurs, and that $\mathcal{B}$ geusses the index $i$ of the first valid
+                We will observe that ValidQuery occurs, and that $\mathcal{B}$ guesses the index $i$ of the first valid
                 decryption query that was not obtained from a previous encryption query. Therefore, $Vrfy_{k_M}
                 \left(c^*, t^*\right) = 1$ and $\mathcal{B}$ did not query $Mac_{k_M} \left(\cdot\right)$ on $c^*$. So,
                 we may conclude \begin{align*}
