@@ -45,12 +45,12 @@
 
 \section{Question 1}\label{sec:question_} % (fold)
 Let there be a family of collision resistant hash functions $\left\{H_s\right\}_{s \in \left\{0, 1\right\}^*}$, such
-that $H_{s'}: \left\{0, 1\right\} ^ {2n} \to \left\{9, 1\right\}^n$. Build a new family of CRHFs $\left\{H_s'\right\}_{s
+that $H_{s'}: \left\{0, 1\right\} ^ {2n} \to \left\{0, 1\right\}^n$. Build a new family of CRHFs $\left\{H_s'\right\}_{s
 \in \left\{0, 1\right\}^*}$ such that $H_s': \left\{0, 1\right\} ^ {l n \to \left\{0, 1\right\}^n}$, such that $l \geq
 3$. 
 
 A hash function is collision resistant if \[
-    \forall PPT\ \mathcal{A}\ \Pr \left[A \left(H_s\right) \to x_1, x_2\ :\ H_s \left(x_1\right) = H_s
+    \forall PPT\ \mathcal{A}\ \Pr \left[\mathcal{A} \left(H_s\right) \to x_1, x_2\ :\ H_s \left(x_1\right) = H_s
     \left(x_2\right)\right] \leq neg \left(n\right)
 \]
 
