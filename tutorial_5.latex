@@ -108,7 +108,7 @@ Is the family $L_s$ collision resistant?
 % section Question 1 (end)
 
 \section{Question 2}\label{sec:question_} % (fold)
-Let $f : \left\{0, 1\right\} ^ {n} \to \left\{90, 1\right\} ^ {n}$ be a one way function. We will use this to create a
+Let $f : \left\{0, 1\right\} ^ {n} \to \left\{0, 1\right\} ^ {n}$ be a one way function. We will use this to create a
 new signature scheme $\Pi = \left(Gen, \text{Sign}, \text{Vrfy}\right)$: \begin{itemize}
     \item Gen $\left(1 ^ {n}\right) = x_1, \dots, x_n \gets \left\{0, 1\right\} ^ {n}$, $sk = \left(x_1, \dots,
         x_n\right)$, $vk = \left(y_1, \dots, y_n\right) = \left(f \left(x_1\right), \dots, f \left(x_n\right)\right)$
