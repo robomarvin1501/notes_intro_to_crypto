@@ -140,7 +140,7 @@ This is not secure either (shocking, I know). Despite there being many more keys
 susceptible to frequency analysis, where we use statistical patterns of the frequencies of different letters in the
 source language.
 
-\subsection{Vigenere cipher}%
+\subsection{Vigenère cipher}%
 \label{sub:Vigenere cipher}
 Let there be: \begin{itemize}
     \item KeyGen uniformly samples $k = k_0 \dots k_{t - 1} \gets \left\{0, \dots, 25\right\}^t$  
@@ -160,9 +160,9 @@ to do so will probably result in one that is easily broken.
 
 \section{Basic principles of modern cryptography}%
 \label{sec:Basic principles of modern cryptography}
-Analysing the security pf a cryptographic system involves: \begin{enumerate}
+Analysing the security of a cryptographic system involves: \begin{enumerate}
     \item Formalising a precise definition of security (security = computational ability $\times$ type of attack $\times$
-        notion of \enquote{break} )
+        notion of \enquote{break})
     \item Stating the underlying assumptions: Others will attempt to validate (or invalidate) your assumptions
     \item Proving that the definition is satisfied given the assumptions. Despite this, schemes can still be broken.
 \end{enumerate}
@@ -188,7 +188,7 @@ We shall characterise an adversary's computational abilities as follows: \begin{
 
 \section{Perfect secrecy}%
 \label{sec:Perfect secrecy}
-Let (K:eyGen, Eng, Dec) be a symmetric key encryption scheme. Alice and Bob share a key $k \gets KeyGen()$. Eve knows an
+Let (KeyGen, Enc, Dec) be a symmetric key encryption scheme. Alice and Bob share a key $k \gets KeyGen()$. Eve known an
 a-priori distribution $M$. Informally, perfect secrecy is that the ciphertext $c$ does not reveal \textit{any}
 information about the plaintext $m$.
 
@@ -222,14 +222,14 @@ still $\frac{1}{6} $. \\
             = c\right]}  \\ 
             &= Pr \left[M = m\right]
         \end{align*}    
-        The other direction is the exact same thing, uses bayes theorem, but swapping $M$ and $C$.
+        The other direction is the exact same thing, uses Bayes theorem, but swapping $M$ and $C$.
     \end{proof}
 \end{lemma}
 
 \begin{lemma}[]
     A symmetric key encryption scheme $\pi$ is perfectly secret \textbf{if and only if} for every distribution over
-    $\mathcal{m}$, for every $m_0, m_1 \in \mathcal{m}$ and for every $c \in \mathcal{c}$ it holds that \[
-        pr \left[c = c | m = m_0\right] = pr \left[c = c | m = m_1\right]
+    $\mathcal{M}$, for every $m_0, m_1 \in \mathcal{M}$ and for every $c \in \mathcal{C}$ it holds that \[
+        \Pr \left[C = c | M = m_0\right] = \Pr \left[C = c | M = m_1\right]
     \]
 
     \begin{proof}[]
@@ -242,7 +242,7 @@ still $\frac{1}{6} $. \\
 
     \begin{proof}[]
         Shift cipher: \[
-            Pr \left[C = "AB" | M = "ab"\right] = \frac{1}{26} \ne 0 = Pr \left[C = "AB" | M = "aa"\right]
+            Pr \left[C = \text{\enquote{AB}} | M = \text{\enquote{ab}}\right] = \frac{1}{26} \ne 0 = Pr \left[C = \text{\enquote{AB}} | M = \text{\enquote{aa}}\right]
         \]
     \end{proof}
 \end{theorem}
@@ -360,7 +360,7 @@ Behold: Another definition of perfect secrecy:
 \end{exercise}
 
 \begin{exercise}
-    Let us define $\hat{OTP}$, which is the same as OTP, but the keygen is defined as follows \[
+    Let us define $\widehat{OTP}$, which is the same as OTP, but the KeyGen is defined as follows \[
         KeyGen: k \gets \left\{0, 1\right\}^l \setminus \left\{0^l\right\}
     \]
     Is this secure?
