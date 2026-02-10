@@ -114,9 +114,9 @@ note that this problem is in NP, since we can trivially build a verifier, but be
 if it is NP-hard, NP-complete, or in P. \\ 
 We can define the set of isomorphic graphs $GI = \left\{\left(G_0, G_1\right) : G_0 \text{ is isomorphic to }
 G_1\right\} \in NP$. Similarly, we can define the other class of graphs that are \textbf{not} isomorphic: $GNI =
-\left\{\left(G_0, G_1\right) : G_0 \text{ is \textbf{not} isomorphic to } G_1\right\} \in NP$. This class is not known
+\left\{\left(G_0, G_1\right) : G_0 \text{ is \textbf{not} isomorphic to } G_1\right\}$. This class is not known
 to be in NP. \\ 
-We can now ask the question as to how to prove to an efficient verifier that $G_0, G_1$ are not isomorphic. we will
+We can now ask the question as to how to prove to an efficient verifier that $G_0, G_1$ are not isomorphic. We will
 posit that $\text{GNI} \in IP$: Given the common input $\left(G_0, G_1\right)$, the prover, and the verifier, the verifier will
 try and find the points where (if) the prover is guessing. \\ 
 \textbf{Intuitive solution}: The verifier will create two new graphs, which are permutations on the originals, $\pi
@@ -180,7 +180,7 @@ $\displaystyle\frac{1}{2}$, as required.
 \section{Zero knowledge proofs for NP}\label{sec:zero_knowledge_proofs_for_np} % (fold)
 \begin{theorem}[]
     Assuming that OWFs exist, then any $L \in NP$ has a zero knowledge interactive proof. Furthermore, the prover's
-    strategy can be implemented in probabilistic polynomial time, provided an NP witness for membership of the ocmmon
+    strategy can be implemented in probabilistic polynomial time, provided an NP witness for membership of the common
     input. 
 
     \begin{proof}[Steps]
@@ -220,7 +220,7 @@ the following security requirements: \begin{itemize}
     $S^*$ there exists a negligible function $v \left(n\right)$ such that \[
         \Pr \left[\left(\left(v, r, v', r'\right), \text{com}\right) \gets \left\langle S^*, R \right\rangle \left(1
         ^ {n}\right) : v \ne v' \land \left(v, r\right) \text{ is consistent with com } \land \left(v', r'\right) \text{
-is consistent with com}\right]
+is consistent with com}\right] \leq v \left(n\right)
     \]
     where \[
         \text{com} \stackrel{def}{=} \text{view}_R \left[\left\langle S^*, R \right\rangle \left(1 ^ {n}\right)\right]
@@ -252,7 +252,7 @@ colouring $\psi: V \to \left\{1, 2, 3\right\}$. The protocol is as follows: \beg
     \item $\mathcal{P}$ commits to the value $\varphi \left(w\right)$ for every $w \in V$ using a statistically binding
         commitment 
     \item $\mathcal{V}$ uniformly chooses an edge $\left(u, v\right) \in E$, and sends it to $\mathcal{P}$ 
-    \item $\mathcal{P}$ revelas the openings of $\varphi \left(u\right)$, and $\varphi \left(v\right)$
+    \item $\mathcal{P}$ reveals the openings of $\varphi \left(u\right)$, and $\varphi \left(v\right)$
     \item $\mathcal{V}$ accepts \textbf{if and only if} the openings are valid, i.e. $\varphi \left(u\right), \varphi
         \left(v\right) \in \left\{1, 2, 3\right\} \land \varphi \left(u\right) \ne \varphi \left(v\right)$
 \end{itemize}
