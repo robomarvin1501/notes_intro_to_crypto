@@ -91,8 +91,8 @@ smaller keys. We then continued on to create a scheme, using \textit{Pseudo Rand
 
 \begin{exercise}
     Let there be a PRF $F_k, G_k: \left\{0, 1\right\}^n \to \left\{0, 1\right\}^n$, which means that \[
-        \forall PPT\ D: \Pr_{k \gets \left\{0, 1\right\}^n} \left[D^{F_k \left(\cdot\right)} = 1\right] -
-        \Pr_{r \gets Funcs_{n \to n}} \left[D^{r \left(\cdot\right)} = 1\right] < neg \left(n\right)
+        \forall PPT\ D: \left|\Pr_{k \gets \left\{0, 1\right\}^n} \left[D^{F_k \left(\cdot\right)} = 1\right] - \Pr_{r
+        \gets Funcs_{n \to n}} \left[D^{r \left(\cdot\right)} = 1\right]\right| < neg \left(n\right)
     \]
     In short, we cannot distinguish between the output of a PRF, and a truly random function. \\ 
     Prove / Disprove \[
