@@ -46,12 +46,12 @@
 \section{Number theory}\label{sec:number_theory} % (fold)
 Practical private key cryptography can be based on block ciphers, and hash functions. However, public key cryptography
 requires more structure. Public key cryptography is when instead of 2 people having 1 shared key between them, they both
-publish a \textit{public key} they everyone can see, and keep secret a \textit{private key}. Encryptions made with the
-public key can only be decrypted by the private key, and the inverse is also true. This obviously sounds wonderful, I
-can verify that a message comes from me by signing it with my private key, and ensure only one person can read it by
-encrypting with their public key, but to do this, we need to find a way to share around the public keys, in a trusted
-format. Also, public key encryption is \textit{hard}. What do we mean by hard? Efficiency is measured asymptotically in
-terms of the input length. \[
+publish a \textit{public key} that everyone can see, and each keep secret their own personal \textit{private key}.
+Encryptions made with the public key can only be decrypted by the private key, and the inverse is also true. This
+obviously sounds wonderful, I can verify that a message comes from me by signing it with my private key, and ensure only
+one person can read it by encrypting with their public key, but to do this, we need to find a way to share around the
+public keys, in a trusted format. Also, public key encryption is \textit{hard}. What do we mean by hard? Efficiency is
+measured asymptotically in terms of the input length. \[
     \text{input length} = O \left(\log \left(\text{input}\right)\right)
 \]
 So, we can classify problems as \enquote{easy} or \enquote{hard}, based off the input length.
@@ -85,7 +85,7 @@ Euclidean algorithm will compute $gcd \left(a, b\right), X, Y$ in polynomial tim
 
     \begin{proof}[Proof ]
         Since $p \mid N$ let us write $N = pk_1$. Similarly for $q$ we may write $N = qk_2$. From $gcd \left(p, q\right)
-        = 1$, then there exist $x, y \in \Z$ such that $px + qy = 1$. By the previously proven clain, \[
+        = 1$, then there exist $x, y \in \Z$ such that $px + qy = 1$. By the previously proven claim, \[
             p \mid qk_2 \land gcd \left(p, q\right) = 1 \implies p \mid k_2
         \]
         Let $k_2 = pk_3$, and let us substitute $kk_2 = pk_3$ into $N = qk_2$, so \[
@@ -223,7 +223,7 @@ $\left(\Z_N, + \mod N\right)$ is a commutative group, where $\Z_N = \left\{0, \d
 
 \begin{theorem}[]
     Let $\G$ be a finite group of order $m > 1$, and let $e > 0$ be an integer such that $gcd \left(e, m\right) = 1$.
-    Then, the function $f_e : \G \to \G$ defined as $f_e \left(g\right) = g ^ {e}$ is a permuation. Moreover, its
+    Then, the function $f_e : \G \to \G$ defined as $f_e \left(g\right) = g ^ {e}$ is a permutation. Moreover, its
     inverse is $f_d$ where $d = e ^ {-1} \mod m$
 
     \begin{proof}[Proof ]
@@ -240,7 +240,7 @@ Let us consider the group $\Z_N ^ {*}$: \begin{gather}
     \Z_N = \left\{0, \dots, N - 1\right\} \\ 
     \Z_N ^ {*} = \left\{a \in \left\{1, \dots, N - 1\right\} : gcd \left(a, N\right) = 1\right\}
 \end{gather}
-Ie, all the numbers less than $N$ that are invertible mod $N$.
+i.e., all the numbers less than $N$ that are invertible mod $N$.
 
 \begin{theorem}[]
     Let $N > 1$ be an integer, then \begin{itemize}
@@ -313,9 +313,9 @@ The \textbf{RSA Assumption}: For every PPT algorithm $\mathcal{A}$ there exists 
 \left(\cdot\right)$ such that \[
     \Pr \left[\mathcal{A} \left(N, e, x ^ {e} \mod N\right) = x\right] \leq v \left(n\right)
 \]
-Where $\left(N, e, d\right) \gets GenRSA \left(1 ^ {n}\right)$ and $x \gets \Z_N^*$. A possible implementation woul dbe
+Where $\left(N, e, d\right) \gets GenRSA \left(1 ^ {n}\right)$ and $x \gets \Z_N^*$. A possible implementation would be
 to generate uniform $n$ bit primes $p$ and $q$, and set $N = pq$. Then we choose an arbitrary $e$ such that $gcd
-\left(e, \phi \left(N\right)\right) = 1$ (eg, $e = 3$, or $2 ^ {16} + 1$ for efficient exponentiation).
+\left(e, \phi \left(N\right)\right) = 1$ (e.g, $e = 3$, or $2 ^ {16} + 1$ for efficient exponentiation).
 
 
 \begin{definition}[Group isomorphism]
@@ -324,7 +324,7 @@ to generate uniform $n$ bit primes $p$ and $q$, and set $N = pq$. Then we choose
         f \left(g_1 \odot g_2\right) = f \left(g_1\right) \odot f \left(g_2\right)
     \]
 \end{definition}
-$\G \cong \mathbbm{H}$ means that they are essentially the smae group (up to the efficiency of computing $f$, $f ^ {-1}$)
+$\G \cong \mathbbm{H}$ means that they are essentially the same group (up to the efficiency of computing $f$, $f ^ {-1}$)
 
 \begin{definition}[Cross product]
     $\G \times \mathbbm{H}$ is the group of ordered pairs $\left(g, h\right) \in \G \times \mathbbm{H}$ with respect to
@@ -397,7 +397,7 @@ Which is not hard, since there are so many possible solutions.
     If $\G$ is a group of prime order $p$, then $\G$ is cyclic. Moreover, each element $g \in \G \setminus
     \left\{1\right\}$ is a generator (i.e., $\G = \left\langle g \right\rangle$)
 \end{theorem}
-In particular, $\Z_p$ is sa cyclic group with respect to \textbf{addition} modulo $p$. 
+In particular, $\Z_p$ is a cyclic group with respect to \textbf{addition} modulo $p$. 
 
 \begin{theorem}[]
     If $p$ is prime, then $\Z_p ^ {*}$ is a cyclic group
